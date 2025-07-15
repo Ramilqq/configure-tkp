@@ -27,21 +27,22 @@
                     </td>
                     <td>{{ $value->description }}</td>
                     <td>
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templateModalForm" 
+                        <!-- кнопка изменить шаблон -->
+                        <button title="Изменить шаблон" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templateModalForm"
                             @click="$dispatch('templateEditOpenForm', {id : {{$value->id}} })"
-                        >Изменить <i class="bi bi-0-square"></i></button>
-
-                        <button class="btn btn-danger btn-sm"
+                        ><i class="bi bi-pencil-square"></i></button>
+                        <!-- кнопка удалить шаблон -->
+                        <button title="Удалить шаблон" class="btn btn-danger btn-sm"
                             @click="$dispatch('templateDellete', {id : {{$value->id}} })"
-                        >Удалить</button>
-
-                        <a class="btn btn-success btn-sm"
+                        ><i class="bi bi-trash"></i></button>
+                        <!-- кнопка открыть таблицу продукта -->
+                        <a  title="Открыть таблицу продуктов" class="btn btn-success btn-sm"
                             href="{{route('table-settings.product-list', ['template_id' => $value->id])}}"
-                        >Открыть</a>
-                        
-                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#templateOptionModalForm"
+                        ><i class="bi bi-view-list"></i></a>
+                        <!-- кнопка добавить опцию -->
+                        <button title="Добавить опцию" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#templateOptionModalForm"
                             @click="$dispatch('templateOptionInit', {template_id : {{$value->id}} })"
-                        >+</button>
+                        ><i class="bi bi-plus-lg"></i></button>
                         
                     </td>
                 </tr>
@@ -55,12 +56,15 @@
                                     <th style="width: 50px;">{{$option->id}}</th>
                                     <th>{{$option->name}} , {{$option->key}}</th>
                                     <th style="width: 200px;">
-                                        <button class="btn btn-danger btn-sm"
-                                            @click="$dispatch('templateOptionDellete', {id : {{$option->id}} })"
-                                        >Удалить</button>
-                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templateOptionModalForm" 
+                                        <!-- кнопка изменить опцию -->
+                                        <button title="Изменить опцию" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templateOptionModalForm" 
                                             @click="$dispatch('templateOptionEditOpenForm', {id : {{$option->id}} })"
-                                        >Изменить <i class="bi bi-0-square"></i></button>
+                                        ><i class="bi bi-pencil-square"></i></button>
+                                        <!-- кнопка удалить опцию -->
+                                        <button title="Удалить опцию" class="btn btn-danger btn-sm"
+                                            @click="$dispatch('templateOptionDellete', {id : {{$option->id}} })"
+                                        ><i class="bi bi-trash"></i></button>
+                                        
                                     </th>
                                 </tr>
                                 @empty

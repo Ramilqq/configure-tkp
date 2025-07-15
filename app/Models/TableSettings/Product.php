@@ -4,7 +4,7 @@ namespace App\Models\TableSettings;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -25,6 +25,11 @@ class Product extends Model
         static::created(function (Product $product) {
             $currency = Template::firstWhere('id', $product->template_id)->currency()->firstOrFail();
             PriceProduct::create(['product_id' => $product->id, 'currency_id' => $currency->id, 'price' => 0.0]);
+
+            $templateOption = TemplateOption::where('template_id', $product->template_id)->get();
+            foreach($templateOption as $templateOption){
+                ProductOption::create(['product_id' => $product->id, 'template_option_id' => $templateOption->id, 'value' => '']);
+            }
         });
     }
 
@@ -38,5 +43,9 @@ class Product extends Model
         return $this->hasOne(PriceProduct::class);
     }
 
+    public function productOption(): HasMany
+    {
+        return $this->hasMany(ProductOption::class, 'product_id', 'id');
+    }
 
 }

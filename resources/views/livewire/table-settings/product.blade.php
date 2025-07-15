@@ -21,8 +21,8 @@
 
         
         <hr />
-        <h1>Продукты {{ $template_id_test }}</h1>
+        <h1>Продукты по шаблону {{$title}}</h1>
         
-        <livewire:table-settings.product-list :template_id="$template_id_test" />
+        <livewire:table-settings.product-list :template_id="$template_id" />
     </div>
 </div>

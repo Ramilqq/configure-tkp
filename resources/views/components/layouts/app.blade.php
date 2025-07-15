@@ -6,7 +6,7 @@
         <base href="/" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
+
     </head>
     <body>
         <nav class="navbar navbar-expand-lg bg-light">
@@ -18,19 +18,19 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Главная</a>
+                        <a class="nav-link active" aria-current="page" href="{{route('home')}}">Главная</a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
+                        <a class="nav-link" href="{{route('table-settings.template-list')}}">Шаблон</a>
                         </li>
                         <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Таблица БД
+                            Страницы
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{route('table-settings.template-list')}}">Шаблон</a></li>
-                            <li><a class="dropdown-item" href="{{route('table-settings.product-list', ['template_id' => 1])}}">Продукты</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><a class="dropdown-item" href="{{route('configuration')}}">Конфигуратор</a></li>
+                            <li><a class="dropdown-item" href="{{route('configuration-setting')}}">Конфигуратор настройка</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
                         </ul>
