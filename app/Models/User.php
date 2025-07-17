@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -32,6 +33,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    const GUEST     = 'guest';
+    const USER      = 'user';
+    const ADMIN     = 'admin';
 
     /**
      * Get the attributes that should be cast.

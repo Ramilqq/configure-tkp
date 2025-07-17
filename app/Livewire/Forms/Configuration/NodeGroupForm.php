@@ -2,11 +2,10 @@
 
 namespace App\Livewire\Forms\Configuration;
 
-use App\Models\Configuration\ComponentGroup;
-use Livewire\Attributes\Validate;
+use App\Models\Configuration\NodeGroup;
 use Livewire\Form;
 
-class ComponentGroupForm extends Form
+class NodeGroupForm extends Form
 {
     public int $id = 0;
     public string $name = '';
@@ -15,7 +14,7 @@ class ComponentGroupForm extends Form
     protected function rules()
     {
         return [
-            'name' => 'required|min:3|max:20|unique:cfg_component_groups,name,'.$this->id,
+            'name' => 'required|min:3|max:20|unique:node_groups,name,'.$this->id,
         ];
     }
 
@@ -23,7 +22,7 @@ class ComponentGroupForm extends Form
     {
         $valideate = $this->validate();
 
-        $template = ComponentGroup::find($this->id);
+        $template = NodeGroup::find($this->id);
 
         if($template)
         {
@@ -32,7 +31,7 @@ class ComponentGroupForm extends Form
         }
         else
         {
-            $template = ComponentGroup::create($valideate);
+            $template = NodeGroup::create($valideate);
         }
         $this->reset();
         return $template;
@@ -40,7 +39,7 @@ class ComponentGroupForm extends Form
 
     public function editForm($id)
     {
-        $template = ComponentGroup::find($id);
+        $template = NodeGroup::find($id);
         $this->fill($template);
     }
 }

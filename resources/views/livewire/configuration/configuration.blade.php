@@ -186,7 +186,7 @@
                     });
                     
 
-                    document.getElementById("flush-collapse-"+item.component_group.id).appendChild(el);
+                    document.getElementById("flush-collapse-"+item.node_group.id).appendChild(el);
 
                     //container.appendChild(el);
                 });

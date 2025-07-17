@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-
 return new class extends Migration
 {
     /**
@@ -12,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('currencies', function (Blueprint $table) {
+        Schema::create('nodes', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('template_id')->constrained('templates')->onUpdate('cascade')->onDelete('cascade');
-            
-            $table->string('key')->nullable()->default(NULL);
+            $table->foreignId('node_group_id')->constrained('node_groups')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('type')->nullable()->default(NULL);
             $table->string('name')->nullable()->default(NULL);
-            $table->string('calc')->nullable()->default(NULL);
+            $table->longText('image')->nullable()->default(NULL);
+            $table->text('endpoints')->nullable()->default(NULL);
 
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('currencies');
+        Schema::dropIfExists('node');
     }
 };

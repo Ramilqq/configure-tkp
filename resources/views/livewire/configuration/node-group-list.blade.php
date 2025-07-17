@@ -16,16 +16,16 @@
                     <td style="position: sticky;left: 0;">{{ $value['name'] }}</td>
                     <td>
                         <!-- кнопка изменить группу компонента -->
-                        <button title="Изменить группу компонента" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#componentGroupModalForm"
-                            @click="$dispatch('componentGroupEditOpenForm', {id : {{$value['id']}} })"
+                        <button title="Изменить группу компонента" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nodeGroupModalForm"
+                            @click="$dispatch('nodeGroupEditOpenForm', {id : {{$value['id']}} })"
                         ><i class="bi bi-pencil-square"></i></button>
                         <!-- кнопка удалить группу компонента -->
                         <button title="Удалить  группу компонента" class="btn btn-danger btn-sm"
-                            @click="$dispatch('componentGroupDellete', {id : {{$value['id']}} })"
+                            @click="$dispatch('nodeGroupDellete', {id : {{$value['id']}} })"
                         ><i class="bi bi-trash"></i></button>
                         <!-- кнопка добавить компонент -->
-                        <button title="Добавить компонент" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#componentModalForm" id="componentModalForm_{{$value['id']}}"
-                            @click="$dispatch('componentInit', {cfg_component_group_id : {{$value['id']}} })"
+                        <button title="Добавить компонент" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#nodeModalForm" id="nodeModalForm_{{$value['id']}}"
+                            @click="$dispatch('nodeInit', {node_group_id : {{$value['id']}} })"
                         ><i class="bi bi-plus-lg"></i></button>
                     </td>
                 </tr>
@@ -35,19 +35,19 @@
                         <table class="table mb-0">
                             <p>Компоненты группы:</p>
                             <tbody>
-                                @forelse($value['components'] as $component)
+                                @forelse($value['nodes'] as $node)
                                 <tr>
-                                    <th style="width: 50px;">{{$component['id']}}</th>
-                                    <th>{{$component['name']}}</th>
-                                    <th><img src="{{$component['image']}}" /> </th>
+                                    <th style="width: 50px;">{{$node['id']}}</th>
+                                    <th>{{$node['name']}}</th>
+                                    <th><img src="{{$node['image']}}" /> </th>
                                     <th style="width: 200px;">
                                         <!-- кнопка изменить компонент -->
-                                        <button title="Изменить компонент" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#componentModalForm" 
-                                            @click="$dispatch('componentEditOpenForm', {id : {{$component['id']}} })"
+                                        <button title="Изменить компонент" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nodeModalForm" 
+                                            @click="$dispatch('nodeEditOpenForm', {id : {{$node['id']}} })"
                                         ><i class="bi bi-pencil-square"></i></button>
                                         <!-- кнопка удалить компонент -->
                                         <button title="Удалить компонент" class="btn btn-danger btn-sm" type="button"
-                                            @click="$dispatch('componentDellete', {id : {{$component['id']}} })"
+                                            @click="$dispatch('nodeDellete', {id : {{$node['id']}} })"
                                             
                                         ><i class="bi bi-trash"></i></button>
                                         

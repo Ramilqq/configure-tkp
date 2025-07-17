@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Configuration;
 
-use App\Models\Configuration\Component as ConfigurationComponent;
-use App\Models\Configuration\ComponentGroup;
+use App\Models\Configuration\Node;
+use App\Models\Configuration\NodeGroup;
 use Livewire\Component;
 
 class Configuration extends Component
@@ -11,7 +11,7 @@ class Configuration extends Component
 
     public function render()
     {
-        $node = ConfigurationComponent::query()->with('componentGroup')->get()->toArray();
+        $node = Node::query()->with('nodeGroup')->get()->toArray();
         foreach($node as $node_key => $value_node)
         {
             $node[$node_key]['endpoints'] = json_decode($node[$node_key]['endpoints'], 1);
@@ -22,7 +22,7 @@ class Configuration extends Component
                 $node[$node_key]['endpoints'][$anchor_key]['anchor'] = array_values($node[$node_key]['endpoints'][$anchor_key]['anchor']);
             }
         }
-        $groups = ComponentGroup::get()->toArray();
+        $groups = NodeGroup::get()->toArray();
         $node = json_encode($node, JSON_UNESCAPED_UNICODE);
         //dd($node);
 

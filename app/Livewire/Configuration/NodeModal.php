@@ -2,23 +2,23 @@
 
 namespace App\Livewire\Configuration;
 
-use App\Livewire\Forms\Configuration\ComponentForm;
-use App\Models\Configuration\Component;
+use App\Livewire\Forms\Configuration\NodeForm;
+use App\Models\Configuration\Node;
 use Livewire\WithFileUploads;
-use Livewire\Component as LivewireComponent;
+use Livewire\Component;
 
-class ComponentModal extends LivewireComponent
+class NodeModal extends Component
 {
     use WithFileUploads;
     
     protected $listeners = [
-        'componentEditOpenForm' => 'componentEditOpenForm',
+        'nodeEditOpenForm' => 'nodeEditOpenForm',
         'createOpenForm' => 'createOpenForm' ,
-        'componentInit' => 'componentInit',
-        'componentDellete' => 'componentDellete'
+        'nodeInit' => 'nodeInit',
+        'nodeDellete' => 'nodeDellete'
     ];
 
-    public ComponentForm $form;
+    public NodeForm $form;
 
     public function init()
     {
@@ -41,15 +41,15 @@ class ComponentModal extends LivewireComponent
         //dd(base64_encode(file_get_contents($this->form->image->getRealPath())));
         //dd($this->form->image->getRealPath());
         $valideate = $this->form->saveForm();
-        $this->dispatch('componentGroupUpdateList');
+        $this->dispatch('nodeGroupUpdateList');
     }
     
-    public function componentInit($cfg_component_group_id){
+    public function nodeInit($node_group_id){
         //dd($template_id);
-        $this->form->cfg_component_group_id = $cfg_component_group_id;
+        $this->form->node_group_id = $node_group_id;
     }
 
-    public function componentEditOpenForm($id = null)
+    public function nodeEditOpenForm($id = null)
     {
         $this->form->editForm($id);
     }
@@ -59,10 +59,10 @@ class ComponentModal extends LivewireComponent
         $this->form->reset();
     }
 
-    public function componentDellete($id)
+    public function nodeDellete($id)
     {
-        Component::find($id)->delete();
-        $this->dispatch('componentGroupUpdateList');
+        Node::find($id)->delete();
+        $this->dispatch('nodeGroupUpdateList');
     }
 
     public function mount()
@@ -74,6 +74,6 @@ class ComponentModal extends LivewireComponent
     {
         //dd($this->form);
         
-        return view('livewire.configuration.component-modal', ['data' => $this->form->endpoints_arr]);
+        return view('livewire.configuration.node-modal', ['data' => $this->form->endpoints_arr]);
     }
 }

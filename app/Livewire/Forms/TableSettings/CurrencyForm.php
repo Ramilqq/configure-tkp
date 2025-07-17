@@ -19,11 +19,10 @@ class CurrencyForm extends Form
         return [
             'template_id' => 'required|numeric|exists:templates,id',
             'key' => 'required|min:3|max:20',
-            'name' => 'required|min:3|max:200',
+            'name' => 'required|min:1|max:200',
             'calc' => 'required|integer|max:200',
         ];
     }
-
 
     public function saveForm($id = null)
     {

@@ -7,7 +7,7 @@
         </div>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$dispatch('componentGroupCreateOpenForm')">Закрыть</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$dispatch('nodeGroupCreateOpenForm')">Закрыть</button>
             <button type="submit" class="btn btn-primary">Сохранить</button>
         </div>
     </form>

@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cfg_components', function (Blueprint $table) {
+        Schema::create('node_groups', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('cfg_component_group_id')->constrained('cfg_component_groups')->onUpdate('cascade')->onDelete('cascade');
-
-            $table->string('type')->nullable()->default(NULL);
             $table->string('name')->nullable()->default(NULL);
-            $table->longText('image')->nullable()->default(NULL);
-            $table->text('endpoints')->nullable()->default(NULL);
 
             $table->timestamps();
         });
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cfg_components');
+        Schema::dropIfExists('node_groups');
     }
 };

@@ -2,18 +2,17 @@
 
 namespace App\Livewire\Forms\Configuration;
 
-use App\Models\Configuration\Component;
+use App\Models\Configuration\Node;
 use App\Services\StringTranslit;
-use Livewire\Attributes\Validate;
 use Livewire\Form;
 
-class ComponentForm extends Form
+class NodeForm extends Form
 {
     const TOP_POSITION      = -0.1;
     const BOTTOM_POSITION   = 1.1;
 
     public int $id = 0;
-    public int $cfg_component_group_id = 0;
+    public int $node_group_id = 0;
     public string $type = '';
     public string $name = '';
     public $image_upload;
@@ -38,9 +37,9 @@ class ComponentForm extends Form
     protected function rules()
     {
         return [
-            'cfg_component_group_id' => 'required|exists:cfg_component_groups,id',
-            'type' => 'required|min:3|max:20|unique:cfg_components,name,'.$this->id,
-            'name' => 'required|min:3|max:20|unique:cfg_components,name,'.$this->id,
+            'node_group_id' => 'required|exists:node_groups,id',
+            'type' => 'required|min:3|max:20|unique:nodes,name,'.$this->id,
+            'name' => 'required|min:3|max:20|unique:nodes,name,'.$this->id,
             'image_upload' => 'nullable|image|mimes:jpg,png,jpeg,svg|max:10480000|dimensions:max_height=120',
             'image' => 'required|max:10480000',
             'endpoints_arr' => 'required',
@@ -103,7 +102,7 @@ class ComponentForm extends Form
         $valideate = $this->validate();
         
         // посик для изменения если найдена модель, если нет создать новую
-        $template = Component::find($this->id);
+        $template = Node::find($this->id);
         if($template)
         {
             $template->update($valideate);
@@ -111,17 +110,17 @@ class ComponentForm extends Form
         }
         else
         {
-            $template = Component::create($valideate);
+            $template = Node::create($valideate);
         }
 
-        // сохраняние cfg_component_group_id в буфер 
-        $bufer_cfg_component_group_id = $this->cfg_component_group_id;
+        // сохраняние node_group_id в буфер 
+        $bufer_node_group_id = $this->node_group_id;
 
         // сброс всех полей
         $this->reset();
 
-        // сохранение cfg_component_group_id из буфера для повторной создании модели
-        $this->cfg_component_group_id = $bufer_cfg_component_group_id;
+        // сохранение node_group_id из буфера для повторной создании модели
+        $this->node_group_id = $bufer_node_group_id;
 
         // возвращение модели
         return $template;
@@ -129,7 +128,7 @@ class ComponentForm extends Form
 
     public function editForm($id)
     {
-        $template = Component::find($id);
+        $template = Node::find($id);
         $this->fill($template);
         $this->endpoints_arr = json_decode($this->endpoints, 1);
 
