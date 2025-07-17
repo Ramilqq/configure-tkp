@@ -30,7 +30,7 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{route('table-settings.template-list')}}">Шаблон</a></li>
                             <li><a class="dropdown-item" href="{{route('configuration')}}">Конфигуратор</a></li>
-                            <li><a class="dropdown-item" href="{{route('configuration-setting')}}">Конфигуратор настройка</a></li>
+                            <li><a class="dropdown-item" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#">Something else here</a></li>
                         </ul>

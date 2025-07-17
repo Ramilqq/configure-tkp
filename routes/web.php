@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Configuration\Configuration;
+use App\Livewire\Configuration\NodeGroup;
 use App\Livewire\Configuration\Setting;
 use App\Livewire\Fr\FrList;
 use App\Livewire\TableSettings\Product;
@@ -28,7 +29,7 @@ Route::get('table-settings/product-list/{template_id}', Product::class)->name('t
 
 
 Route::get('configuration}', Configuration::class)->name('configuration');
-Route::get('configuration/setting}', Setting::class)->name('configuration-setting');
+Route::get('configuration/setting}', NodeGroup::class)->name('configuration-node-group');
 
 
 //Route::view('table-settings/product-list-test/{id}', 'components.pages.product')->name('table-settings.product-list-test');

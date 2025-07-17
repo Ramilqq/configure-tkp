@@ -4,10 +4,10 @@ namespace App\Livewire\Configuration;
 
 use Livewire\Component;
 
-class Setting extends Component
+class NodeGroup extends Component
 {
     public function render()
     {
-        return view('livewire.configuration.setting');
+        return view('livewire.configuration.node-group');
     }
 }
