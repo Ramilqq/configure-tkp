@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->string('name')->nullable()->default(NULL);
             $table->string('key')->nullable()->default(NULL);
-            
+            $table->json('fields')->nullable()->default(NULL);
 
             $table->timestamps();
         });

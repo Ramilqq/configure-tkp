@@ -117,7 +117,7 @@ class NodeForm extends Form
         $bufer_node_group_id = $this->node_group_id;
 
         // сброс всех полей
-        $this->reset();
+        //$this->reset();
 
         // сохранение node_group_id из буфера для повторной создании модели
         $this->node_group_id = $bufer_node_group_id;

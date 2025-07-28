@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tkp\ContractOwner;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,14 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('node_groups', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('template_id');
-
-            $table->string('name')->nullable()->default(NULL);
-
-            $table->timestamps();
-        });
+        // автоматическое создание стандартных Владельцев договора
+        ContractOwner::create(['name' => 'ООО "КЭР-Инжиниринг"']);
+        ContractOwner::create(['name' => 'ООО НПП "Ру-Инжиниринг"']);
     }
 
     /**
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('node_groups');
+        //
     }
 };

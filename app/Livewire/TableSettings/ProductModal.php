@@ -8,7 +8,11 @@ use Livewire\Component;
 
 class ProductModal extends Component
 {
-    protected $listeners = ['productEditOpenForm' => 'productEditOpenForm', 'productCreateOpenForm' => 'productCreateOpenForm'];
+    protected $listeners = [
+        'productEditOpenForm' => 'productEditOpenForm',
+        'productCreateOpenForm' => 'productCreateOpenForm',
+        'productOpenList' => 'productOpenList',
+    ];
 
     public ProductForm $form;
 
@@ -21,6 +25,11 @@ class ProductModal extends Component
     public function productEditOpenForm($id = null)
     {
         $this->form->editForm($id);
+    }
+
+    public function productOpenList($template_id = 1)
+    {
+        $this->form->template_id = $template_id;
     }
 
     public function productCreateOpenForm()

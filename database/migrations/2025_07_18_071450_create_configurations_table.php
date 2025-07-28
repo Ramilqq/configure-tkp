@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('node_groups', function (Blueprint $table) {
+        Schema::create('configurations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('template_id');
 
-            $table->string('name')->nullable()->default(NULL);
+            $table->foreignId('tkp_id')->constrained('tkps')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->longText('image')->nullable()->default(NULL);
+            $table->text('saved_schema')->nullable()->default(NULL);
+
+
 
             $table->timestamps();
         });
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('node_groups');
+        Schema::dropIfExists('configurations');
     }
 };

@@ -42,7 +42,7 @@
                 <th scope="col">Цена</th>
                 
                 @foreach($table_option_col as $col)
-                    <th scope="col">{{$col}}</th>
+                    <th scope="col" style="min-width: 100px;">{{$col}}</th>
                 @endforeach
 
                 <th scope="col" style="width: 200px;position: sticky;right: 0;">Кнопки</th>
@@ -70,7 +70,22 @@
                     @foreach($value['product_option'] as $keyOption => $productOption)
                     <td>
                         
-                        <input wire:model.lazy="data.{{$key}}.product_option.{{$keyOption}}.value"  type="text" id="data_{{$key}}_product_option_{{$keyOption}}" />
+                        <select class="form-select" 
+                            wire:loading.class="bg-warning"
+                            wire:model.lazy="data.{{$key}}.product_option.{{$keyOption}}.value" 
+                            id="data_{{$key}}_product_option_{{$keyOption}}"
+                        >
+                            <option value="">NULL</option>
+                            @forelse($productOption['get_name']['fields'] as $field_key => $field_val)
+                                <option 
+                                    wire:key="data_{{$key}}_product_option_{{$keyOption}}_{{$field_key}}" 
+                                    value="{{$field_val}}"
+                                >{{ $field_val }}</option>
+                            @empty
+                                <option selected>Необходимо создать опцию</option>
+                            @endforelse
+                        </select>
+
                     </td>
                     @endforeach
 

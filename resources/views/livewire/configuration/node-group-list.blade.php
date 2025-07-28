@@ -9,11 +9,11 @@
             </tr>
         </thead>
         <tbody>
-
+            
             @forelse($data as $value)
                 <tr wire:key="{{$value['id']}}" style="vertical-align: middle;"  class="table-active">
                     <th scope="row">{{ $value['id'] }}</th>
-                    <td style="position: sticky;left: 0;">{{ $value['name'] }}</td>
+                    <td style="position: sticky;left: 0;">{{ $value['name'] }}. <small>(Для шаблона {{ $value['template']['name'] }})</small></td>
                     <td>
                         <!-- кнопка изменить группу компонента -->
                         <button title="Изменить группу компонента" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nodeGroupModalForm"
@@ -32,8 +32,7 @@
 
                 <tr>
                     <td colspan="3">
-                        <table class="table mb-0">
-                            <p>Компоненты группы:</p>
+                        <table class="table mb-5">
                             <tbody>
                                 @forelse($value['nodes'] as $node)
                                 <tr>

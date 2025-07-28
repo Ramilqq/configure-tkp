@@ -23,7 +23,7 @@ class ProductForm extends Form
     {
         return [
             'template_id' => 'required|numeric|exists:templates,id',
-            'name' => 'required|min:3|max:20',
+            'name' => 'required|min:3|max:100|unique:products,name,'.$this->id,
             'description' => 'required|min:3|max:200',
             'po' => 'required|integer|max:200',
             'kd' => 'required|integer|max:200',
@@ -49,7 +49,7 @@ class ProductForm extends Form
         {
             $product = Product::create($valideate);
         }
-        $this->reset();
+        //$this->reset();
         return $product;
     }
 

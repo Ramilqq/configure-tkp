@@ -16,7 +16,7 @@ class TemplateForm extends Form
     protected function rules()
     {
         return [
-            'name' => 'required|min:3|max:20|unique:templates,name,'.$this->id,
+            'name' => 'required|min:3|max:100|unique:templates,name,'.$this->id,
             'description' => 'required|min:3|max:200',
         ];
     }
@@ -36,7 +36,7 @@ class TemplateForm extends Form
         {
             $template = Template::create($valideate);
         }
-        $this->reset();
+        //$this->reset();
         return $template;
     }
 

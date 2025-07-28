@@ -1,6 +1,6 @@
 <div>
     <form wire:submit="saveForm">
-        
+        <x-blocks.error-message />
         <div class="mb-3">
             <label for="template_id" class="form-label">Шаблон</label>
             <select class="form-select" wire:model="form.template_id" id="template_id">

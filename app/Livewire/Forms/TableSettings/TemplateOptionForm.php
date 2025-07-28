@@ -13,13 +13,15 @@ class TemplateOptionForm extends Form
     public int $template_id = 0;
     public string $name = '';
     public string $key = '';
+    public array $fields = [];
 
     protected function rules()
     {
         return [
             'template_id' => 'required|numeric|exists:templates,id',
-            'name' => 'required|min:3|max:20',
+            'name' => 'required|min:3|max:100|unique:template_options,name,'.$this->id,
             'key' => 'required|min:3|max:200',
+            'fields.*' => 'required|min:1|max:200',
         ];
     }
 
@@ -39,7 +41,7 @@ class TemplateOptionForm extends Form
         {
             $templateOption = TemplateOption::create($valideate);
         }
-        $this->reset();
+        //$this->reset();
         return $templateOption;
     }
 
@@ -49,6 +51,16 @@ class TemplateOptionForm extends Form
         $this->fill($templateOption);
     }
 
+    public function dllField($key)
+    {
+        unset($this->fields[$key]);
+        $this->fields = array_values($this->fields);
+    }
+
+    public function addField()
+    {
+        $this->fields[] = '';
+    }
 
     
 }

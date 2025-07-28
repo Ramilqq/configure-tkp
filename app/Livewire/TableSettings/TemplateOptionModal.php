@@ -17,11 +17,13 @@ class TemplateOptionModal extends Component
     ];
 
     public function templateOptionCreate($template_id){
+        
         $this->form->template_id = $template_id;
     }
 
     public function templateOptionInit($template_id){
-        //dd($template_id);
+        $this->form->reset();
+        $this->mount();
         $this->form->template_id = $template_id;
     }
 
@@ -34,13 +36,30 @@ class TemplateOptionModal extends Component
     {   
         $this->form->key = $this->form->name;
         $valideate = $this->form->saveForm();
+        session()->flash('status', 'Post successfully updated.');
         $this->dispatch('templateUpdateList');
+        
     }
 
     public function templateOptionDellete($id = null)
     {
         TemplateOption::find($id)->delete();
         $this->dispatch('templateUpdateList');
+    }
+    
+    public function dllField($key)
+    {
+        $this->form->dllField($key);
+    }
+
+    public function addField()
+    {
+        $this->form->addField();
+    }
+
+    public function mount()
+    {
+        $this->form->fields[] = '';
     }
 
     public function render()

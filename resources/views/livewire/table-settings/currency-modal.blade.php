@@ -1,5 +1,6 @@
 <div>
     <form wire:submit="saveForm">
+        <x-blocks.error-message />
         <div class="mb-3">
             <label for="name" class="form-label">Название</label>
             <input type="text" wire:model="form.name" class="form-control" placeholder="Валюта" id="name" />

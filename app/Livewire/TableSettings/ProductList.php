@@ -13,7 +13,7 @@ use Livewire\Component;
 class ProductList extends Component
 {
 
-    protected $listeners = ['productUpdateList' => 'mount', 'productDellete' => 'productDellete', 'test' => 'test'];
+    protected $listeners = ['productUpdateList' => 'mount', 'productDellete' => 'productDellete'];
 
     public $data = [];
     public $template_id = 0;
@@ -43,7 +43,7 @@ class ProductList extends Component
             }
             break;
         }
-        
+        $this->dispatch('productOpenList', template_id: $template_id);
         $this->render();
     }
 
@@ -52,7 +52,8 @@ class ProductList extends Component
         //dd($value, $key);
         //return;
         $value_explode = explode( '.', $key);
-        
+        //dd($this->data, $value, $key, $value_explode);
+
         if ($value_explode[1] == 'price_product'){
             $priceProduct = PriceProduct::find($this->data[$value_explode[0]]['price_product']['id']);
             
@@ -91,11 +92,6 @@ class ProductList extends Component
 
 
         
-    }
-
-    public function test($id)
-    {
-        dd($id);
     }
 
     public function productDellete($id = null)

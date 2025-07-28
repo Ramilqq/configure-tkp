@@ -30,4 +30,9 @@ class Template extends Model
     {
         return $this->hasMany(TemplateOption::class, 'template_id', 'id');
     }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'template_id', 'id');
+    }
 }
