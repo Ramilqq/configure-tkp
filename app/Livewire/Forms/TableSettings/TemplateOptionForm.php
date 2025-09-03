@@ -2,24 +2,27 @@
 
 namespace App\Livewire\Forms\TableSettings;
 
+use App\Livewire\Forms\BaseForm;
 use App\Models\TableSettings\TemplateOption;
 use App\Services\StringTranslit;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
-class TemplateOptionForm extends Form
+class TemplateOptionForm extends BaseForm
 {
     public int $id = 0;
     public int $template_id = 0;
+    public int $group_id = 0;
     public string $name = '';
     public string $key = '';
     public array $fields = [];
-
+    
     protected function rules()
     {
         return [
             'template_id' => 'required|numeric|exists:templates,id',
-            'name' => 'required|min:3|max:100|unique:template_options,name,'.$this->id,
+            'group_id' => 'required|numeric|exists:group_options,id',
+            'name' => 'required|min:3|max:100',
             'key' => 'required|min:3|max:200',
             'fields.*' => 'required|min:1|max:200',
         ];
@@ -29,7 +32,7 @@ class TemplateOptionForm extends Form
     {
         $this->key = StringTranslit::transliterate($this->name);
         $valideate = $this->validate();
-
+        //dd($valideate);
         $templateOption = TemplateOption::find($this->id);
 
         if($templateOption)
@@ -61,6 +64,5 @@ class TemplateOptionForm extends Form
     {
         $this->fields[] = '';
     }
-
     
 }

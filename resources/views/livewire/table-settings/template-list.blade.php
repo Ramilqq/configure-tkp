@@ -54,8 +54,8 @@
                                 @forelse($value->options as $option)
                                 <tr>
                                     <th style="width: 50px;">{{$option->id}}</th>
-                                    <th>{{$option->name}} , {{$option->key}}</th>
-                                    <th style="width: 200px;">
+                                    <td>{{$option->name}}</td>
+                                    <td style="width: 200px;">
                                         <!-- кнопка изменить опцию -->
                                         <button title="Изменить опцию" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templateOptionModalForm" 
                                             @click="$dispatch('templateOptionEditOpenForm', {id : {{$option->id}} })"
@@ -65,7 +65,7 @@
                                             @click="$dispatch('templateOptionDellete', {id : {{$option->id}} })"
                                         ><i class="bi bi-trash"></i></button>
                                         
-                                    </th>
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr>

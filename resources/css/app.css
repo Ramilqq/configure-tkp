@@ -18,3 +18,18 @@
 small {
     font-style: italic;
 }
+
+
+.btn-groups{
+    display: flex;
+}
+
+.btn-groups div button{
+    margin: 1px;
+}
+
+
+.table-tr-th{
+    font-size: 12px;
+}
+

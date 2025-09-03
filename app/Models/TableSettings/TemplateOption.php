@@ -9,6 +9,7 @@ class TemplateOption extends Model
 {
     protected $fillable = [
         'template_id',
+        'group_id',
         'name',
         'key',
         'fields'
@@ -16,6 +17,10 @@ class TemplateOption extends Model
 
     protected $casts = [
         'fields' => 'array',
+    ];
+
+    protected $attributes = [
+        'fields' => '{}',
     ];
 
     protected static function booted(): void
@@ -31,6 +36,11 @@ class TemplateOption extends Model
     public function productOptions(): HasMany
     {
         return $this->hasMany(ProductOption::class, 'template_option_id', 'id');
+    }
+
+    public function groups(): HasMany
+    {
+        return $this->hasMany(TemplateOption::class, 'group_id', 'id');
     }
 
 }

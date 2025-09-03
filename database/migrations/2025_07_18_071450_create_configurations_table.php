@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('configurations', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('tkp_id')->constrained('tkps')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('tkp_version')->constrained('tkps', 'tkp_version')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->longText('image')->nullable()->default(NULL);
-            $table->text('saved_schema')->nullable()->default(NULL);
+            $table->string('image')->nullable()->default(NULL);
+            $table->longText('saved_schema')->nullable()->default(NULL);
 
 
 

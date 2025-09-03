@@ -1,9 +1,8 @@
 <div>
     <div>
-
-
         <script src="https://unpkg.com/jsplumb@2.15.6/dist/js/jsplumb.min.js"></script>
         <script src="assets/html-to-image.min.js"></script>
+        
         <!--script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script-->
 
         <style>
@@ -113,7 +112,8 @@
                     <button class="btn btn-secondary w-100 mb-2" onclick="saveAsImage()">Сохранить как изображение</button>
                     <button class="btn btn-secondary w-100 mb-2" onclick="saveData()">Сохранить схему</button>
                     <button class="btn btn-secondary w-100 mb-2" onclick="loadData()">Загрузить схему</button>
-                    <button class="btn btn-secondary w-100" onclick="chekData()">Проверить данные</button>
+                    <button class="btn btn-secondary w-100 mb-2" onclick="chekData()">Проверить данные</button>
+                    <button class="btn btn-success w-100 mb-2"   onclick="nextPage()">Далее</button>
                 </div>
                 <div class="col-md-10" id="canvas-wrapper" >
 
@@ -122,26 +122,46 @@
                     <button class="btn btn-sm btn-moove-up"    onclick="zoomUp()"><i class="bi bi-caret-up"></i></button>
                     <button class="btn btn-sm btn-moove-down"  onclick="zoomDown()"><i class="bi bi-caret-down"></i></button>
 
-                    <div id="canvas" wire:loading.class="your-canvas-wrapper opacity-50"></div>
+                    <div id="canvas"></div>
+                    <div id="canvas2"></div>
                     
                 </div>
             </div>
         </div>
-        {{$width}}
+
         <!-- окно для данных узлов -->
         <div class="modal fade" id="editModal" tabindex="-1" wire:ignore.self>
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header" wire:ignore>
-                        <h5 class="modal-title" id="modal-title"></h5>
+                        <h5 class="modal-title" id="modal-title-node"></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     
                     <div class="modal-body" wire:loading.class="opacity-50">
-                        <input type="text" id="width" class="form-control mb-2" placeholder="width" wire:model="width">
-                        <input type="text" id="modal-input1" class="form-control mb-2" placeholder="Название или тип">
-                        <input type="text" id="modal-input2" class="form-control mb-2" placeholder="Дополнительно">
+                        
+                        
 
+                        <div class="row g-3 align-items-center pb-1">
+                            <div class="col-auto">
+                                Название
+                            </div>
+                            <div class="col-auto" style="margin-left:auto;">
+                                <input type="text" id="modal-input1" class="form-control mb-2" placeholder="Название или тип">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 align-items-center pb-1">
+                            <div class="col-auto">
+                                Дополнительно
+                            </div>
+                            <div class="col-auto" style="margin-left:auto;">
+                                <input type="text" id="modal-input2" class="form-control mb-2" placeholder="Дополнительно">
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div style="width: 100%; text-align: center;">Фильтр добавления продукта</div>
 
                         <form wire:submit="searchProductForm">
                             @forelse($product_filter_select as $p_filter_key => $p_filter_value)
@@ -156,8 +176,9 @@
                                         name="{{$p_filter_key}}"
                                         wire:model="getData.{{$p_filter_value['key']}}"
                                     >
-                                        <option value="" selected>---</option>
+                                        <option value="" wire:key="product_filter_field_null">---</option>
                                         @forelse($p_filter_value['fields'] as $fields_key => $fields_val)
+                                        
                                             <option value="{{$fields_val}}" wire:key="product_filter_field_{{$fields_key}}">{{$fields_val}}</option>
                                         @empty
                                             <option value="">Нет данных</option>
@@ -169,7 +190,6 @@
                             @empty
                                 <p>Нет фильтров для выбора</p>
                             @endforelse
-                            <button type="submit"> submit </button>
                         </form>
 
                     </div>
@@ -195,15 +215,32 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header" wire:ignore>
-                        <h5 class="modal-title" id="modal-title"></h5>
+                        <h5 class="modal-title" id="modal-title-conn"></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
 
 
+                        <div class="row g-3 align-items-center pb-1">
+                            <div class="col-auto">
+                                Название
+                            </div>
+                            <div class="col-auto" style="margin-left:auto;">
+                                <input type="text" id="modal-input10" class="form-control mb-2" placeholder="Кабель">
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 align-items-center pb-1">
+                            <div class="col-auto">
+                                Длинна
+                            </div>
+                            <div class="col-auto" style="margin-left:auto;">
+                                <input type="text" id="modal-input11" class="form-control mb-2" placeholder="1 метр">
+                            </div>
+                        </div>
 
-                        <input type="text" id="modal-input10" class="form-control mb-2" placeholder="Название или тип cable">
-                        <input type="text" id="modal-input11" class="form-control mb-2" placeholder="Название или тип cable">
+                        <hr />
+                        <div style="width: 100%; text-align: center;">Фильтр добавления продукта</div>
 
                         <form wire:submit="searchProductForm">
                             @forelse($product_filter_select as $p_filter_key => $p_filter_value)
@@ -231,7 +268,6 @@
                             @empty
                                 <p>Нет фильтров для выбора</p>
                             @endforelse
-                            <button type="submit"> submit </button>
                         </form>
 
                         
@@ -244,13 +280,6 @@
                 </div>
             </div>
         </div>
-        
-
-
-        
-
-
-
 
 
         <script>        
@@ -309,8 +338,10 @@
                     page: {
                             width: 0,
                             height: 0,
-                        }
+                        },
                 };
+                savedSchema = component.get('saved_schema');
+
                 
                 const canvas = document.getElementById("canvas");
                 // Настройка jsPlumb инстанса
@@ -336,10 +367,6 @@
                 let modalTarget = null;
                 let modalType = null;
                 let modalId = null;
-
-                // инициализация переменных
-                savedSchema.page.width = getWidth();
-                savedSchema.page.height = getHeight();
 
                 // Рендер списка компонентов слева
                 function renderComponents() {
@@ -369,8 +396,6 @@
                 canvas.addEventListener("drop", e => {
                     e.preventDefault();
                     const type = e.dataTransfer.getData("type");
-                    const template_id = e.dataTransfer.getData("template_id");
-                    const node_id = e.dataTransfer.getData("template_id");
                     createNode(type, e.offsetX, e.offsetY);
                     positionUpdate();
                 });
@@ -379,7 +404,7 @@
                     const settings = nodeSettings.find(n => n.type === type);
                     if (!settings) return;
                     const node = document.createElement("div");
-                    const id = savedId || "node" + nodeIdCounter++;
+                    const id = savedId || "node" + Date.now(); //nodeIdCounter++;
                     node.className = "node bg-danger";
                     node.title = "Нет привязки к продукту";
                     node.id = id;
@@ -403,7 +428,7 @@
                         modalId = id;
                         document.getElementById("modal-input1").value = node.dataset.name;
                         document.getElementById("modal-input2").value = node.dataset.extra;
-                        document.getElementById("modal-title").innerText = "Редактировать узел";
+                        document.getElementById("modal-title-node").innerText = "Редактировать узел";
 
                         Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
 
@@ -432,7 +457,7 @@
                             uuid: endpointUUID,
                             isSource: ep.isSource,
                             isTarget: ep.isTarget,
-                            maxConnections: 1
+                            maxConnections: 100
                         });
                     });
                     if (!savedSchema.nodes.find(n => n.id === id)) {
@@ -446,6 +471,7 @@
                             product_id: 0,
                             template_id: settings.node_group.template.id,
                             filter_fields: [],
+                            //count: 1,
                         });
 
                     }
@@ -495,7 +521,7 @@
                         const currentParams = conn.getParameter("params") || {};
                         document.getElementById("modal-input10").value = currentParams.type || "";
                         document.getElementById("modal-input11").value = currentParams.length || "";
-                        document.getElementById("modal-title").innerText = "Редактировать соединение";
+                        document.getElementById("modal-title-conn").innerText = "Редактировать соединение";
 
                         Livewire.dispatch('updateFilter', { template_id: template_id, conn_id: conn_id });
 
@@ -578,12 +604,15 @@
                                 const reverse = c.sourceEndpoint === targetUUID && c.targetEndpoint === sourceUUID;
                                 return !(forward || reverse); // Удаляем, если найдено в любом направлении
                             });
+                            
+                             console.log(modalTarget);
+
+                            // Отправляем событие Livewire, что элемент удалён (по ID соединения)
+                            Livewire.dispatch('deleteProduct', { id: modalTarget.id });
 
                             // Обновляем Livewire-состояние на сервере (передаём актуальную схему)
                             component.set('saved_schema', savedSchema);
 
-                            // Отправляем событие Livewire, что элемент удалён (по ID соединения)
-                            Livewire.dispatch('deleteProduct', { id: modalTarget.id });
                         } catch (err) {
                             // Если произошла ошибка при удалении соединения — логируем её
                             console.error("Ошибка при удалении соединения:", err);
@@ -601,11 +630,12 @@
                         // Также удаляем все соединения, где этот узел был источником или приёмником
                         savedSchema.connections = savedSchema.connections.filter(c => c.source !== modalTarget.id && c.target !== modalTarget.id);
 
+                        // Отправляем сигнал Livewire, что продукт удалён (по ID узла)
+                        Livewire.dispatch('deleteProduct', { id: modalTarget.id });
+                        
                         // Обновляем Livewire-состояние (обновлённую схему)
                         component.set('saved_schema', savedSchema);
 
-                        // Отправляем сигнал Livewire, что продукт удалён (по ID узла)
-                        Livewire.dispatch('deleteProduct', { id: modalTarget.id });
                     }
                 }
                 // Сохранить схему (пока только в консоль)
@@ -613,10 +643,12 @@
                     component.set('saved_schema', savedSchema);
                     console.log("Текущая схема:", JSON.stringify(savedSchema, null, 2));
                     console.log("Текущая схема:", JSON.stringify(instance.connect, null, 2));
+                    
                 }
                 // обновление после перемещения
                 function positionUpdate() {
                     component.set('saved_schema', savedSchema);
+                    
                 }
                 
                 // 
@@ -626,9 +658,6 @@
 
                 // Загрузка схемы из savedSchema
                 function loadData() {
-
-                    //Livewire.dispatch('loadProduct');
-                    //console.log(savedSchema);
 
                     instance.deleteEveryConnection();
                     instance.deleteEveryEndpoint();
@@ -663,9 +692,12 @@
 
                     htmlToImage
                         .toJpeg(document.getElementById('canvas'), {
-                            quality: 0.99
+                            quality: 1,
+                            pixelRatio: 3
                         })
                         .then(function(dataUrl) {
+                            
+                            //скачать файл локально 
                             var link = document.createElement('a');
                             link.download = 'my-image-name.jpeg';
                             link.href = dataUrl;
@@ -675,11 +707,53 @@
                             instance.selectEndpoints({}).each(ep => {
                                 if (ep.connections.length === 0 && ep.canvas) {
                                     ep.canvas.style.display = 'block';
-                                    //console.log(ep);
                                 }
                             });
+                        }).catch(error => {
+                            console.error("Caught error:", error.message || error);
                         });
                 }
+
+                // продолжить оформление ткп с сохранением изображения на сервере
+                function nextPage() {
+                    
+                    // скрывать пустые точки подключения перед созданием изображения
+                    instance.selectEndpoints({}).each(ep => {
+                        if (ep.connections.length === 0 && ep.canvas) {
+                            ep.canvas.style.display = 'none';
+                            //console.log(ep);
+                        }
+                    });
+
+                    htmlToImage
+                        .toJpeg(document.getElementById('canvas'), {
+                            quality: 1,
+                            pixelRatio: 3
+                        })
+                        .then(function(dataUrl) {
+                            // загрузить на сервер
+                            const base64 = dataUrl.replace(/^data:image\/jpeg;base64,/, '');
+                            const filename = 'canvas-' + Date.now() + '.jpeg';
+
+                            window.Livewire.dispatch('uploadImage', {
+                                base64: base64,
+                                //filename: filename
+                            });
+
+                            // открывать пустые точки подключения после созданием изображения
+                            instance.selectEndpoints({}).each(ep => {
+                                if (ep.connections.length === 0 && ep.canvas) {
+                                    ep.canvas.style.display = 'block';
+                                }
+                            });
+                        }).catch(error => {
+                            console.error("Caught error:", error.message || error);
+                        });
+                }
+                
+
+
+
 
                 function zoomRight() {
                     savedSchema.page.width = savedSchema.page.width + 100;
@@ -698,14 +772,6 @@
                     savedSchema.page.height = savedSchema.page.height + 100;
                     canvas.style.height = savedSchema.page.height + 'px';
                 }
-
-                function getHeight() {
-                    return canvas.offsetHeight;
-                }
-                function getWidth() {
-                    return canvas.offsetWidth;
-                }
-
 
                 Livewire.on('saved_schema-updated', () => {
                     //savedSchema = JSON.parse(JSON.stringify(component.get('saved_schema')));
@@ -729,8 +795,6 @@
                     });*/
                 }
 
-
-
                 window.zoomUp = zoomUp;
                 window.zoomDown = zoomDown;
                 window.zoomLeft = zoomLeft;
@@ -738,6 +802,7 @@
                 window.saveAsImage = saveAsImage;
                 window.loadData = loadData;
                 window.saveData = saveData;
+                window.nextPage = nextPage;
                 window.chekData = chekData;
                 window.deleteModalTarget = deleteModalTarget;
                 window.saveModal = saveModal;
@@ -745,12 +810,25 @@
                 window.component = component;
 
                 renderComponents();
+
+                
+                
+                if(savedSchema.nodes)
+                {
+                    loadData();
+                    updateColor();
+                }
+                
+                
+
             });
 
             // инициализация
             document.addEventListener('livewire:updated', () => {
                 console.log('livewire:updated!');
             });
+
+            
         </script>
 
         

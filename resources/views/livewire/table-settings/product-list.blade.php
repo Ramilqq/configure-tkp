@@ -1,118 +1,202 @@
 <div class="table-responsive">
+
     <style>
-
-        input {
-            background: #e5e5e5;
-            border: 0;
-        }
-
-        input:focus {
-            background:rgb(255, 255, 255);
-            box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5); /* Добавление свечения */
-            outline: none;  /* Удаление контура */
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            field-sizing: content;
+        .disable-table{
+            opacity: 0.6;
+            pointer-events: none;
         }
     </style>
-
     <x-blocks.error-message />
-    
+
     <table class="table">
         <thead>
-            <tr>
-                <th scope="col" style="width: 50px;">ID</th>
-                <th scope="col" style="width: 100px;">Шаблон</th>
-                <th scope="col" style="width: 200px;position: sticky;left: 0;">Имя</th>
-                <th scope="col">Описание</th>
+        <tr>
+            <th style="width:50px;">ID</th>
+            <th style="width:100px;">Шаблон</th>
 
-                <th scope="col">ПО</th>
-                <th scope="col">КД</th>
-                <th scope="col">ПИР</th>
-                <th scope="col">ПНР ПО</th>
-                <th scope="col">ПНР</th>
-                <th scope="col">СМР ШМР</th>
+            {{-- Колонка Имя --}}
+            <th style="width:200px;position:sticky;left:0;">
+                Имя
+                <input class="form-control form-control-sm mt-1"
+                       type="text"
+                       placeholder="Поиск..."
+                       wire:model.live.debounce.400ms="filters.name">
+            </th>
 
-                <th scope="col">Цена</th>
-                
-                @foreach($table_option_col as $col)
-                    <th scope="col" style="min-width: 100px;">{{$col}}</th>
-                @endforeach
+            {{-- Колонка Описание --}}
+            <th>
+                Описание
+                <input class="form-control form-control-sm mt-1"
+                       type="text"
+                       placeholder="Поиск..."
+                       wire:model.live.debounce.400ms="filters.description">
+            </th>
 
-                <th scope="col" style="width: 200px;position: sticky;right: 0;">Кнопки</th>
-            </tr>
-        </thead>
-        <tbody>
+            @php
+                $engKeys = collect($products->items())
+                    ->first()?->engineering ? array_keys(collect($products->items())->first()->engineering) : [];
+            @endphp
 
-            @forelse($data as $key => $value)
-                <tr wire:key="{{$data[$key]['id']}}" style="vertical-align: middle;"  class="table-active">
-                    <th scope="row">{{ $data[$key]['id'] }}</th>
-                    <td>{{ $data[$key]['template']['name'] }}  </td>
-                    
-                    <td style="position: sticky;left: 0;"> <input wire:model.lazy="data.{{$key}}.name"  type="text" id="data_name_{{$key}}" /></td>
-                    <td style="width: 100%;"><input wire:model.lazy="data.{{$key}}.description"  type="text" id="data_description_{{$key}}" /></td>
+            {{-- Динамические колонки ENGINEERING --}}
+            @foreach($engKeys as $k)
+                <th>
+                    {{ $k }}
+                    <input class="form-control form-control-sm mt-1"
+                           type="text"
+                           placeholder="Фильтр…"
+                           wire:model.live.debounce.400ms="filters.engineering.{{ $k }}">
+                </th>
+            @endforeach
 
-                    <td><input wire:model.lazy="data.{{$key}}.po"  type="text" id="data_po_{{$key}}" /></td>
-                    <td><input wire:model.lazy="data.{{$key}}.kd"  type="text" id="data_kd_{{$key}}" /></td>
-                    <td><input wire:model.lazy="data.{{$key}}.pir"  type="text" id="data_pir_{{$key}}" /></td>
-                    <td><input wire:model.lazy="data.{{$key}}.pnr_po"  type="text" id="data_pnr_po_{{$key}}" /></td>
-                    <td><input wire:model.lazy="data.{{$key}}.pnr"  type="text" id="data_pnr_{{$key}}" /></td>
-                    <td><input wire:model.lazy="data.{{$key}}.smr_shmr"  type="text" id="data_smr_shmr_{{$key}}" /></td>
+            {{-- Цена + промежуток --}}
+            <th style="min-width:140px;">
+                Цена
+                <div class="d-flex gap-1 mt-1">
+                    <input class="form-control form-control-sm"
+                           type="number" step="0.01" placeholder="от"
+                           wire:model.live.debounce.400ms="filters.price_from">
+                    <input class="form-control form-control-sm"
+                           type="number" step="0.01" placeholder="до"
+                           wire:model.live.debounce.400ms="filters.price_to">
+                </div>
+            </th>
 
-                    <td> <input id="data_price_product_{{$key}}" wire:model.change="data.{{$key}}.price_product.price" type="text"/></td>
+            <th style="min-width:140px;">
+                Валюта
+                <select class="form-select form-select-sm mt-1"
+                        wire:model.live.debounce.200ms="filters.currency">
+                    <option value="">Все</option>
 
-                    @foreach($value['product_option'] as $keyOption => $productOption)
-                    <td>
-                        
-                        <select class="form-select" 
-                            wire:loading.class="bg-warning"
-                            wire:model.lazy="data.{{$key}}.product_option.{{$keyOption}}.value" 
-                            id="data_{{$key}}_product_option_{{$keyOption}}"
-                        >
-                            <option value="">NULL</option>
-                            @forelse($productOption['get_name']['fields'] as $field_key => $field_val)
-                                <option 
-                                    wire:key="data_{{$key}}_product_option_{{$keyOption}}_{{$field_key}}" 
-                                    value="{{$field_val}}"
-                                >{{ $field_val }}</option>
-                            @empty
-                                <option selected>Необходимо создать опцию</option>
-                            @endforelse
-                        </select>
+                    {{-- только значения из TemplateOption->fields --}}
+                    @php
+                        $product = new \App\Models\TableSettings\Product;
+                    @endphp
 
-                    </td>
+                    @foreach(($product->allCurrency() ?? []) as $v)
+                        <option value="{{ $v }}">{{ $v }}</option>
                     @endforeach
 
+                    {{-- (опционально) показать пункт "Пусто" для незаполненных опций
+                    <option value="__EMPTY__">Пусто</option>
+                    --}}
+                </select>
+            </th>
 
-                    <td style="position: sticky;right: 0;">
-                        <button title="Изменить продукт" class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#productModalForm" 
-                            @click="$dispatch('productEditOpenForm', {id : {{$data[$key]['id']}} })"
-                        ><i class="bi bi-pencil-square"></i></button>
+            {{-- Динамические колонки ОПЦИЙ --}}
+            @foreach($table_option_col as $key => $val)
+                <th style="min-width:160px;">
+                    {{ $val }}
+                    <select class="form-select form-select-sm mt-1"
+                            wire:model.live.debounce.200ms="filters.options.{{ $key }}">
+                        <option value="">Все</option>
 
-                        <button title="Удалить продукт" class="btn btn-danger btn-sm"
-                            @click="$dispatch('productDellete', {id : {{$data[$key]['id']}} })"
-                        ><i class="bi bi-trash"></i></button>
+                        {{-- только значения из TemplateOption->fields --}}
+                        @foreach(($optionChoices[$key] ?? []) as $v)
+                            <option value="{{ $v }}">{{ $v }}</option>
+                        @endforeach
+
+                        {{-- (опционально) показать пункт "Пусто" для незаполненных опций
+                        <option value="__EMPTY__">Пусто</option>
+                        --}}
+                    </select>
+                </th>
+            @endforeach
+
+            <th style="width:260px;position:sticky;right:0;">
+                Действия
+                <div class="d-flex gap-2 mt-1">
+                    <button class="btn btn-outline-secondary btn-sm" wire:click="resetFilters">Сброс</button>
+                    <select class="form-select form-select-sm" style="width:auto" wire:model="perPage">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </th>
+        </tr>
+        </thead>
+
+        <tbody wire:loading.class="disable-table">
+        @forelse($products as $product)
+            <tr wire:key="row-{{ $product->id }}" class="table-active" style="vertical-align:middle;">
+                <th>{{ $product->id }}</th>
+                <td>{{ $product->template->name ?? '' }}</td>
+
+                <td style="position:sticky;left:0;">
+                    <input type="text"
+                           value="{{ $product->name }}"
+                           wire:change="saveProductField({{ $product->id }}, 'name', $event.target.value)">
+                </td>
+
+                <td>
+                    <input type="text"
+                           value="{{ $product->description }}"
+                           wire:change="saveProductField({{ $product->id }}, 'description', $event.target.value)">
+                </td>
+
+                @foreach(($product->engineering ?? []) as $engKey => $engVal)
+                    <td>
+                        <input type="text"
+                               value="{{ $engVal }}"
+                               wire:change="saveEngineering({{ $product->id }}, '{{ $engKey }}', $event.target.value)">
                     </td>
-                </tr>
+                @endforeach
 
-            @empty
-                <tr>
-                    <td colspan="4">Нет записей</td>
-                </tr>
-            @endforelse
+                <td>
+                    <input type="number" step="0.01"
+                           value="{{ $product->price }}"
+                           wire:change="saveProductField({{ $product->id }}, 'price', $event.target.value)">
+                </td>
+                
+                
+                <td>
+                    <select class="form-select"
+                            wire:change="saveProductField({{ $product->id }}, 'currency', $event.target.value)">
+                        <option value="">NULL</option>
+                        @foreach(($product->allCurrency() ?? []) as $currency)
+                            <option value="{{ $currency }}" @selected($product->currency === $currency)>{{ $currency }}</option>
+                        @endforeach
+                    </select>
+                </td>
 
+
+                @foreach($product->productOption as $opt)
+                    <td>
+                        <select class="form-select"
+                                
+                                wire:change="saveProductOption({{ $opt->id }}, $event.target.value)">
+                            <option value="">NULL</option>
+                            @foreach(($opt->getName->fields ?? []) as $field)
+                                <option value="{{ $field }}" @selected($opt->value === $field)>{{ $field }}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                @endforeach
+
+                <td style="position:sticky;right:0;">
+                    <button class="btn btn-primary btn-sm"
+                            title="Изменить продукт"
+                            data-bs-toggle="modal"
+                            data-bs-target="#productModalForm"
+                            @click="$dispatch('productEditOpenForm', {id: {{ $product->id }} })">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+
+                    <button class="btn btn-danger btn-sm"
+                            title="Удалить продукт"
+                            wire:click="productDellete({{ $product->id }})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="100">Нет записей</td></tr>
+        @endforelse
         </tbody>
     </table>
 
-
-
-
-    
+    <div class="mt-3">
+        {{ $products->onEachSide(1)->links('components.blocks.pagination') }}
+    </div>
 </div>
-

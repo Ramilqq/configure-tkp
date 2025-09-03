@@ -24,17 +24,28 @@
                         <a class="nav-link" href="{{route('table-settings.template-list')}}">Шаблон</a>
                         </li>
                         <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Страницы
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{route('table-settings.template-list')}}">Шаблон</a></li>
-                            <li><a class="dropdown-item" href="{{route('configuration')}}">Конфигуратор</a></li>
-                            <li><a class="dropdown-item" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Страницы
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{route('table-settings.template-list')}}">Шаблон</a></li>
+                                <li><a class="dropdown-item" href="{{route('configuration')}}">Конфигуратор</a></li>
+                                <li><a class="dropdown-item" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
                         </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                ТКП
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{route('tkp.contact')}}">Контактная информация</a></li>
+                                <li><a class="dropdown-item" href="{{route('tkp.contact.edit', ['id' => '1', 'tkp_version' => 1753691078])}}">Контактная информация 123</a></li>
+                            </ul>
+                        </li>
+
                         <li class="nav-item">
                         <a class="nav-link disabled">Disabled</a>
                         </li>

@@ -12,6 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        return;
         Schema::create('currencies', function (Blueprint $table) {
             $table->id();
 

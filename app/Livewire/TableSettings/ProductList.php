@@ -1,115 +1,209 @@
 <?php
 
+// App/Livewire/TableSettings/ProductList.php
+
 namespace App\Livewire\TableSettings;
 
-use App\Livewire\Forms\TableSettings\PriceProductForm;
-use App\Livewire\Forms\TableSettings\ProductForm;
-use App\Livewire\Forms\TableSettings\ProductOptionForm;
-use App\Models\TableSettings\PriceProduct;
-use App\Models\TableSettings\Product;
-use App\Models\TableSettings\ProductOption;
 use Livewire\Component;
+use Livewire\WithPagination;
+use App\Models\TableSettings\Product;
+use App\Models\TableSettings\TemplateOption;
+use App\Models\TableSettings\ProductOption;
+use Illuminate\Support\Str;
 
 class ProductList extends Component
 {
+    use WithPagination;
 
-    protected $listeners = ['productUpdateList' => 'mount', 'productDellete' => 'productDellete'];
+    protected $listeners = [
+        'productUpdateList' => '$refresh',
+        'productDellete'    => 'productDellete',
+    ];
 
-    public $data = [];
-    public $template_id = 0;
+    public int $template_id = 0;
+    public int $perPage = 10;
+    public array $table_option_col = [];
+    public array $optionChoices = [];
     
-    public $table_option_col = [];
-
-    public PriceProductForm $formPriceProduct;
-    public ProductOptionForm $formProductOption;
-    public ProductForm $formProduct;
+    /** ФИЛЬТРЫ */
+    public array $filters = [
+        'name'        => '',
+        'description' => '',
+        'price_from'  => null,
+        'price_to'    => null,
+        'currency'    => null,
+        // динамические:
+        // 'engineering' => [ 'Design' => '...', 'QA' => '...' ],
+        // 'options'     => [ 'color' => 'Red', 'size' => 'XL' ],
+    ];
 
     public function mount($template_id)
     {
-        $this->table_option_col = [];
+        $this->template_id = (int) $template_id;
 
-        $this->template_id = $template_id;
-        //dd($template_id);
-        $this->data = Product::where('template_id', $template_id)
-            ->with('template')
-            ->with('priceProduct')
-            ->with('priceProduct.currency')
-            ->with('productOption')
-            ->with('productOption.getName')
-            ->get()->toArray();
-        foreach ($this->data as $data){
-            foreach($data['product_option'] as $options){
-                $this->table_option_col[] = $options['get_name']['name'];
-            }
-            break;
-        }
-        $this->dispatch('productOpenList', template_id: $template_id);
-        $this->render();
+        // Названия колонок (key => name)
+        $this->table_option_col = TemplateOption::query()
+            ->where('template_id', $this->template_id)
+            ->pluck('name', 'key')
+            ->all();
+
+        // Варианты значений из справочника для каждой опции
+        $this->optionChoices = TemplateOption::query()
+            ->where('template_id', $this->template_id)
+            ->get(['key','fields'])
+            ->mapWithKeys(function ($opt) {
+                // $opt->fields уже массив (см. каст). На всякий случай нормализуем.
+                $vals = is_array($opt->fields) ? $opt->fields : (json_decode($opt->fields ?? '[]', true) ?: []);
+                $vals = array_values(array_unique(array_filter($vals, fn($v) => $v !== null && $v !== '')));
+                sort($vals, SORT_NATURAL | SORT_FLAG_CASE);
+                return [$opt->key => $vals];
+            })
+            ->toArray();
+
+        // Инициализация контейнеров под фильтры
+        $this->filters['engineering'] = $this->filters['engineering'] ?? [];
+        $this->filters['options']     = $this->filters['options']     ?? [];
     }
 
-    public function updatedData($value, $key){
-        
-        //dd($value, $key);
-        //return;
-        $value_explode = explode( '.', $key);
-        //dd($this->data, $value, $key, $value_explode);
-
-        if ($value_explode[1] == 'price_product'){
-            $priceProduct = PriceProduct::find($this->data[$value_explode[0]]['price_product']['id']);
-            
-            $this->formPriceProduct->fill($this->data[$value_explode[0]]['price_product']);
-
-            $valideate = $this->formPriceProduct->validate();
-            
-            $priceProduct->update($valideate);
-            $priceProduct->save();
-        }
-        elseif ($value_explode[1] == 'template'){
-
-        }
-        elseif ($value_explode[1] == 'product_option'){
-            $productOption = ProductOption::find($this->data[$value_explode[0]]['product_option'][$value_explode[2]]['id']);
-            
-            $this->formProductOption->fill($this->data[$value_explode[0]]['product_option'][$value_explode[2]]);
-
-            $valideate = $this->formProductOption->validate();
-            
-            $productOption->update($valideate);
-            $productOption->save();
-        }
-        else{
-            $product = Product::find($this->data[$value_explode[0]]['id']);
-
-            $this->formProduct->fill($this->data[$value_explode[0]]);
-
-            $valideate = $this->formProduct->validate();
-            
-            $product->update($valideate);
-
-            //$product->{$value_explode[1]} = $value;
-            $product->save();
-        }
-
-
-        
-    }
-
-    public function productDellete($id = null)
+    /** При любом изменении фильтров — на первую страницу */
+    public function updatedFilters()
     {
-        Product::find($id)->delete();
+        $this->resetPage();
+    }
 
-        $this->mount($this->template_id);
+    public function updatingPerPage()
+    {
+        $this->resetPage();
     }
 
     public function render()
     {
-        
-        //$data = Product::all();
-        //$this->data = Product::query()->with('template')->with('priceProduct')->with('PriceProduct.currency')->get();
-        //dd($this->data);
-        //dd($this->table_option_col);
-        //components.pages.product
+        //$product = new \App\Models\TableSettings\Product;
+        //dd($product->getManufacturers());
 
-        return view('livewire.table-settings.product-list', ['data' => $this->data]);
+        $query = Product::query()
+            ->where('template_id', $this->template_id)
+            ->select(['id','template_id','name','description','price','currency','engineering'])
+            ->with([
+                'template:id,name',
+                'productOption' => function ($q) {
+                    $q->select(['id','product_id','template_option_id','value'])
+                      ->with(['getName:id,key,name,fields']);
+                },
+            ]);
+
+        /** Текстовые поля */
+        if ($name = trim((string)$this->filters['name'])) {
+            $query->where('name', 'like', "%{$name}%");
+        }
+        if ($desc = trim((string)$this->filters['description'])) {
+            $query->where('description', 'like', "%{$desc}%");
+        }
+
+        /** Цена */
+        if ($from = $this->filters['price_from']) {
+            $query->where('price', '>=', (float)$from);
+        }
+        if ($to = $this->filters['price_to']) {
+            $query->where('price', '<=', (float)$to);
+        }
+        /** валюта */
+        if ($currency = $this->filters['currency']) {
+            $query->where('currency', $currency);
+        }
+
+        /**
+         * Фильтры по ENGINEERING (JSON поле).
+         * Для MySQL: JSON_EXTRACT(engineering, '$."Key"')
+         * Если нужны точные числа — меняйте 'like' на сравнение.
+         */
+        foreach (($this->filters['engineering'] ?? []) as $engKey => $engVal) {
+            if ($engVal === '' || $engVal === null) continue;
+
+            // Экранируем кавычки в ключе для JSON path
+            $safeKey = str_replace('"', '\"', $engKey);
+            $path = '$."'.$safeKey.'"';
+
+            // пример "содержит" (строчное сравнение)
+            $query->whereRaw("JSON_EXTRACT(engineering, ?) LIKE ?", [$path, "%{$engVal}%"]);
+            // при необходимости заменить на:
+            // $query->whereRaw("CAST(JSON_EXTRACT(engineering, ?) AS DECIMAL(15,4)) >= ?", [$path, (float)$engVal]);
+        }
+
+        /**
+         * Фильтры по ОПЦИЯМ (каждый key — отдельный whereHas).
+         * Значение — точное совпадение (из select).
+         */
+        foreach (($this->filters['options'] ?? []) as $optKey => $optVal) {
+            if ($optVal === '' || $optVal === null) continue;
+
+            $query->whereHas('productOption', function ($q) use ($optKey, $optVal) {
+                $q->where('value', $optVal)
+                  ->whereHas('getName', function ($qq) use ($optKey) {
+                      $qq->where('key', $optKey);
+                  });
+            });
+        }
+
+        $products = $query->paginate($this->perPage);
+
+        return view('livewire.table-settings.product-list', [
+            'products'        => $products,
+            'table_option_col'=> $this->table_option_col,
+        ]);
     }
+
+    /** Сохранения — как были */
+    public function saveProductField(int $productId, string $field, $value): void
+    {
+        $product = Product::findOrFail($productId);
+        if (in_array($field, ['name','description','price', 'currency'], true)) {
+            $product->{$field} = $field === 'price' ? (float)$value : $value;
+            $product->save();
+        }
+    }
+
+    public function saveEngineering(int $productId, string $engKey, $value): void
+    {
+        $product = Product::findOrFail($productId);
+        $eng = (array)($product->engineering ?? []);
+        $eng[$engKey] = is_numeric($value) ? (float)$value : $value;
+        $product->engineering = $eng;
+        $product->save();
+    }
+
+    public function saveProductOption(int $productOptionId, $value): void
+    {
+        $opt = ProductOption::findOrFail($productOptionId);
+        $opt->value = (string)$value;
+        $opt->save();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filters = [
+            'name'        => '',
+            'description' => '',
+            'price_from'  => null,
+            'price_to'    => null,
+            'engineering' => [],
+            'options'     => [],
+        ];
+        $this->resetPage();
+    }
+
+    public function productDellete($id = null)
+    {
+        Product::findOrFail($id)->delete();
+        $this->resetPage();
+    }
+
+    public function updated($name, $value)
+    {
+        // Любое изменение внутри filters.* -> на первую страницу
+        if (Str::startsWith($name, 'filters.')) {
+            $this->resetPage();
+        }
+    }
+
 }

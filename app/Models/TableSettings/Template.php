@@ -17,14 +17,14 @@ class Template extends Model
     protected static function booted(): void
     {
         static::created(function (Template $template) {
-            Currency::create(['template_id' => $template->id, 'key' => 'USD', 'name' => 'Доллар', 'calc' => '0',]);
+            //Currency::create(['template_id' => $template->id, 'key' => 'USD', 'name' => 'Доллар', 'calc' => '0',]);
         });
     }
 
-    public function currency(): BelongsTo
+    /*public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class, 'id', 'template_id');
-    }
+    }*/
 
     public function options(): HasMany
     {

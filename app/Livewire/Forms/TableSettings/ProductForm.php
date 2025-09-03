@@ -12,25 +12,30 @@ class ProductForm extends Form
     public string $template_id = '';
     public string $name = '';
     public string $description = '';
-    public int $po = 0;
-    public int $kd = 0;
-    public int $pir = 0;
-    public int $pnr_po = 0;
-    public int $pnr = 0;
-    public int $smr_shmr = 0;
+    public int $manufacturer_id = 0;
+    public string $currency = '';
+    public float $price = 0.0;
+    public float $delivery = 0.0;
+    public array $engineering = [];
 
     protected function rules()
     {
         return [
             'template_id' => 'required|numeric|exists:templates,id',
             'name' => 'required|min:3|max:100|unique:products,name,'.$this->id,
-            'description' => 'required|min:3|max:200',
-            'po' => 'required|integer|max:200',
-            'kd' => 'required|integer|max:200',
-            'pir' => 'required|integer|max:200',
-            'pnr_po' => 'required|integer|max:200',
-            'pnr' => 'required|integer|max:200',
-            'smr_shmr' => 'required|integer|max:200',
+            'description' => 'required|min:3|max:1500',
+            'manufacturer_id' => 'required|numeric|exists:manufacturers,id',
+            'currency' => 'required|min:3|max:3',
+            'price' => 'required|numeric|min:0|max:200000',
+            'delivery' => 'required|numeric|min:0|max:200000',
+            'engineering.po' => 'required|integer|max:200',
+            'engineering.kd' => 'required|integer|max:200',
+            'engineering.pir' => 'required|integer|max:200',
+            'engineering.pnr_po' => 'required|integer|max:200',
+            'engineering.pnr' => 'required|integer|max:200',
+            'engineering.smr_shmr' => 'required|integer|max:200',
+            'engineering.assembly' => 'required|integer|max:200',
+            'engineering.mounting' => 'required|integer|max:200',
         ];
     }
 

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('template_id')->constrained('templates')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('group_id')->constrained('group_options')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('name')->nullable()->default(NULL);
             $table->string('key')->nullable()->default(NULL);

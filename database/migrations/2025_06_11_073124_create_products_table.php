@@ -17,14 +17,22 @@ return new class extends Migration
             $table->foreignId('template_id')->constrained('templates')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('name')->nullable()->default('name');
-            $table->string('description')->nullable()->default('description');
+            $table->longText('description')->nullable()->default(NULL);
 
-            $table->smallInteger('po')->nullable()->default(0);
+            $table->foreignId('manufacturer_id')->constrained('manufacturers')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('currency')->nullable()->default('RUB');
+            $table->decimal('price', 12, 2)->nullable()->default(0.00);
+            $table->decimal('delivery', 12, 2)->nullable()->default(0.00);
+
+            $table->json('engineering')->nullable()->default(NULL);
+
+            /*$table->smallInteger('po')->nullable()->default(0);
             $table->smallInteger('kd')->nullable()->default(0);
             $table->smallInteger('pir')->nullable()->default(0);
             $table->smallInteger('pnr_po')->nullable()->default(0);
             $table->smallInteger('pnr')->nullable()->default(0);
-            $table->smallInteger('smr_shmr')->nullable()->default(0);
+            $table->smallInteger('smr_shmr')->nullable()->default(0);*/
 
             $table->timestamps();
         });

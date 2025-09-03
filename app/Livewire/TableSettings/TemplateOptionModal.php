@@ -3,6 +3,7 @@
 namespace App\Livewire\TableSettings;
 
 use App\Livewire\Forms\TableSettings\TemplateOptionForm;
+use App\Models\TableSettings\GroupOption;
 use App\Models\TableSettings\TemplateOption;
 use Livewire\Component;
 
@@ -15,6 +16,8 @@ class TemplateOptionModal extends Component
         'templateOptionEditOpenForm' => 'templateOptionEditOpenForm', 
         'templateOptionDellete' => 'templateOptionDellete',
     ];
+
+    public $groups = [];
 
     public function templateOptionCreate($template_id){
         
@@ -60,6 +63,7 @@ class TemplateOptionModal extends Component
     public function mount()
     {
         $this->form->fields[] = '';
+        $this->groups = GroupOption::all()->toArray();
     }
 
     public function render()

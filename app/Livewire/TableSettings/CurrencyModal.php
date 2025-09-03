@@ -3,6 +3,7 @@
 namespace App\Livewire\TableSettings;
 
 use App\Livewire\Forms\TableSettings\CurrencyForm;
+use App\Services\BankRequest;
 use Livewire\Component;
 
 class CurrencyModal extends Component
@@ -29,11 +30,17 @@ class CurrencyModal extends Component
 
     public function render()
     {
-        $xml = simplexml_load_file("http://www.cbr.ru/scripts/XML_daily.asp");
+        /*$xml = simplexml_load_file("http://www.cbr.ru/scripts/XML_daily.asp");
         $json = json_encode($xml);
         $array = json_decode($json,TRUE);
+
+        $currency = $array['Valute'];*/
+        
+        $bank = new BankRequest();
+        $currency = $bank->get()['Valute'];
+
         //dd($array['Valute']);
-        $currency = $array['Valute'];
+
         return view('livewire.table-settings.currency-modal', ['currency' => $currency]);
     }
 }

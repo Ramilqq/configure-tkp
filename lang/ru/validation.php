@@ -241,6 +241,33 @@ return [
         'pnr' => 'ПНР',
         'smr_shmr' => 'СМР ШМР',
 
+        'tkp_num' => 'Номер ТКП',
+        'user_id' => 'Создал user_id',
+        'update_user_id' => 'Обновил  user_id',
+        'project_name' => 'Проект',
+        'client_name' => 'Заказчик',
+        'contract_owner' => 'Владелец договора',
+        'implementation_object' => 'Объект внедрения',
+        'industry' => 'Отрасль',
+        'scheme' => 'Схема',
+        'delivery_time' => '',
+        'offer_is_valid' => '',
+        'currency' => '',
+        'currency_val' => '',
+        'bank_loss' => '',
+        'garant_fond' => '',
+        'bonuse' => '',
+        'nds' => '',
+        'stab_fond' => '',
+        'products' => '',
+        'version' => '',
+
+
+
+
+
+
+
 
     ],
 

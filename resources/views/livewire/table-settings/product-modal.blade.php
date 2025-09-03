@@ -11,57 +11,62 @@
                     <option selected>Необходимо создать шаблон</option>
                 @endforelse
             </select>
-            <div class="text-danger">@error('form.template_id') {{ $message }} @enderror</div>
         </div>
 
         <div class="mb-3">
             <label for="name" class="form-label">Имя</label>
             <input type="text" wire:model="form.name" class="form-control" placeholder="Имя" id="name" />
-            <div class="text-danger">@error('form.name') {{ $message }} @enderror</div>
         </div>
+
+        <div class="mb-3">
+            <div class="col">
+                <label for="kd" class="form-label">Производитель</label>
+                <select class="form-select" wire:model="form.manufacturer_id">
+                    @php
+                        $product = new \App\Models\TableSettings\Product;
+                        
+                    @endphp
+
+                    @foreach(($product->getManufacturers() ?? [0 => 'Нет данных']) as $v)
+                        <option value="{{ $v['id'] }}" >{{ $v['name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
         <div class="mb-3">
             <label for="description" class="form-label">Описание</label>
             <input type="text" wire:model="form.description" class="form-control" placeholder="Описание" id="description" />
-            <div class="text-danger">@error('form.description') {{ $message }} @enderror</div>
-        </div>
-
-
-        <div class="row mb-3">
-            <div class="col">
-                <label for="po" class="form-label">ПО</label>
-                <input type="number" class="form-control" placeholder="ПО" id="po" wire:model="form.po">
-                <div class="text-danger">@error('form.po') {{ $message }} @enderror</div>
-            </div>
-            <div class="col">
-                <label for="kd" class="form-label">КД</label>
-                <input type="number" class="form-control" placeholder="КД" id="kd" wire:model="form.kd">
-                <div class="text-danger">@error('form.kd') {{ $message }} @enderror</div>
-            </div>
-            <div class="col">
-                <label for="pir" class="form-label">ПИР</label>
-                <input type="number" class="form-control" placeholder="ПИР" id="pir" wire:model="form.pir">
-                <div class="text-danger">@error('form.pir') {{ $message }} @enderror</div>
-            </div>
         </div>
 
         <div class="row mb-3">
             <div class="col">
-                <label for="pnr_po" class="form-label">ПНР ПО</label>
-                <input type="number" class="form-control" placeholder="ПНР ПО" id="pnr_po" wire:model="form.pnr_po">
-                <div class="text-danger">@error('form.pnr_po') {{ $message }} @enderror</div>
+                <label for="price" class="form-label">Цена</label>
+                <input type="text" class="form-control" placeholder="0.0" id="price" wire:model="form.price">
             </div>
             <div class="col">
-                <label for="pnr" class="form-label">ПНР</label>
-                <input type="number" class="form-control" placeholder="ПНР" id="pnr" wire:model="form.pnr">
-                <div class="text-danger">@error('form.pnr') {{ $message }} @enderror</div>
+                <label for="price" class="form-label">Доставка (Руб.)</label>
+                <input type="text" class="form-control" placeholder="0.0" id="delivery" wire:model="form.delivery">
             </div>
             <div class="col">
-                <label for="smr_shmr" class="form-label">СМР ШМР</label>
-                <input type="number" class="form-control" placeholder="СМР ШМР" id="smr_shmr" wire:model="form.smr_shmr">
-                <div class="text-danger">@error('form.smr_shmr') {{ $message }} @enderror</div>
+                <label for="kd" class="form-label">Валюта</label>
+                <select class="form-select" wire:model="form.currency">
+
+                    @foreach(($product->allCurrency() ?? ['Нет данных']) as $v)
+                        <option value="{{ $v }}" >{{ $v }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
 
+        <div class="row mb-3">
+            @foreach(($product->getEngineering() ?? ['Нет данных' => 0]) as $k => $v)
+                <div class="col-3">
+                    <label for="{{ $k }}" class="form-label">{{ $k }}</label>
+                    <input type="number" class="form-control" placeholder="0" id="po" wire:model="form.engineering.{{ $k }}">
+                </div>
+            @endforeach
+        </div>
 
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="$dispatch('productCreateOpenForm')">Закрыть</button>

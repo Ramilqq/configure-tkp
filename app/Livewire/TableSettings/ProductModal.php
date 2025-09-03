@@ -37,6 +37,12 @@ class ProductModal extends Component
         $this->form->reset();
     }
 
+    public function mount()
+    {
+        $this->form->manufacturer_id = 0;
+        $this->form->currency = 'RUB';
+    }
+
     public function render()
     {   
         $template = Template::all();
