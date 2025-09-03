@@ -16,37 +16,62 @@ use App\Livewire\Tkp\TkpContact;
 use App\Livewire\Tkp\TkpDelivery;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// если гость или не авторизован
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'index'])->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'store'])->name('login.store');
+
+    Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'index'])->name('register');
+    Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'store'])->name('register.store');
+
+    // Сброс пароля
+    Route::get('/forgot-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'requestForm'])->name('password.request');
+    Route::post('/forgot-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'sendLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [App\Http\Controllers\Auth\PasswordResetController::class, 'resetForm'])->name('password.reset');
+    Route::post('/reset-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'reset'])->name('password.update');
+});
 
 
 
-//Route::get('table-settings/template-list', 'pages.template')->name('table-settings.template-list');
+// подтверждение почты
+Route::get('/email/verify', [App\Http\Controllers\Auth\EmailVerificationController::class, 'notice'])
+    //->middleware('auth')
+    ->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\EmailVerificationController::class, 'verify'])
+    ->middleware(['auth', 'signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
+Route::post('/email/verification-notification', [App\Http\Controllers\Auth\EmailVerificationController::class, 'resend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.send');
 
 
+// Выход
+Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
-//Route::view('table-settings/template-list', 'components.pages.template')->name('table-settings.template-list');
-//Route::view('table-settings/product-list/{template_id}', 'components.pages.product')->name('table-settings.product-list');
+// работа пользователя 
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::get('table-settings/template-list', Template::class)->name('table-settings.template-list');
-Route::get('table-settings/product-list/{template_id}', Product::class)->name('table-settings.product-list');
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('home');
 
+    Route::get('table-settings/template-list', Template::class)->name('table-settings.template-list');
+    Route::get('table-settings/product-list/{template_id}', Product::class)->name('table-settings.product-list');
 
+    Route::get('configuration', Configuration::class)->name('configuration');
+    Route::get('configuration/setting', NodeGroup::class)->name('configuration-node-group');
 
-Route::get('configuration', Configuration::class)->name('configuration');
-Route::get('configuration/setting', NodeGroup::class)->name('configuration-node-group');
+    Route::get('tkp/contact', TkpContact::class)->name('tkp.contact');
+    Route::get('tkp/contact/{id}/{tkp_version}', TkpContact::class)->name('tkp.contact.edit');
+    Route::get('tkp/sheme/{id}/{tkp_version}', TkpConfiguration::class)->name('tkp.sheme.edit');
+    Route::get('tkp/delivery/{id}/{tkp_version}', TkpDelivery::class)->name('tkp.delivery.edit');
+    Route::get('tkp/calculation/{id}/{tkp_version}', TkpCalculation::class)->name('tkp.calculation.edit');
+    Route::get('/tkp/pdf/{id}/{tkp_version}',    [PdfController::class, 'show'])->name('tkp.pdf.show'); 
 
-Route::get('tkp/contact', TkpContact::class)->name('tkp.contact');
-Route::get('tkp/contact/{id}/{tkp_version}', TkpContact::class)->name('tkp.contact.edit');
-Route::get('tkp/sheme/{id}/{tkp_version}', TkpConfiguration::class)->name('tkp.sheme.edit');
-Route::get('tkp/delivery/{id}/{tkp_version}', TkpDelivery::class)->name('tkp.delivery.edit');
-Route::get('tkp/calculation/{id}/{tkp_version}', TkpCalculation::class)->name('tkp.calculation.edit');
-Route::get('/tkp/pdf/{id}/{tkp_version}',    [PdfController::class, 'show'])->name('tkp.pdf.show'); 
+    Route::get('/pdf-preview', [PdfController::class, 'preview']);
+    Route::get('/export/array', [ExportArrayController::class, 'export']);
+});
 
-//Route::get('tkp/{id}/pdf', [PdfController::class, 'show'])->name('tkp.pdf');
-
-Route::get('/pdf-preview', [PdfController::class, 'preview']);
-Route::get('/export/array', [ExportArrayController::class, 'export']);
-//Route::view('table-settings/product-list-test/{id}', 'components.pages.product')->name('table-settings.product-list-test');
 
