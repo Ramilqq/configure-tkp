@@ -7,6 +7,7 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
+            publicDirectory: 'public_html'
         }),
         tailwindcss(),
     ],
@@ -14,5 +15,8 @@ export default defineConfig({
         alias: {
             //'@': '/resources/js',
         },
+    },
+    build: {
+        outDir: 'public_html/build',
     },
 });
