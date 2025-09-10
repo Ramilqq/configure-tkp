@@ -24,9 +24,8 @@ class TkpCalculation extends Component
 
     public function updated($key, $val)
     {
-        //dd($key, $val);
-        dd($this->form);
-        if ($key == 'pay_params.currency') $this->currency($val);
+        $this->form->pay_params = $this->pay_params;
+        $this->form->saveForm($this->id);
     }
 
     public function saveParams()
@@ -66,7 +65,6 @@ class TkpCalculation extends Component
     // записываем курс по изменению валюты
     public function currency($val = null)
     {
-        
         if ($val === null) $val = $this->pay_params['currency'];
         foreach($this->banks as $bank){ $bank['CharCode'] != $val ?: $this->pay_params['currency_val'] = $bank['Value']; }
     }

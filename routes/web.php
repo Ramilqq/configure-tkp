@@ -14,6 +14,7 @@ use App\Livewire\Tkp\TkpCalculation;
 use App\Livewire\Tkp\TkpConfiguration;
 use App\Livewire\Tkp\TkpContact;
 use App\Livewire\Tkp\TkpDelivery;
+use App\Livewire\Tkp\TkpList;
 use Illuminate\Support\Facades\Route;
 
 // если гость или не авторизован
@@ -53,9 +54,7 @@ Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'destr
 // работа пользователя 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('home');
+    Route::get('/', TkpList::class)->name('home');
 
     Route::get('table-settings/template-list', Template::class)->name('table-settings.template-list');
     Route::get('table-settings/product-list/{template_id}', Product::class)->name('table-settings.product-list');

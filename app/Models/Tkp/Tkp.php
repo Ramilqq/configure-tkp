@@ -64,15 +64,27 @@ class Tkp extends Model
     {
         // запись перед сохранением модели
         static::saving(function (Tkp $tkp) {
+            $tkp->user_id = auth()->id();
+        });
+
+        // запись перед созданием
+        static::created(function (Tkp $tkp) {
+
             // получение курса при создании ТКП
             if(!$tkp->pay_params){
                 $banks = new BankRequest();
                 $tkp->pay_params_defaults['currency_val'] = $banks->getValue($tkp->pay_params_defaults['currency']);
                 $tkp->pay_params = $tkp->pay_params_defaults;
             }
+
+            // добавляем дефолтные параметры в доставку
             if(!$tkp->delivery_params){
                 $tkp->delivery_params = $tkp->delivery_params_defaults;
             }
+
+            // получение курса при создании ТКП
+            $tkp->user_id = auth()->id();
+            $tkp->save();
         });
     }
 

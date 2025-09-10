@@ -26,7 +26,7 @@ class TkpCalculationForm extends Form
     
     public array $pay_params = [];
 
-    public string $comments;
+    public ?string $comments;
 
     protected function rules()
     {
@@ -41,6 +41,7 @@ class TkpCalculationForm extends Form
             'contract_owner' => 'required',
             'implementation_object' => 'required',
             'industry' => 'required',
+            'comments' => 'nullable',
 
             'delivery_params' => 'nullable',
             /*'delivery_time' => 'nullable',
@@ -60,7 +61,7 @@ class TkpCalculationForm extends Form
         $valideate = $this->validate();
 
         $tkp = Tkp::find($id);
-
+        //dd($this);
         if($tkp)
         {
             $valideate['update_user_id'] = 1;
@@ -75,7 +76,8 @@ class TkpCalculationForm extends Form
             $tkp = Tkp::create($valideate);
         }
 
-        if ($routeName === 'tkp.calculation.edit') return $tkp;
+        if ($routeName === 'livewire.update') return;
+        if ($routeName === 'tkp.calculation.edit') return;
         return redirect(route($valideate['route'] , ['tkp_version' => $tkp->tkp_version, 'id'=> $tkp->id]));
     }
 
@@ -104,9 +106,9 @@ class TkpCalculationForm extends Form
         $tkp->stab_fond ?:              $tkp->stab_fond  =              $this->stab_fond;
         $tkp->pay_params ?:             $tkp->pay_params  =             $this->pay_params;*/
 
-        
+        //dd($tkp);
         $this->fill($tkp);
 
-        //dd($tkp, $this->toArray(), $tkp->configuration()->toArray());
+        //dd($tkp);
     }
 }

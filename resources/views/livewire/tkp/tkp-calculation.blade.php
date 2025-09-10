@@ -1,6 +1,17 @@
 <div>
     <div class="container">
+        @if(!isset($saved_schema['nodes']))
+    
+            <p>Нет данных для создания ТКП</p>
+            <p>
+                <a href="{{route('tkp.contact.edit', ['id' => $id, 'tkp_version' => $tkp_version])}}">Продолжить</a>
+            </p>
+
+        @else
+        
+
         <div class="row">
+            
             <div class="col-4 mx-1 rounded">
                 <div class="row">
 <!-- блок с ценами -->
@@ -13,7 +24,7 @@
                                 ><i class="bi bi-arrow-clockwise"></i></button>
                             </div>
                             <div class="col-4">
-                                <select class="form-select" wire:model.change="pay_params.currency" id="pay_params.currency" >
+                                <select class="form-select" wire:model.lazy="pay_params.currency" id="pay_params.currency" >
                                     @forelse($banks as $bank)
                                         <option value="{{$bank['CharCode']}}" wire:key="bank_{{$bank['NumCode']}}">{{$bank['CharCode']}}</option>
                                     @empty
@@ -22,7 +33,7 @@
                                 </select>
                             </div>
                             <div class="col-4">
-                                <input type="text" id="pay_params.currency_val" class="form-control" wire:model="pay_params.currency_val">
+                                <input type="text" id="pay_params.currency_val" class="form-control" wire:model.lazy="pay_params.currency_val">
                             </div>
                             
                         </div>
@@ -32,7 +43,7 @@
                                 Расходы на <br />продвижение (%):
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pay_params.marketing" class="form-control" wire:model="pay_params.marketing">
+                                <input type="text" id="pay_params.marketing" class="form-control" wire:model.lazy="pay_params.marketing">
                             </div>
                         </div>
 
@@ -41,7 +52,7 @@
                                 НДС:
                             </div>
                             <div class="col-8">
-                                <select class="form-select" wire:model.change="pay_params.nds" id="pay_params.nds" >
+                                <select class="form-select" wire:model.lazy="pay_params.nds" id="pay_params.nds" >
                                     <option value="0">0%</option>
                                     <option value="18">18%</option>
                                     <option value="20">20%</option>
@@ -54,7 +65,7 @@
                                 Резерв на <br />изменение (%):
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pay_params.reserve" class="form-control" wire:model="pay_params.reserve">
+                                <input type="text" id="pay_params.reserve" class="form-control" wire:model.lazy="pay_params.reserve">
                             </div>
                         </div>
                     </div>
@@ -64,7 +75,7 @@
 <!-- блок с версиями -->
                     <div class="col-12 bg-light my-1 px-1 rounded">
                         
-                        <div class="row g-3 align-items-center pb-1">
+                        <!--div class="row g-3 align-items-center pb-1">
                             <div class="col-4">
                                 Версии:
                             </div>
@@ -76,13 +87,13 @@
                                     <option value="3">Three</option>
                                 </select>
                             </div>
-                        </div>
+                        </div-->
                         <div class="row g-3 align-items-center pb-1">
                             <div class="col-4">
                                 Комментарий<br />к версии:
                             </div>
                             <div class="col-8">
-                                <input type="text" id="form.stab_fond" class="form-control">
+                                <input type="text" id="form.comments" class="form-control" wire:model.lazy="form.comments">
                             </div>
                         </div>
 
@@ -550,7 +561,7 @@
 
             </div>
         </div>
-
+        @endif
 
     </div>
 </div>
