@@ -1,12 +1,5 @@
 <div>
 
-    @foreach($tkp as $key => $value)
-
-        {{$value->id}}
-
-    @endforeach
-
-
     <table class="table">
         <thead>
             <tr>

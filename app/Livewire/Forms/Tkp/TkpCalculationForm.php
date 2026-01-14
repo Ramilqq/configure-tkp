@@ -75,8 +75,8 @@ class TkpCalculationForm extends Form
             $valideate['update_user_id'] = 0;
             $tkp = Tkp::create($valideate);
         }
-
-        if ($routeName === 'livewire.update') return;
+        
+        //if ($routeName === 'livewire.update') return;
         if ($routeName === 'tkp.calculation.edit') return;
         return redirect(route($valideate['route'] , ['tkp_version' => $tkp->tkp_version, 'id'=> $tkp->id]));
     }

@@ -15,7 +15,7 @@ class TkpList extends Component
 
     public function render()
     {
-        $tkp = Tkp::all();
+        $tkp = Tkp::all()->sortDesc();
         return view('livewire.tkp.tkp-list', ['tkp' => $tkp]);
     }
 }

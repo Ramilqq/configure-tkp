@@ -36,17 +36,13 @@
 
         <div class="mb-3">
             <label for="description" class="form-label">Описание</label>
-            <input type="text" wire:model="form.description" class="form-control" placeholder="Описание" id="description" />
+            <textarea wire:model="form.description" class="form-control" placeholder="Описание" id="description" style="height: 110px;"></textarea>
         </div>
 
         <div class="row mb-3">
             <div class="col">
                 <label for="price" class="form-label">Цена</label>
                 <input type="text" class="form-control" placeholder="0.0" id="price" wire:model="form.price">
-            </div>
-            <div class="col">
-                <label for="price" class="form-label">Доставка (Руб.)</label>
-                <input type="text" class="form-control" placeholder="0.0" id="delivery" wire:model="form.delivery">
             </div>
             <div class="col">
                 <label for="kd" class="form-label">Валюта</label>
@@ -56,6 +52,10 @@
                         <option value="{{ $v }}" >{{ $v }}</option>
                     @endforeach
                 </select>
+            </div>
+            <div class="col">
+                <label for="price" class="form-label">Доставка (Руб.)</label>
+                <input type="text" class="form-control" placeholder="0.0" id="delivery" wire:model="form.delivery">
             </div>
         </div>
 

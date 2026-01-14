@@ -146,14 +146,16 @@
                         @endforelse
 
                         @forelse($saved_schema['connections'] as $nodes)
-                            <tr>
-                                <th scope="row">{{$nodes['params']['product']['id']}}</th>
-                                <td>{{$nodes['params']['product']['name']}}</td>
-                                <td>{{$nodes['params']['product']['price']}}</td>
-                                <td>{{$nodes['params']['product']['currency']}}</td>
-                                <td>{{$nodes['params']['product']['currency_val']}}</td>
-                                <td>{{$nodes['params']['product']['id']}}</td>
-                            </tr>
+                            @if(isset($nodes['params']['product']))
+                                <tr>
+                                    <th scope="row">{{$nodes['params']['product']['id']}}</th>
+                                    <td>{{$nodes['params']['product']['name']}}</td>
+                                    <td>{{$nodes['params']['product']['price']}}</td>
+                                    <td>{{$nodes['params']['product']['currency']}}</td>
+                                    <td>{{$nodes['params']['product']['currency_val']}}</td>
+                                    <td>{{$nodes['params']['product']['id']}}</td>
+                                </tr>
+                            @endif
                         @empty
                         @endforelse
                         
