@@ -71,7 +71,7 @@ class TkpCalculation extends Component
 
     public function render()
     {
-        dd($this->saved_schema);
+        //dd($this->saved_schema);
         return view('livewire.tkp.tkp-calculation');
     }
 }
