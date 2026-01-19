@@ -134,6 +134,9 @@
                     </thead>
                     <tbody>
                        @forelse($saved_schema['nodes'] as $nodes)
+                        @php 
+                                if (!isset($nodes['product'])) continue;
+                        @endphp
                             <tr>
                                 <th scope="row">{{$nodes['product']['id']}}</th>
                                 <td>{{$nodes['product']['name']}}</td>
