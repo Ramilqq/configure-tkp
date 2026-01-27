@@ -71,6 +71,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/pdf-preview', [PdfController::class, 'preview']);
     Route::get('/export/array', [ExportArrayController::class, 'export']);
+
+
+    Route::get('table-settings/products/excel-import', App\Livewire\TableSettings\ProductExcelImport::class)->name('table-settings.products.excel-import');
+
+
+});
+
+Route::get('/_scheme', function () {
+    return [
+        'request_scheme' => request()->getScheme(),
+        'app_url' => config('app.url'),
+        'url_root' => url('/'),
+    ];
 });
 
 

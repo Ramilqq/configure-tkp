@@ -22,8 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.http') === 'HTTPS') {
-            URL::forceScheme('https');
+        // Подхватываем схему из APP_URL и заставляем URL генератор быть последовательным
+        $appUrl = config('app.url'); // берётся из APP_URL
+        if ($appUrl) {
+            $scheme = parse_url($appUrl, PHP_URL_SCHEME);
+            if ($scheme) {
+                URL::forceScheme($scheme);
+            }
+            URL::forceRootUrl($appUrl);
         }
     }
 }
