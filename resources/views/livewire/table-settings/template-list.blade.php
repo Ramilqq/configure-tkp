@@ -43,7 +43,11 @@
                         <button title="Добавить опцию" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#templateOptionModalForm"
                             @click="$dispatch('templateOptionInit', {template_id : {{$value->id}} })"
                         ><i class="bi bi-plus-lg"></i></button>
-                        
+                        <!-- кнопка добавить правило цены -->
+                        <button title="Правила цены" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#templatePriceRuleModalForm"
+                            @click="$dispatch('templatePriceRuleInit', {template_id : {{$value->id}} })"
+                        ><i class="bi bi-cash-coin"></i></button>
+
                     </td>
                 </tr>
                 <tr>
@@ -72,6 +76,40 @@
                                     <td colspan="3">Нет записей</td>
                                 </tr>
                                 @endforelse
+                                <tr>
+                                    <td colspan="5">
+                                        <table class="table mb-0">
+                                            <h5>Правила цены</h5>
+                                            <tbody>
+                                            @forelse($value->priceRules as $rule)
+                                                <tr>
+                                                    <th style="width:50px;">{{ $rule->id }}</th>
+                                                    <td>
+                                                        <div><b>{{ $rule->name }}</b> <span class="text-muted">({{ $rule->key }})</span></div>
+                                                        <div class="text-muted small">
+                                                            {{ $rule->enabled ? 'ON' : 'OFF' }},
+                                                            sort={{ $rule->sort }},
+                                                            target={{ $rule->target_field }},
+                                                            mode={{ $rule->mode }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="width:200px;">
+                                                        <button title="Изменить" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templatePriceRuleModalForm"
+                                                            @click="$dispatch('templatePriceRuleEditOpenForm', {id : {{$rule->id}} })"
+                                                        ><i class="bi bi-pencil-square"></i></button>
+
+                                                        <button title="Удалить" class="btn btn-danger btn-sm"
+                                                            @click="$dispatch('templatePriceRuleDelete', {id : {{$rule->id}} })"
+                                                        ><i class="bi bi-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="3">Нет правил</td></tr>
+                                            @endforelse
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </td>

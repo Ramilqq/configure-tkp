@@ -276,8 +276,15 @@
                 $val  = isset($option['value']) ? $option['value'] : '';
                 $str .= trim($name) . ':' . trim($val) . ', ';
             }
-            $str = rtrim($str, ', ');
         }
+
+        if (!empty($product['rules_fields'])) {
+            foreach($product['rules_fields'] as $rules_key => $rules_value) {
+                $str .= trim($rules_key) . ':' . trim($rules_value) . ', ';
+            }
+        }
+
+        $str = rtrim($str, ', ');
         return $str;
     };
 
@@ -294,13 +301,14 @@
         // Достаём базовые значения
         $name        = isset($p['name']) ? $p['name'] : '';
         $description = isset($p['description']) ? $p['description'] : '';
+        $manufacturer = isset($p['manufacturer']['name']) ? $p['manufacturer']['name'] : '';
         $smr_shmr    = isset($p['smr_shmr']) ? floatval($p['smr_shmr']) : 0;
         $po          = isset($p['po']) ? floatval($p['po']) : 0;
         $pnr_po      = isset($p['pnr_po']) ? floatval($p['pnr_po']) : 0;
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
         // курс
-        $currency_val = isset($p['currency_val']) ? floatval($p['currency_val']) : 1.0;
+        $currency_val = isset($pay_params['currency_val']) ? floatval($pay_params['currency_val']) : 0.0;;
 
         // доставка
         $delivery = isset($p['delivery']) ? floatval($p['delivery']) : 0.0;
@@ -311,6 +319,17 @@
         $marketing_cf = isset($pay_params['marketing_coef']) ? floatval($pay_params['marketing_coef']) : 0.0;
         $nds_percent  = isset($pay_params['nds']) ? floatval($pay_params['nds']) : 0.0;                    // %
 
+        $oprionString = $makeOptionsStr($item);
+
+        $rulesId = '';
+        if (!empty($item['rules_fields'])) {
+            foreach($item['rules_fields'] as $rules_key => $rules_value) {
+                $rulesId .= trim($rules_key);
+            }
+        }
+
+        $pid = $pid . $rulesId;
+        
         // Если товар уже есть — наращиваем количество и пересчитываем зависящие колонки
         if (isset($table['product_col'][$pid])) {
             // +1 к количеству
@@ -342,13 +361,14 @@
         $table['product_col'][$pid][0] = $rowIndex;
 
         // 1 — Завод-изготовитель (в твоих данных — имя?)
-        $table['product_col'][$pid][1] = $name;
+        $table['product_col'][$pid][1] = $manufacturer;
 
         // 2 — Тип/марка (в твоих данных — описание?)
-        $table['product_col'][$pid][2] = $description;
+        $table['product_col'][$pid][2] = $name;
 
         // 3 — Наименование опций
-        $table['product_col'][$pid][3] = $makeOptionsStr($item);
+        //$table['product_col'][$pid][3] = $oprionString;
+        $table['product_col'][$pid][3] = $description;
 
         // 4 — Кол-во
         $table['product_col'][$pid][4] = 1;
@@ -455,7 +475,7 @@
 
         // ---------- Цены/кол-ва ----------
         // 5 — Стоимость единицы, руб. без НДС (UNIT!)
-        $table['product_col'][$pid][5] = $price;
+        $table['product_col'][$pid][5] = $price * $currency_val;
 
         // 6 — Стоимость , руб. без НДС = qty * unit_price
         $table['product_col'][$pid][6] = $table['product_col'][$pid][4] * $table['product_col'][$pid][5];

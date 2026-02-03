@@ -35,4 +35,11 @@ class Template extends Model
     {
         return $this->hasMany(Product::class, 'template_id', 'id');
     }
+
+    public function priceRules()
+    {
+        return $this->hasMany(\App\Models\TableSettings\TemplatePriceRule::class, 'template_id', 'id')
+            ->orderBy('sort')
+            ->orderBy('id');
+    }
 }

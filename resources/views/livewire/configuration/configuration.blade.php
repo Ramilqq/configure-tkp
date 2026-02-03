@@ -192,6 +192,26 @@
                             @endforelse
                         </form>
 
+                        <div style="width: 100%; text-align: center;">Правило цены</div>
+                        @if($product_rules_select)
+                        <form wire:submit="searchProductForm">
+                            <div class="mt-2 small">
+                                @foreach($product_rules_select as $p_rules_key => $p_rules_value)
+                                    <label class="form-check">
+                                        <input class="form-check-input"
+                                            type="checkbox"
+                                            id="p_rules_value{{$p_rules_key}}"
+                                            wire:model="getRules.{{$p_rules_value['key']}}"
+                                        >
+                                        <span>{{ $p_rules_value['name'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </form>
+                        @else
+                            <p>Нет правил для выбора</p>
+                        @endif
+
                     </div>
                     
 
@@ -270,7 +290,27 @@
                             @endforelse
                         </form>
 
-                        
+
+                        <hr />
+                        <div style="width: 100%; text-align: center;">Правило цены</div>
+                        @if($product_rules_select)
+                        <form wire:submit="searchProductForm">
+                            <div class="mt-2 small">
+                                @foreach($product_rules_select as $p_rules_key => $p_rules_value)
+                                    <label class="form-check">
+                                        <input class="form-check-input"
+                                            type="checkbox"
+                                            wire:model="getRules.{{$p_rules_value['key']}}"
+                                        >
+                                        <span>{{ $p_rules_value['name'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </form>
+                        @else
+                            <p>Нет правил для выбора</p>
+                        @endif
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal">Удалить</button>
@@ -471,6 +511,7 @@
                             product_id: 0,
                             template_id: settings.node_group.template.id,
                             filter_fields: [],
+                            rules_fields: [],
                             //count: 1,
                         });
 
@@ -496,6 +537,7 @@
                                 type: '',
                                 length: '1',
                                 filter_fields: [],
+                                rules_fields: [],
                                 template_id: template_id,
                                 id: conn_id,
                                 product_id: 0,

@@ -19,7 +19,7 @@ class TemplateList extends Component
 
     public function render()
     {   
-        $data = ModelsTemplate::query()/*->with('currency')*/->with('options')->get();
+        $data = ModelsTemplate::query()/*->with('currency')*/->with(['options', 'priceRules'])->get();
         //dd( $data);
         return view('livewire.table-settings.template-list', ['data' => $data]);
     }

@@ -35,6 +35,12 @@ class Product extends Model
             ->select(['id','name']);
     }
 
+    public function manufacturer(): HasOne
+    {
+        return $this->hasOne(Manufacturer::class, 'id', 'manufacturer_id')
+            ->select(['id','name']);
+    }
+
     public function productOption(): HasMany
     {
         // тянем только нужные поля

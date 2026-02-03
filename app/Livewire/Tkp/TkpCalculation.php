@@ -58,7 +58,7 @@ class TkpCalculation extends Component
 
         //$this->currency();
 
-        //dd($this->saved_schema, $this->id, $this->tkp_version);
+        //dd($this->saved_schema, $this->pay_params, $this->currency(), $this->banks);
         //dd($this->pay_params);
     }
 
@@ -67,6 +67,7 @@ class TkpCalculation extends Component
     {
         if ($val === null) $val = $this->pay_params['currency'];
         foreach($this->banks as $bank){ $bank['CharCode'] != $val ?: $this->pay_params['currency_val'] = $bank['Value']; }
+        //$this->render();
     }
 
     public function render()
