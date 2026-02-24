@@ -18,20 +18,34 @@ class TemplatePriceRuleForm extends Form
     public int $sort = 100;
 
     public string $target_field = 'price'; // price|delivery
-    public string $mode = 'replace';       // replace|add|multiply
+    public string $mode = 'add';       // replace|add|multiply
+
+    public bool $generation_name_status = false; // false|true - нужно ли генерировать название правила 
+    public ?string $generation_name_text = null; // текст для генерации названия правила
 
     // условие (проверяем значение драйвера)
-    public string $condition_operator = 'exists'; // exists|filled|equals|not_equals
+    public string $condition_operator = 'equals'; // exists|filled|equals|not_equals
     public ?string $condition_value = null;
 
+    public ?string $condition_field = 'checkbox'; // checkbox|select|input
+
     public ?int $driver_option_id = null;
+    public ?int $text_option_id = null;
 
     /** @var array<int, array{from: mixed, to: mixed, value: mixed}> */
     public array $mapping = [
-        ['from' => '', 'to' => '', 'value' => ''],
+        ['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => ''],
     ];
 
-    public array $meta = [];
+    public array $meta = [
+        'field_type' => ['input' => 'Строка', 'select' => 'Выпадающий список', 'checkbox' => 'Чекбокс']
+    ];
+
+    public string $text_operator = 'equals'; // exists|filled|equals|not_equals
+    public ?string $text_value = null;
+    public ?string $text_field = 'checkbox'; // checkbox|select|input
+
+    public ?int $fixed_value = null;
 
     protected function rules()
     {
@@ -47,21 +61,33 @@ class TemplatePriceRuleForm extends Form
             'target_field' => 'required|in:price,delivery',
             'mode' => 'required|in:replace,add,multiply',
 
+            'generation_name_status' => 'nullable',
+            'generation_name_text' => 'nullable|min:0|max:250',
+
             'condition_operator' => 'required|in:exists,filled,equals,not_equals',
             'condition_value' => 'nullable|max:255',
+            'condition_field' => 'required|in:input,select,checkbox',
 
+            'text_option_id' =>  'nullable|integer|exists:template_options,id',
             'driver_option_id' => 'nullable|integer|exists:template_options,id',
 
             'mapping' => 'nullable|array',
             'mapping.*.from' => 'nullable',
             'mapping.*.to' => 'nullable',
+            'mapping.*.condition' => 'nullable',
+            'mapping.*.text' => 'nullable',
             'mapping.*.value' => 'nullable',
+
+            'text_operator' => 'required|in:exists,filled,equals,not_equals',
+            'text_value' => 'nullable|max:255',
+            'text_field' => 'required|in:input,select,checkbox',
+            'fixed_value' => 'nullable|min:0|max:900000',
         ];
     }
 
     public function addMappingRow(): void
     {
-        $this->mapping[] = ['from' => '', 'to' => '', 'value' => ''];
+        $this->mapping[] = ['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => ''];
     }
 
     public function removeMappingRow(int $index): void
@@ -69,7 +95,7 @@ class TemplatePriceRuleForm extends Form
         unset($this->mapping[$index]);
         $this->mapping = array_values($this->mapping);
         if (count($this->mapping) === 0) {
-            $this->mapping[] = ['from' => '', 'to' => '', 'value' => ''];
+            $this->mapping[] = ['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => ''];
         }
     }
 
@@ -87,6 +113,8 @@ class TemplatePriceRuleForm extends Form
 
         $validated = $this->validate();
 
+
+        //dd($validated, $this->mapping);
         $rule = TemplatePriceRule::find($this->id);
         if ($rule) {
             $rule->update($validated);

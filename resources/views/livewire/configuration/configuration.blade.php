@@ -128,6 +128,9 @@
                 </div>
             </div>
         </div>
+        
+        <!-- окно для данных ЧРП -->
+        <livewire:blocks.form-edit-modal-fr />
 
         <!-- окно для данных узлов -->
         <div class="modal fade" id="editModal" tabindex="-1" wire:ignore.self>
@@ -417,6 +420,7 @@
                     const container = document.getElementById("components");
                     //container.innerHTML = "";
                     nodeSettings.forEach(item => {
+                        //console.log(item);
                         const el = document.createElement("div");
                         el.className = "mb-2 border p-2 text-center";
                         el.setAttribute("draggable", "true");
@@ -445,6 +449,7 @@
                     if (!settings) return;
                     const node = document.createElement("div");
                     const id = savedId || "node" + Date.now(); //nodeIdCounter++;
+                    const node_group_id = settings.node_group.id;
                     node.className = "node bg-danger";
                     node.title = "Нет привязки к продукту";
                     node.id = id;
@@ -461,20 +466,39 @@
                     ` : ''}</div>`;
                     node.dataset.name = labelName;
                     node.dataset.extra = labelExtra;                
+                    node.dataset.group_id = node_group_id;
+                    
+                    // для ЧРП отельное окно. 1 = группа ЧРП, остальные - для остальных продуктов. В дальнейшем можно будет расширить
+                    if (node_group_id == 1) {
+                        node.addEventListener("dblclick", () => {
+                            modalTarget = node;
+                            modalType = "node";
+                            modalId = id;
+                            document.getElementById("modal-input1").value = node.dataset.name;
+                            document.getElementById("modal-input2").value = node.dataset.extra;
+                            document.getElementById("modal-title-node").innerText = "Редактировать узел";
 
-                    node.addEventListener("dblclick", () => {
-                        modalTarget = node;
-                        modalType = "node";
-                        modalId = id;
-                        document.getElementById("modal-input1").value = node.dataset.name;
-                        document.getElementById("modal-input2").value = node.dataset.extra;
-                        document.getElementById("modal-title-node").innerText = "Редактировать узел";
+                            Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
 
-                        Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
+                            const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
+                            modal.show();
+                        });
+                    // окно для остальных продуктов
+                    } else {
+                        node.addEventListener("dblclick", () => {
+                            modalTarget = node;
+                            modalType = "node";
+                            modalId = id;
+                            document.getElementById("modal-input1").value = node.dataset.name;
+                            document.getElementById("modal-input2").value = node.dataset.extra;
+                            document.getElementById("modal-title-node").innerText = "Редактировать узел";
 
-                        const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
-                        modal.show();
-                    });
+                            Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
+
+                            const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
+                            modal.show();
+                        });
+                    }
 
                     canvas.appendChild(node);
                     // Делаем узел перетаскиваемым
@@ -588,7 +612,7 @@
                             nodeInSchema.name = val1;
                             nodeInSchema.extra = val2;
                         }
-                        Livewire.dispatch('searchProduct', { node_id: modalTarget.id, type: 'node' });
+                        Livewire.dispatch('searchProduct', { node_id: modalTarget.id, type: 'nodes' });
                     }
                     if (modalType === "connection" && modalTarget) {
                         const val1 = document.getElementById("modal-input10").value;
@@ -618,7 +642,7 @@
                                 length: val2
                             };*/
 
-                            Livewire.dispatch('searchProduct', { conn_id: paramsConn.id, type: 'connection' });
+                            Livewire.dispatch('searchProduct', { conn_id: paramsConn.id, type: 'connections' });
                         }
                         
                         

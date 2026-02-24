@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Tkp;
 
+use App\Models\Tkp\Tkp;
 use Livewire\Component;
 
 class TkpConfiguration extends Component
@@ -13,6 +14,12 @@ class TkpConfiguration extends Component
     {
         $this->tkp_version = $tkp_version;
         $this->id = $id;
+
+        // Проверка авторизации
+        if ($this->id && $this->tkp_version) {
+            $tkp = Tkp::findOrFail($this->id);
+            $this->authorize('view', $tkp);
+        }
     }
 
     public function render()

@@ -5,6 +5,7 @@ namespace App\Livewire\Tkp;
 use App\Livewire\Forms\Tkp\TkpCalculationForm;
 use App\Models\Tkp\Delivery;
 use App\Models\Tkp\PaymentScheme;
+use App\Models\Tkp\Tkp;
 use Livewire\Component;
 
 class TkpDelivery extends Component
@@ -22,7 +23,13 @@ class TkpDelivery extends Component
     public function mount($tkp_version, $id)
     {
         ($id && $tkp_version) ? $this->form->editForm($id, $tkp_version) : null;
-        $this->form->route = 'tkp.calculation.edit';    
+        $this->form->route = 'tkp.calculation.edit';
+
+        // Проверка авторизации
+        if ($id && $tkp_version) {
+            $tkp = Tkp::findOrFail($id);
+            $this->authorize('view', $tkp);
+        }
     }
 
     public function render()

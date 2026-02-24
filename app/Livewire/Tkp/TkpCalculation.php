@@ -30,14 +30,27 @@ class TkpCalculation extends Component
 
     public function saveParams()
     {
-        //dd($this->form);
         $this->form->saveForm($this->id, $this->tkp_version);
+        //dd($this->form);
+    }
+
+    public function saveConfiguration () {
+        if($configuration = Configuration::where('tkp_version', $this->tkp_version)->first())
+        {
+            $configuration->update(['saved_schema' => $this->saved_schema]);
+        }
     }
 
     public function mount($id = null, $tkp_version = null)
     {
         $this->tkp_version ?: $this->tkp_version = $tkp_version;
         $this->id ?: $this->id = $id;
+
+        // Проверка авторизации
+        if ($this->id && $this->tkp_version) {
+            $tkp = Tkp::findOrFail($this->id);
+            $this->authorize('view', $tkp);
+        }
 
         $this->form->editForm($this->id, $this->tkp_version);
         
@@ -55,24 +68,35 @@ class TkpCalculation extends Component
 
         $banks = new BankRequest();
         $this->banks = $banks->get()['Valute'];
-
-        //$this->currency();
-
-        //dd($this->saved_schema, $this->pay_params, $this->currency(), $this->banks);
-        //dd($this->pay_params);
     }
 
-    // записываем курс по изменению валюты
-    public function currency($val = null)
+    // записываем обновление цен по всем продуктам
+    public function currency()
     {
-        if ($val === null) $val = $this->pay_params['currency'];
-        foreach($this->banks as $bank){ $bank['CharCode'] != $val ?: $this->pay_params['currency_val'] = $bank['Value']; }
-        //$this->render();
+        //dd($this->saved_schema);
+
+        foreach (['nodes', 'connections', 'other'] as $name) {
+            foreach ($this->saved_schema[$name] as $key => $product) {
+                foreach ($this->banks as $banks) {
+                    // обновление валюты
+                    if ($banks['CharCode'] == $product['product']['currency']) {
+                        $this->saved_schema[$name][$key]['product']['currency_val'] = $banks['Value'];
+                    }
+                    // обновление валюты RUB
+                    if ('RUB' == $product['product']['currency']) {
+                        $this->saved_schema[$name][$key]['product']['currency_val'] = 1;
+                    }
+                }
+            }
+        }
+        
+
+        $this->saveConfiguration();
     }
 
     public function render()
     {
-        //dd($this->saved_schema);
+        //dd($this->pay_params);
         return view('livewire.tkp.tkp-calculation');
     }
 }

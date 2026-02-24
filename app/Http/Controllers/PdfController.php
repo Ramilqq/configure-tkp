@@ -1,8 +1,5 @@
 <?php
 
-
-
-// app/Http/Controllers/PdfDemoController.php
 namespace App\Http\Controllers;
 
 use App\Models\Configuration\Configuration;
@@ -10,10 +7,13 @@ use App\Models\TableSettings\GroupOption;
 use App\Models\Tkp\Tkp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Spipu\Html2Pdf\Html2Pdf;
+use App\Services\TableSettings\DimensionSchemeResolver;
 
 class PdfController extends Controller
 {
+    use AuthorizesRequests;
 
     public function preview()
     {
@@ -33,16 +33,70 @@ class PdfController extends Controller
         $content = '';
 
         $tkp = Tkp::where('tkp_version', $tkp_version)->first();
+        
+        // Проверка авторизации
+        if (!$tkp) {
+            abort(404, 'ТКП не найдена');
+        }
+        
+        $this->authorize('view', $tkp);
+        
         $user = $tkp->user()->toArray();
-
-        $tkp ? $tkp = $tkp->toArray() : exit('tkp not found');
+        $tkp = $tkp->toArray();
 
         $configuration = Configuration::where('tkp_version', $tkp_version)->first();
         $configuration ? $configuration = $configuration->toArray() : exit('tkp not found');
         $groupOptions = GroupOption::all()->toArray();
         $groupOptions = collect($groupOptions);
 
-        //dd($tkp);
+        // --- схемы габаритов (картинки) ---
+        $dimensionSchemes = [];
+        $resolver = app(DimensionSchemeResolver::class);
+        //dd($configuration);
+        foreach (($configuration['saved_schema']['nodes'] ?? []) as $node) {
+            $pid = $node['product']['id'] ?? null;
+            
+            if (!empty($node['product']['price_rules_applied'])) {
+                foreach($node['product']['price_rules_applied'] as $rules_key => $rules_value) {
+                    $pid .= trim($rules_value['rule_key']);
+                }
+            }
+            if (!$pid) continue;
+            if (array_key_exists($pid, $dimensionSchemes)) continue;
+        
+            $schemes = $resolver->resolveForNode($node);
+            //dd($scheme);
+            foreach ($schemes as $scheme) {
+                $arr = $scheme->toArray();
+                $arr['images'] = array_map(function ($img) {
+                    
+                    $img['abs_path'] = public_path($img['file_path']);
+                    return $img;
+                }, $arr['images'] ?? []);
+                $dimensionSchemes[$pid][] = $arr;
+            }
+            /*
+            $scheme = $resolver->resolveForNode($node);
+            //dd($scheme);
+            if ($scheme) {
+                $arr = $scheme->toArray();
+                $arr['images'] = array_map(function ($img) {
+                    
+                    $img['abs_path'] = public_path($img['file_path']);
+                    return $img;
+                }, $arr['images'] ?? []);
+                $dimensionSchemes[$pid] = $arr;
+            } else {
+                $dimensionSchemes[$pid] = null;
+            }
+            */
+
+            if (!$schemes) {
+                $dimensionSchemes[$pid] = null;
+            }
+        }
+
+        //dd($tkp, $dimensionSchemes);
 
         $content .= view('pdf.title', compact('tkp'))->render();
         $content .= view('pdf.table', compact('user', 'tkp', 'configuration'))->render();
@@ -53,7 +107,7 @@ class PdfController extends Controller
         //страница подключения
         $content .= view('pdf.fr.connection', compact('user', 'tkp', 'configuration'))->render();
         //страница характеристик
-        $content .= view('pdf.fr.technical', compact('user', 'tkp', 'configuration', 'groupOptions'))->render();
+        $content .= view('pdf.fr.technical', compact('user', 'tkp', 'configuration', 'groupOptions', 'dimensionSchemes'))->render();
 
 
         $html2pdf = new Html2Pdf('P', 'A4', 'en', true, 'UTF-8', [0, 0, 0, 0]);

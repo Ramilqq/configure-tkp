@@ -4,6 +4,8 @@
         <link rel="icon" href="storage/icon.png" sizes="any">
 
         <base href="/" />
+        {{-- Подключение иконок резервный --}}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -11,24 +13,24 @@
     <body>
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/">RU-Drive TKP</a>
+                <a class="navbar-brand" href="/">RU-Drive ТКП</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{{route('home')}}">Главная</a>
+                            <a class="nav-link @if(url()->current() == route('home')) active @endif" aria-current="page" href="{{route('home')}}">Главная</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{route('table-settings.template-list')}}">Шаблон</a>
+                            <a class="nav-link @if(url()->current() == route('table-settings.template-list')) active @endif" href="{{route('table-settings.template-list')}}">Шаблон</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a>
+                            <a class="nav-link @if(url()->current() == route('configuration-node-group')) active @endif" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{route('table-settings.products.excel-import')}}">Импорт</a>
+                            <a class="nav-link @if(url()->current() == route('table-settings.products.excel-import')) active @endif" href="{{route('table-settings.products.excel-import')}}">Импорт/Экспорт</a>
                         </li>
 
                         
@@ -45,17 +47,17 @@
                         </li-->
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{route('tkp.contact')}}">ТКП создать</a>
+                            <a class="nav-link @if(url()->current() == route('tkp.contact')) active @endif" href="{{route('tkp.contact')}}">ТКП создать</a>
                         </li>
 
                         <li class="nav-item">
                         <a class="nav-link disabled">Disabled</a>
                         </li>
                     </ul>
-                    <form class="d-flex" role="search">
+                    <!--form class="d-flex" role="search">
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
+                    </form-->
                 </div>
             </div>
         </nav>

@@ -9,33 +9,30 @@
 
         @else
         
-
+        <div class="row">
+            <div class="col bg-light rounded mb-1">
+                <b><span>Страницы проекта:</span></b>
+                <div class="btn-groups">
+                    <a href="{{ route('tkp.contact.edit', ['id' => $id, 'tkp_version' => $tkp_version]) }}" class="btn btn-success btn me-1" target="_blank" title="Изменить страницу 'Контактная информация'"><i class="bi bi-person-lines-fill"></i></a>
+                    <a href="{{ route('tkp.sheme.edit', ['id' => $id, 'tkp_version' => $tkp_version]) }}" class="btn btn-success btn me-1" target="_blank" title="Изменить страницу 'Схема'"><i class="bi bi-diagram-3-fill"></i></a>
+                    <a href="{{ route('tkp.delivery.edit', ['id' => $id, 'tkp_version' => $tkp_version]) }}" class="btn btn-success btn me-1" target="_blank" title="Изменить страницу 'Доставка'"><i class="bi bi-truck-front-fill"></i></a>
+                </div>
+            </div>
+        </div>
         <div class="row">
             
-            <div class="col-4 mx-1 rounded">
+            <div class="col-4 rounded">
                 <div class="row">
 <!-- блок с ценами -->
-                    <div class="col-12 bg-light my-1  px-1 rounded">
+                    <div class="col-12 bg-light rounded">
+                        <b><span>Дополнительные параметры:</span></b>
                         <div class="row g-3 align-items-center pb-1">
-                            <div class="col-4">
-                                Курс
-                                <button title="Изменить опцию" class="btn btn-primary btn-sm"
+                            <div class="col-12">
+                                Обновить цены по текущему курсу:
+                                <button title="Обновить" class="btn btn-primary btn-sm"
                                     wire:click="currency()"
                                 ><i class="bi bi-arrow-clockwise"></i></button>
                             </div>
-                            <div class="col-4">
-                                <select class="form-select" wire:model.lazy="pay_params.currency" id="pay_params.currency" >
-                                    @forelse($banks as $bank)
-                                        <option value="{{$bank['CharCode']}}" wire:key="bank_{{$bank['NumCode']}}">{{$bank['CharCode']}}</option>
-                                    @empty
-                                        <option value="">---</option>
-                                    @endforelse
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <input type="text" id="pay_params.currency_val" class="form-control" wire:model.lazy="pay_params.currency_val">
-                            </div>
-                            
                         </div>
 
                         <div class="row g-3 align-items-center pb-1">
@@ -56,6 +53,7 @@
                                     <option value="0">0%</option>
                                     <option value="18">18%</option>
                                     <option value="20">20%</option>
+                                    <option value="22">22%</option>
                                 </select>
                             </div>
                         </div>
@@ -113,11 +111,11 @@
 
                 </div>
             </div>
-            <div class="col bg-light mx-1 rounded">
-                
-                 <div class="btn-groups">
-                    <livewire:tkp.modal.add-product :tkp_version="$tkp_version"/>
-                 </div>
+            <div class="col bg-light ms-1 rounded">
+                <b><span>Список продуктов:</span></b>
+                <div class="btn-groups">
+                    <livewire:tkp.modal.add-product :tkp_version="$tkp_version" :banks="$banks"/>
+                </div>
                 
                 <hr />
 
@@ -129,6 +127,7 @@
                         <th scope="col">Цена</th>
                         <th scope="col">Валюта</th>
                         <th scope="col">Курс</th>
+                        <th scope="col">Доставка</th>
                         <th scope="col">Кнопки</th>
                         </tr>
                     </thead>
@@ -143,7 +142,13 @@
                                 <td>{{$nodes['product']['price']}}</td>
                                 <td>{{$nodes['product']['currency']}}</td>
                                 <td>{{$nodes['product']['currency_val']}}</td>
-                                <td>{{$nodes['product']['id']}}</td>
+                                <td>{{$nodes['product']['delivery']}} RUB</td>
+                                <td>
+                                    <!-- кнопка изменить товар -->
+                                    <button title="Изменить продукт" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductForm"
+                                        @click="$dispatch('addProductOpenForm', {product_id : '{{$nodes['id']}}' })"
+                                    ><i class="bi bi-pencil-square"></i></button>
+                                </td>
                             </tr>
                         @empty
                         @endforelse
@@ -156,6 +161,7 @@
                                     <td>{{$nodes['params']['product']['price']}}</td>
                                     <td>{{$nodes['params']['product']['currency']}}</td>
                                     <td>{{$nodes['params']['product']['currency_val']}}</td>
+                                    <td>{{$nodes['params']['product']['delivery']}} RUB</td>
                                     <td>{{$nodes['params']['product']['id']}}</td>
                                 </tr>
                             @endif
@@ -170,15 +176,16 @@
                                     <td>{{$nodes['product']['price']}}</td>
                                     <td>{{$nodes['product']['currency']}}</td>
                                     <td>{{$nodes['product']['currency_val']}}</td>
+                                    <td>{{$nodes['product']['delivery']}} RUB</td>
                                     <td>
                                         <!-- кнопка изменить товар -->
                                         <button title="Изменить продукт" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductForm"
-                                            @click="$dispatch('addProductOpenForm', {product_id : {{$nodes['product']['id']}} })"
+                                            @click="$dispatch('addProductOpenForm', {product_id : '{{$nodes['id']}}' })"
                                         ><i class="bi bi-pencil-square"></i></button>
                                         
                                         <!-- кнопка удалить товар -->
                                         <button title="Удалить продукт" class="btn btn-danger btn-sm"
-                                            @click="$dispatch('addProductRemove', {product_id : {{$nodes['product']['id']}} })"
+                                            @click="$dispatch('addProductRemove', {product_id : '{{$nodes['id']}}' })"
                                         ><i class="bi bi-trash"></i></button>
                                     </td>
                                 </tr>
@@ -278,9 +285,9 @@
             }
         }
 
-        if (!empty($product['rules_fields'])) {
-            foreach($product['rules_fields'] as $rules_key => $rules_value) {
-                $str .= trim($rules_key) . ':' . trim($rules_value) . ', ';
+        if (!empty($product['product']['price_rules_applied'])) {
+            foreach($product['product']['price_rules_applied'] as $rules_key => $rules_value) {
+                $str .= trim($rules_value['rule_name']) . ', ';
             }
         }
 
@@ -308,7 +315,7 @@
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
         // курс
-        $currency_val = isset($pay_params['currency_val']) ? floatval($pay_params['currency_val']) : 0.0;;
+        $currency_val = isset($p['currency_val']) ? floatval($p['currency_val']) : 0.0;;
 
         // доставка
         $delivery = isset($p['delivery']) ? floatval($p['delivery']) : 0.0;
@@ -322,14 +329,16 @@
         $oprionString = $makeOptionsStr($item);
 
         $rulesId = '';
-        if (!empty($item['rules_fields'])) {
-            foreach($item['rules_fields'] as $rules_key => $rules_value) {
-                $rulesId .= trim($rules_key);
+        if (!empty($item['product']['price_rules_applied'])) {
+            foreach($item['product']['price_rules_applied'] as $rules_key => $rules_value) {
+                $rulesId .= trim($rules_value['rule_key']) . ', ';
             }
         }
 
         $pid = $pid . $rulesId;
         
+        
+
         // Если товар уже есть — наращиваем количество и пересчитываем зависящие колонки
         if (isset($table['product_col'][$pid])) {
             // +1 к количеству
@@ -367,8 +376,8 @@
         $table['product_col'][$pid][2] = $name;
 
         // 3 — Наименование опций
-        //$table['product_col'][$pid][3] = $oprionString;
-        $table['product_col'][$pid][3] = $description;
+        $table['product_col'][$pid][3] = $oprionString;
+        //$table['product_col'][$pid][3] = $description;
 
         // 4 — Кол-во
         $table['product_col'][$pid][4] = 1;
@@ -507,9 +516,8 @@
     $nds = $total * ($nds_percent / 100);
     $total_nds = $total + $nds;
 
-    
-
     $form->pay_params['resault_total'] = $total;
+    $form->pay_params['resault_nds'] = $nds;
     $form->pay_params['resault_total_nds'] = $total_nds;
     
     $this->saveParams();

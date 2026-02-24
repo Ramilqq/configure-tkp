@@ -7,84 +7,104 @@ use App\Models\TableSettings\TemplatePriceRule;
 
 class TemplatePriceRuleService
 {
-    /**
-     * Применяет enabled-правила шаблона к продукту (НЕ сохраняет в БД).
-     * Возвращает новые price/delivery + список применённых правил.
-     */
     public function apply(Product $product, array $rulesForm): array
     {
-        // Берём базовые значения
         $price = $this->toFloatOrNull($product->price);
         $delivery = $this->toFloatOrNull($product->delivery);
-        
-        // Опции продукта: template_option_id => value
+
+        // template_option_id => value
         $optValues = [];
         if ($product->relationLoaded('productOption')) {
             foreach ($product->productOption as $po) {
                 $optValues[(int)$po->template_option_id] = $po->value;
             }
         } else {
-            // на всякий случай (но лучше eager-load)
             foreach ($product->productOption()->get(['template_option_id','value']) as $po) {
                 $optValues[(int)$po->template_option_id] = $po->value;
             }
         }
 
-        // Правила шаблона
+        // правила шаблона
         $rules = [];
         if ($product->relationLoaded('template') && $product->template && $product->template->relationLoaded('priceRules')) {
             $rules = $product->template->priceRules;
         } else {
-            // fallback
             $rules = TemplatePriceRule::query()
                 ->where('template_id', (int)$product->template_id)
                 ->orderBy('sort')
                 ->orderBy('id')
                 ->get();
         }
-
+        
         $applied = [];
 
         foreach ($rules as $rule) {
-            if (!$rule->enabled) {
-                continue;
-            }
+            if (!$rule->enabled) continue;
 
-            $target = (string)$rule->target_field; // price|delivery
-            if (!in_array($target, ['price','delivery'], true)) {
-                continue;
-            }
+            $target = (string)$rule->target_field;
+            if (!in_array($target, ['price','delivery'], true)) continue;
 
-            $driverId = $rule->driver_option_id ? (int)$rule->driver_option_id : null;
-            if (!$driverId) {
-                continue;
-            }
-
-            $driverValRaw = $optValues[$driverId] ?? null;
-
-            if (!isset($rulesForm[$rule->key])) {
+            // 0) правило должно присутствовать в форме
+            if (!array_key_exists($rule->key, $rulesForm)) {
                 continue;
             }
             
-            // 1) проверяем условие
-            if (!$this->conditionPass($rule, $rulesForm[$rule->key])) {
+            $formVal = $rulesForm[$rule->key];
+            
+            // 1) условие по значению из формы (rulesForm)
+            if (!$this->passes(
+                (string)($rule->condition_operator ?? 'exists'),
+                $formVal,
+                $rule->condition_value,
+                (string)($rule->condition_field ?? 'checkbox')
+            )) {
                 continue;
             }
 
-            // 2) ищем значение по mapping
-            $mapped = $this->lookupMappedValue($driverValRaw, (array)($rule->mapping ?? []));
-            if ($mapped === null) {
-                continue;
+            // 2) дополнительное условие по текстовой опции товара (НЕ обязательно)
+            if (!empty($rule->text_option_id)) {
+                $textVal = $optValues[(int)$rule->text_option_id] ?? null;
+
+                if (!$this->passes(
+                    (string)($rule->text_operator ?? 'exists'),
+                    $textVal,
+                    $rule->text_value,
+                    (string)($rule->text_field ?? 'checkbox')
+                )) {
+                    continue;
+                }
             }
+            
+            // 3) получить значение для применения:
+            //    - если есть driver_option_id => mapping по диапазонам/строкам
+            //    - иначе => fixed_value (без выбора опций продукта)
+            $valueToApply = null;
 
-            // 3) применяем
-            $before = ($target === 'price') ? $price : $delivery;
-            $after  = $this->applyMode((string)$rule->mode, $before, $mapped);
-
-            if ($target === 'price') {
-                $price = $after;
+            if (!empty($rule->driver_option_id)) {
+                $driverVal = $optValues[(int)$rule->driver_option_id] ?? null;
+                $valueToApply = $this->lookupMappedValue($driverVal, (array)($rule->mapping ?? []), $formVal, $textVal ?? null);
             } else {
-                $delivery = $after;
+                $valueToApply = $this->toFloatOrNull($rule->fixed_value);
+            }
+
+            
+            
+            if ($valueToApply === null) {
+                continue;
+            }
+
+            // 4) применить к цене
+            $before = ($target === 'price') ? $price : $delivery;
+            $after  = $this->applyMode((string)$rule->mode, $before, $valueToApply);
+
+            if ($target === 'price') $price = $after;
+            else $delivery = $after;
+
+            
+            if ($rule->generation_name_status) {
+                $generation_name = $this->generateName($rule, $formVal ?? null);
+            } else {
+                $generation_name = null;
             }
 
             $applied[] = [
@@ -93,9 +113,16 @@ class TemplatePriceRuleService
                 'rule_name' => (string)$rule->name,
                 'target' => $target,
                 'mode' => (string)$rule->mode,
-                'driver_option_id' => $driverId,
-                'driver_value' => $driverValRaw,
-                'mapped_value' => $mapped,
+
+                'generation_name' => $generation_name,
+
+                'form_value' => $formVal,
+
+                'text_option_id' => $rule->text_option_id ? (int)$rule->text_option_id : null,
+                'driver_option_id' => $rule->driver_option_id ? (int)$rule->driver_option_id : null,
+
+                'mapped_or_fixed_value' => $valueToApply,
+
                 'before' => $before,
                 'after' => $after,
             ];
@@ -108,58 +135,75 @@ class TemplatePriceRuleService
         ];
     }
 
-    private function conditionPass(TemplatePriceRule $rule, mixed $driverValRaw): bool
+    public function generateName(TemplatePriceRule $rule, mixed $formVal = null): ?string
     {
-        $op = (string)($rule->condition_operator ?? 'exists');
-        
-        $hasOption = $driverValRaw !== null;           // есть запись
-        $filled    = $hasOption && trim((string)$driverValRaw) !== '';
-
-        if ($op === 'exists') {
-            return $hasOption;
-        }
-        if ($op === 'filled') {
-            return $filled;
-        }
-
-        // equals / not_equals: сравниваем как строки (после trim)
-        $left = $filled ? trim((string)$driverValRaw) : null;
-        $right = trim((string)($rule->condition_value ?? ''));
-
-        // equals / not_equals: сравниваем как bool true/false
-        if (is_bool($driverValRaw)) {
-            $left = (bool)$driverValRaw;
-            $right = (bool)$rule->condition_value;
-        }
-
-        // если драйвер пустой/нет — не применяем (безопаснее, чем случайно применять)
-        if ($left === null) {
-            return false;
-        }
-
-        if ($op === 'equals') {
-            return $left === $right;
-        }
-        if ($op === 'not_equals') {
-            return $left !== $right;
-        }
-
-        // неизвестный оператор -> не применяем
-        return false;
+        return $rule->generation_name_text ?? $formVal;
     }
 
     /**
-     * Возвращает float значение из mapping, если найдено совпадение.
-     * Поддержка:
-     * - числовой драйвер: ищем диапазон from..to (пустое from/to = открытый край)
-     * - строковый драйвер: match по from (to можно не заполнять)
+     * Универсальная проверка условий exists/filled/equals/not_equals.
+     * $left — фактическое значение (из формы или из опции товара).
+     * $right — значение из правила (condition_value / text_value).
      */
-    private function lookupMappedValue(mixed $driverValRaw, array $mapping): ?float
+    private function passes(string $op, mixed $left, mixed $right, string $field_type = 'checkbox'): bool
+    {
+        $op = $op ?: 'exists';
+
+        $has = $left !== null;
+        $filled = $has && trim((string)$left) !== '';
+        
+        if ($op === 'exists') return $has;
+        if ($op === 'filled') return $filled;
+  
+        // equals / not_equals
+        // bool-режим (если left явно bool или right похож на bool)
+        if (is_bool($left) || $this->looksLikeBool($right)) {
+            $l = $this->toBool($left);
+            $r = $this->toBool($right);
+
+            return $op === 'equals' ? ($l === $r) : ($l !== $r);
+        }
+
+        if ($field_type === 'checkbox') {
+            $l = $filled; // для чекбокса сравниваем не само значение, а факт его наличия/отсутствия
+            $r = $this->toBool($right);
+        } elseif ($field_type === 'select') {
+            $right_arr = explode(',', (string)$right);
+            $r = null;
+            foreach ($right_arr as $k => $v) {
+                if (trim($v) === trim((string)$left)) {
+                    $r = trim($v);
+                    break;
+                }
+            }
+            $l = trim((string)$left);
+        } else {
+            $l = trim((string)$left);
+            $r = trim((string)($right ?? ''));
+        }
+        
+
+        return $op === 'equals' ? ($l === $r) : ($l !== $r);
+    }
+
+    private function looksLikeBool(mixed $v): bool
+    {
+        $s = mb_strtolower(trim((string)$v));
+        return in_array($s, ['1','0','true','false','да','нет','yes','no','on','off'], true);
+    }
+
+    private function toBool(mixed $v): bool
+    {
+        if (is_bool($v)) return $v;
+
+        $s = mb_strtolower(trim((string)$v));
+        return in_array($s, ['1','true','да','yes','on'], true);
+    }
+
+    private function lookupMappedValue(mixed $driverValRaw, array $mapping, mixed $formConditionVal = null, mixed $textConditionVal = null): ?float
     {
         $driverStr = trim((string)($driverValRaw ?? ''));
-        if ($driverStr === '') {
-            return null;
-        }
+        if ($driverStr === '') return null;
 
         $driverNum = $this->toFloatOrNull($driverStr);
 
@@ -171,11 +215,25 @@ class TemplatePriceRuleService
             $valRaw  = $row['value'] ?? null;
 
             $val = $this->toFloatOrNull($valRaw);
-            if ($val === null) {
-                continue;
+            if ($val === null) continue;
+
+            // Если в строке mapping заданы дополнительные ограничения по условию или по текстовому значению,
+            // то они должны совпадать с текущими значениями из формы / товара.
+            $mappingCond = $row['condition'] ?? null;
+            if ($mappingCond !== null && trim((string)$mappingCond) !== '') {
+                if (!$this->matchesMappingValue($formConditionVal, $mappingCond)) {
+                    continue;
+                }
             }
 
-            // Числовой сценарий
+            $mappingText = $row['text'] ?? null;
+            if ($mappingText !== null && trim((string)$mappingText) !== '') {
+                if (!$this->matchesMappingValue($textConditionVal, $mappingText)) {
+                    continue;
+                }
+            }
+            
+            // числовой сценарий
             if ($driverNum !== null) {
                 $from = $this->toFloatOrNull($fromRaw);
                 $to   = $this->toFloatOrNull($toRaw);
@@ -186,11 +244,10 @@ class TemplatePriceRuleService
                 if ($driverNum >= $min && $driverNum <= $max) {
                     return $val;
                 }
-
                 continue;
             }
 
-            // Строковый сценарий (если драйвер НЕ число)
+            // строковый сценарий
             $fromStr = trim((string)($fromRaw ?? ''));
             if ($fromStr !== '' && $driverStr === $fromStr) {
                 return $val;
@@ -208,7 +265,7 @@ class TemplatePriceRuleService
             'replace'  => $value,
             'add'      => $base + $value,
             'multiply' => $base * $value,
-            default    => $base, // неизвестный режим: ничего не меняем
+            default    => $base,
         };
     }
 
@@ -220,10 +277,51 @@ class TemplatePriceRuleService
         $s = trim((string)$v);
         if ($s === '') return null;
 
-        // "1 234,56" -> "1234.56"
         $s = str_replace(["\xC2\xA0", ' '], '', $s);
         $s = str_replace(',', '.', $s);
 
         return is_numeric($s) ? (float)$s : null;
+    }
+
+    private function matchesMappingValue(mixed $actual, mixed $expected): bool
+    {
+        if ($expected === null) return true;
+
+        // normalize expected to array of strings
+        $expArr = [];
+        if (is_array($expected)) {
+            $expArr = array_map(fn($v) => trim((string)$v), $expected);
+        } elseif (is_string($expected) && str_contains($expected, ',')) {
+            $expArr = array_map('trim', explode(',', $expected));
+        } else {
+            $expArr = [trim((string)$expected)];
+        }
+        
+        // normalize actual to string(s)
+        if (is_array($actual)) {
+            $actArr = array_map(fn($v) => trim((string)$v), $actual);
+        } else {
+            $actArr = [trim((string)($actual ?? ''))];
+        }
+
+        // if expected looks like boolean values, compare as boolean
+        $looksBool = $this->looksLikeBool($expArr[0] ?? '');
+        
+        if ($looksBool) {
+            foreach ($actArr as $a) {
+                foreach ($expArr as $e) {
+                    if ($this->toBool($a) === $this->toBool($e)) return true;
+                }
+            }
+            return false;
+        }
+
+        foreach ($actArr as $a) {
+            foreach ($expArr as $e) {
+                if ($a === $e) return true;
+            }
+        }
+
+        return false;
     }
 }

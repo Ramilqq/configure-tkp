@@ -22,7 +22,7 @@ class TemplatePriceRuleModal extends Component
     public function mount(): void
     {
         if (empty($this->form->mapping)) {
-            $this->form->mapping = [['from' => '', 'to' => '', 'value' => '']];
+            $this->form->mapping = [['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => '']];
         }
     }
 
@@ -34,13 +34,15 @@ class TemplatePriceRuleModal extends Component
         $this->form->enabled = true;
         $this->form->sort = 100;
         $this->form->target_field = 'price';
-        $this->form->mode = 'replace';
+        $this->form->mode = 'add';
+        $this->form->generation_name_status = false;
+        $this->form->generation_name_text = null;
 
         // условие по драйверу
-        $this->form->condition_operator = 'exists';
+        $this->form->condition_operator = 'equals';
         $this->form->condition_value = null;
 
-        $this->form->mapping = [['from' => '', 'to' => '', 'value' => '']];
+        $this->form->mapping = [['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => '']];
 
         $this->loadOptions($template_id);
     }

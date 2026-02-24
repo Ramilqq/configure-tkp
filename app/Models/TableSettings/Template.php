@@ -42,4 +42,11 @@ class Template extends Model
             ->orderBy('sort')
             ->orderBy('id');
     }
+
+    public function dimensionSchemes(): HasMany
+    {
+        return $this->hasMany(\App\Models\TableSettings\TemplateDimensionScheme::class, 'template_id', 'id')
+            ->orderBy('sort')
+            ->orderBy('id');
+    }
 }

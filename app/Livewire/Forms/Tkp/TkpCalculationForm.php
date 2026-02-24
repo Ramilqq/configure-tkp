@@ -24,7 +24,14 @@ class TkpCalculationForm extends Form
 
     public array $delivery_params = [];
     
-    public array $pay_params = [];
+    public array $pay_params = [
+        'marketing' => 0,
+        'nds' => 0,
+        'reserve' => 0,
+        'resault_total' => 0,
+        'resault_total_nds' => 0,
+        'resault_nds' => 0,
+    ];
 
     public ?string $comments;
 
@@ -49,7 +56,12 @@ class TkpCalculationForm extends Form
             'payment_scheme' => 'nullable',
             'offer_is_valid' => 'nullable',*/
 
-            'pay_params' => 'nullable',
+            'pay_params.marketing' => 'numeric',
+            'pay_params.nds' => 'nullable',
+            'pay_params.reserve' => 'nullable',
+            'pay_params.resault_total' => 'nullable',
+            'pay_params.resault_total_nds' => 'nullable',
+            'pay_params.resault_nds' => 'nullable',
         ];
     }
 

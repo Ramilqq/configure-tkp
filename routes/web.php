@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('table-settings/products/excel-import', App\Livewire\TableSettings\ProductExcelImport::class)->name('table-settings.products.excel-import');
 
+    Route::get('table-settings/dimension-schemes/{template_id}', App\Livewire\TableSettings\TemplateDimensionScheme::class)->name('table-settings.dimension-schemes');
 
 });
 

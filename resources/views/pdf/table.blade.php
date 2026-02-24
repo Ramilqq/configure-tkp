@@ -80,7 +80,6 @@
             <col style="width:10%">
             <tr style="text-align: center;">
                 <td colspan="9" style="border: none;text-align: center;">ТЕХНИКО-КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ- СПЕЦИФИКАЦИЯ ОБОРУДОВАНИЯ И РАБОТ №1</td>
-                <!--td colspan="4" style="border: none;text-align: right;">Предложение рассчитано при курсе USD <?php echo $tkp['pay_params']['currency_val'].' ,руб'?></td-->
             </tr>
             
             <tr style="text-align: center;">
@@ -219,7 +218,7 @@
             <tr style="text-align: center;">
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;">Валюта:</td>
-                <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"><?php echo $tkp['pay_params']['currency'] . ' ' . $tkp['pay_params']['currency_val'].' ,руб'?></td>
+                <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"><?php echo '-' ?></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
@@ -250,7 +249,7 @@
                 <td style="border:0px"><b>Гарантийный срок:</b> <?php echo $tkp['delivery_params']['offer_is_valid'];?></td>
             </tr>
             <tr>
-                <td style="border:0px"><b>Примечание:</b> Предложение действительно в течении 30 дней при курсе ЦБ, не превышающем <?php echo $tkp['pay_params']['currency_val'];?> руб. за 1 <?php echo $tkp['pay_params']['currency'];?>, при неизменности технических требований.</td>
+                <td style="border:0px"><b>Примечание:</b> Предложение действительно в течении 30 дней при курсе ЦБ, не превышающем <?php echo '-' ;?> руб. за 1 <?php echo '-';?>, при неизменности технических требований.</td>
             </tr>
         </tbody>
     </table>

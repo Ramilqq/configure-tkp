@@ -28,14 +28,14 @@ class ProductForm extends Form
             'currency' => 'required|min:3|max:3',
             'price' => 'required|numeric|min:0|max:200000',
             'delivery' => 'required|numeric|min:0|max:200000',
-            'engineering.po' => 'required|integer|max:200',
-            'engineering.kd' => 'required|integer|max:200',
-            'engineering.pir' => 'required|integer|max:200',
-            'engineering.pnr_po' => 'required|integer|max:200',
-            'engineering.pnr' => 'required|integer|max:200',
-            'engineering.smr_shmr' => 'required|integer|max:200',
-            'engineering.assembly' => 'required|integer|max:200',
-            'engineering.mounting' => 'required|integer|max:200',
+            'engineering.*' => 'required|integer|max:200',
+            //'engineering.kd' => 'required|integer|max:200',
+            //'engineering.pir' => 'required|integer|max:200',
+            //'engineering.pnr_po' => 'required|integer|max:200',
+            //'engineering.pnr' => 'required|integer|max:200',
+            //'engineering.smr_shmr' => 'required|integer|max:200',
+            //'engineering.assembly' => 'required|integer|max:200',
+            //'engineering.mounting' => 'required|integer|max:200',
         ];
     }
 

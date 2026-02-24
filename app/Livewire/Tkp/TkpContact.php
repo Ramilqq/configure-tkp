@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Tkp;
 
-//use App\Livewire\Forms\Tkp\TkpContactForm;
 use App\Livewire\Forms\Tkp\TkpCalculationForm;
 use App\Models\Tkp\ContractOwner;
 use App\Models\Tkp\Industry;
+use App\Models\Tkp\Tkp;
 use Livewire\Component;
 
 class TkpContact extends Component
@@ -24,6 +24,12 @@ class TkpContact extends Component
     {
         ($id && $tkp_version) ? $this->form->editForm($id, $tkp_version) : null;
         $this->form->route = 'tkp.sheme.edit';
+
+        // Проверка авторизации
+        if ($id && $tkp_version) {
+            $tkp = Tkp::findOrFail($id);
+            $this->authorize('view', $tkp);
+        }
     }
 
     public function render()

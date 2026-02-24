@@ -47,7 +47,10 @@
                         <button title="Правила цены" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#templatePriceRuleModalForm"
                             @click="$dispatch('templatePriceRuleInit', {template_id : {{$value->id}} })"
                         ><i class="bi bi-cash-coin"></i></button>
-
+                        <!-- кнопка схем габаритов -->
+                        <a title="Схемы габаритов" class="btn btn-info btn-sm"
+                            href="{{route('table-settings.dimension-schemes', ['template_id' => $value->id])}}"
+                        ><i class="bi bi-aspect-ratio"></i></a>
                     </td>
                 </tr>
                 <tr>

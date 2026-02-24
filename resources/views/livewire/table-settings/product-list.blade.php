@@ -126,33 +126,43 @@
                 <td style="position:sticky;left:0;">
                     <input type="text"
                            value="{{ $product->name }}"
-                           wire:change="saveProductField({{ $product->id }}, 'name', $event.target.value)">
+                           wire:change="saveProductField({{ $product->id }}, 'name', $event.target.value)"
+                           wire:key="name-{{ $product->id }}"
+                    >
                 </td>
 
                 <td>
                     <input type="text"
                            value="{{ $product->description }}"
-                           wire:change="saveProductField({{ $product->id }}, 'description', $event.target.value)">
+                           wire:change="saveProductField({{ $product->id }}, 'description', $event.target.value)"
+                           wire:key="description-{{ $product->id }}"
+                    >
                 </td>
 
                 @foreach(($product->engineering ?? []) as $engKey => $engVal)
                     <td>
                         <input type="text"
                                value="{{ $engVal }}"
-                               wire:change="saveEngineering({{ $product->id }}, '{{ $engKey }}', $event.target.value)">
+                               wire:change="saveEngineering({{ $product->id }}, '{{ $engKey }}', $event.target.value)"
+                               wire:key="engineering-{{ $product->id }}-{{ $engKey }}"
+                        >
                     </td>
                 @endforeach
 
                 <td>
                     <input type="number" step="0.01"
                            value="{{ $product->price }}"
-                           wire:change="saveProductField({{ $product->id }}, 'price', $event.target.value)">
+                           wire:change="saveProductField({{ $product->id }}, 'price', $event.target.value)"
+                           wire:key="price-{{ $product->id }}"
+                    >
                 </td>
                 
                 
                 <td>
                     <select class="form-select"
-                            wire:change="saveProductField({{ $product->id }}, 'currency', $event.target.value)">
+                            wire:change="saveProductField({{ $product->id }}, 'currency', $event.target.value)"
+                            wire:key="currency-{{ $product->id }}"
+                    >
                         <option value="">NULL</option>
                         @foreach(($product->allCurrency() ?? []) as $currency)
                             <option value="{{ $currency }}" @selected($product->currency === $currency)>{{ $currency }}</option>
@@ -162,11 +172,13 @@
 
 
                 @foreach($product->productOption as $opt)
+                
                     <td>
                         <select class="form-select"
-                                
+                                wire:key="product-option-{{ $opt->id }}"
                                 wire:change="saveProductOption({{ $opt->id }}, $event.target.value)">
                             <option value="">NULL</option>
+                            
                             @foreach(($opt->getName->fields ?? []) as $field)
                                 <option value="{{ $field }}" @selected($opt->value === $field)>{{ $field }}</option>
                             @endforeach
@@ -179,13 +191,17 @@
                             title="Изменить продукт"
                             data-bs-toggle="modal"
                             data-bs-target="#productModalForm"
-                            @click="$dispatch('productEditOpenForm', {id: {{ $product->id }} })">
+                            @click="$dispatch('productEditOpenForm', {id: {{ $product->id }} })"
+                            wire:key="edit-btn-{{ $product->id }}"
+                    >
                         <i class="bi bi-pencil-square"></i>
                     </button>
 
                     <button class="btn btn-danger btn-sm"
                             title="Удалить продукт"
-                            wire:click="productDellete({{ $product->id }})">
+                            wire:click="productDellete({{ $product->id }})"
+                            wire:key="delete-btn-{{ $product->id }}"
+                    >
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>

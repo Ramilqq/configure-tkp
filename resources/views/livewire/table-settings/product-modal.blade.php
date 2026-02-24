@@ -63,7 +63,7 @@
             @foreach(($product->getEngineering() ?? ['Нет данных' => 0]) as $k => $v)
                 <div class="col-3">
                     <label for="{{ $k }}" class="form-label">{{ $k }}</label>
-                    <input type="number" class="form-control" placeholder="0" id="po" wire:model="form.engineering.{{ $k }}">
+                    <input type="number" class="form-control" placeholder="0" id="{{ $k }}" wire:model="form.engineering.{{ $k }}">
                 </div>
             @endforeach
         </div>

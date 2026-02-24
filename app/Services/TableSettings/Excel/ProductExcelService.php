@@ -504,6 +504,16 @@ class ProductExcelService
 
                     $po->value = $val;
                     $po->save();
+                    
+                    if ($to = TemplateOption::query()->where('id', $optId)->first()) {
+                        $to_fields = $to->fields ?? [];
+                        if (!in_array($val, $to_fields)) {
+                            $to_fields[] = $val;
+                        }
+                        $to->fields = $to_fields;
+                        $to->save();
+                    }
+                        
                     $updatedOptionCells++;
                 }
             }

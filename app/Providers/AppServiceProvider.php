@@ -2,11 +2,18 @@
 
 namespace App\Providers;
 
+use App\Models\Tkp\Tkp;
+use App\Policies\TkpPolicy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
+    protected $policies = [
+        Tkp::class => TkpPolicy::class,
+    ];
+
     /**
      * Register any application services.
      */
@@ -22,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Регистрация policies
+        foreach ($this->policies as $model => $policy) {
+            Gate::policy($model, $policy);
+        }
+
         // Подхватываем схему из APP_URL и заставляем URL генератор быть последовательным
         $appUrl = config('app.url'); // берётся из APP_URL
         if ($appUrl) {

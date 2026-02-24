@@ -25,10 +25,19 @@
             <?php
                 $node_repeat = [];
                 foreach($configuration['saved_schema']['nodes'] as $node){
-                    if(array_search($node['product']['id'], $node_repeat) !== false) {
+                    //dd($configuration['saved_schema']['nodes']);
+                    
+                    $pid = $node['product']['id'] ?? null;
+                    if (!empty($node['product']['price_rules_applied'])) {
+                        foreach($node['product']['price_rules_applied'] as $rules_key => $rules_value) {
+                            $pid .= trim($rules_value['rule_key']);
+                        }
+                    }
+
+                    if(array_search($pid, $node_repeat) !== false) {
                         continue;
                     }
-                    $node_repeat[] = $node['product']['id'];
+                    $node_repeat[] = $pid;
 
                     $table = [];
                     foreach($node['product']['product_option'] as $oprion){
@@ -80,7 +89,19 @@
                     }
             ?>
                 </page>
-
+            
+            <?php
+            
+            $schemes_prod = $pid ? ($dimensionSchemes[$pid] ?? null) : null;
+            
+            foreach($schemes_prod as $scheme) {
+                
+                //dd($scheme);
+                if ($scheme && !empty($scheme['images'])) {
+                    $printed = 0;
+                    
+                    foreach ($scheme['images'] as $img) {
+            ?>
                 <page orientation="portrait" backimg="assets/image/pdf/bg6.png" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
                     <page_header>
                         <div class="pdf_page_header">
@@ -89,9 +110,38 @@
                             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
                         </div>
                     </page_header>
-                    <h4 style="text-align: center;">Габаритный чертеж: {{$node['product']['name']}}</h4>
-                    <!--img src="assets/image/size/<?php echo '$fullvfd->dimension_draw';?>.jpg" style="width:180mm;height:200mm;"-->
+                    
+                        <h4 style="text-align: center;">Габаритный чертеж: {{$node['product']['name']}}</h4>
+                        <?php
+                        
+                            $abs = $img['abs_path'] ?? '';
+                            if (!$abs || !file_exists($abs)) continue;
+                
+                            $title = $img['title'] ?? '';
+                            
+                            echo '<div style="text-align:center; margin-top: 8mm;">';
+                            if ($title) {
+                                echo '<div style="font-size:12px; margin-bottom:3mm; margin-right:3mm;"><b>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</b></div>';
+                            }
+                            echo '<img src="' . $abs . '" style="width:180mm; height:auto;" />';
+                            echo '</div>';
+                
+                            $printed++;
+                        ?>
+
                 </page>
+            <?php
+                    }
+                        
+                    if ($printed === 0) {
+                        echo '<div style="text-align:center; color:#666; margin-top:30mm;">Схема габаритов не найдена (файлы отсутствуют)</div>';
+                    }
+                } else {
+                    echo '<div style="text-align:center; color:#666; margin-top:30mm;">Схема габаритов не задана</div>';
+                }
+            }
+            
+            ?>
             <?php
                 }
             ?>

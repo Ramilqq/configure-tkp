@@ -9,12 +9,14 @@ class AddProduct extends Component
 {
     protected $listeners = [
         'addProductOpenForm' => 'addProductOpenForm',
+        'editProductOpenForm' => 'editProductOpenForm',
         'addProductRemove' => 'addProductRemove',
     ];
 
     public AddProductForm $form;
     public int $tkp_version;
-    public int $product_id;
+    public string $product_id;
+    public array $banks;
 
     public function saveForm()
     {
@@ -28,15 +30,21 @@ class AddProduct extends Component
         $this->form->openForm($this->tkp_version, $product_id);
     }
 
+    public function editProductOpenForm($product_id)
+    {
+        $this->form->openForm($this->tkp_version, $product_id);
+    }
+
     public function addProductRemove($product_id)
     {
         $this->form->remove($this->tkp_version, $product_id);
         $this->dispatch('addProductUpdateList');
     }
 
-    public function mount($tkp_version = 0)
+    public function mount($tkp_version = 0, $banks = [])
     {
         $this->tkp_version = $tkp_version;
+        $this->banks = $banks;
     }
 
     public function render()

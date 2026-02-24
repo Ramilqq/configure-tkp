@@ -6,14 +6,14 @@ use App\Models\Configuration\Configuration;
 use App\Models\User;
 use App\Services\BankRequest;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class Tkp extends Model
 {
-
     public $pay_params_defaults  = [
-        'currency' => 'CNY',
-        'currency_val' => '',
+        //'currency' => 'CNY',   удалены с приложения
+        //'currency_val' => '',  удалены с приложения
 
         'marketing' => '0',
         'marketing_coef' => '0',
@@ -64,7 +64,7 @@ class Tkp extends Model
     {
         // запись перед сохранением модели
         static::saving(function (Tkp $tkp) {
-            $tkp->user_id = auth()->id();
+            $tkp->user_id = Auth::id();
         });
 
         // запись перед созданием
@@ -82,9 +82,18 @@ class Tkp extends Model
                 $tkp->delivery_params = $tkp->delivery_params_defaults;
             }
 
-            // получение курса при создании ТКП
-            $tkp->user_id = auth()->id();
+            // сохранить автора ТКП
+            $tkp->user_id = Auth::id();
             $tkp->save();
+
+            // очистка кэша после создания ТКП
+            Cache::forget('tkp_list');
+        });
+
+        // удаление
+        static::deleted(function (Tkp $tkp) {
+            // очистка кэша после удаления ТКП
+            Cache::forget('tkp_list');
         });
     }
 
