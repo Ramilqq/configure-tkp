@@ -13,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Manufacturer::create(['name' => 'ООО НПП "РУ-Инжиниринг"']);
+        Manufacturer::create(['name' => 'ООО "Завод РУ-Драйв"']);
     }
 
     /**

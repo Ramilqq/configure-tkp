@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('name')->nullable()->default(NULL);
+            $table->string('key')->nullable()->default(NULL);
             $table->decimal('price', 12, 2)->nullable()->default(0.00);
 
             $table->timestamps();

@@ -209,7 +209,7 @@ class ProductExcelService
         $parsed = $this->parseHeader($headerRow);
         $plan = $this->buildPlan($template, $parsed);
 
-        if (!in_array('id', $parsed['base_present'], true)) {
+        /*if (!in_array('id', $parsed['base_present'], true)) {
             return [
                 'ok' => false,
                 'error' => "В файле нет колонки ID (строка " . self::HEADER_ROW . "). Нужен столбец ID для импорта по id.",
@@ -217,7 +217,7 @@ class ProductExcelService
                 'columns' => [],
                 'rows' => [],
             ];
-        }
+        }*/
 
         $rows = [];
         $start = self::DATA_ROW;

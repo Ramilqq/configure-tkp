@@ -16,8 +16,8 @@ class FormEditModalFr extends Component
     public array $getRules = [];
 
     // обновляем список правил цены при выборе шаблона в модальном окне
-    #[On('updateFilter')]
-    public function updateFilter($template_id, $node_id = null, $conn_id = null)
+    #[On('updateFilterFR')]
+    public function updateFilterFR($template_id, $node_id = null, $conn_id = null)
     {
         $this->product_manufacturer_select = Manufacturer::get()->toArray();
         $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();

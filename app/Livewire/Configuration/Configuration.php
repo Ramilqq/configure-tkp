@@ -8,13 +8,10 @@ use App\Models\Configuration\NodeGroup;
 use App\Models\TableSettings\Product;
 use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
-use App\Models\Tkp\Manufacturer;
 use App\Models\Tkp\Tkp;
 use App\Services\BankRequest;
-use Illuminate\Http\Request;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Str;
 use App\Services\TableSettings\TemplatePriceRuleService;
 
 class Configuration extends Component
@@ -54,7 +51,7 @@ class Configuration extends Component
         $query = Product::query()->with('template')
             ->with(['template.priceRules'])
             ->with('productOption')
-            //->with('manufacturer')
+            ->with('manufacturer')
             ->with('productOption.getName');
 
         $banks = new BankRequest();
@@ -89,7 +86,7 @@ class Configuration extends Component
                 }
 
                 $productModel = $query->first() ?: null;
-                //dd($productModel, $this->getData, $this->getRules);
+                
                 if(!$productModel) {return;}
 
                 // --- применяем правила цены ---
@@ -110,14 +107,12 @@ class Configuration extends Component
                     }
                 }
 
-
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
                 $product['price_rules_applied'] = $applied_rules;
 
                 if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
                 else $product['currency_val'] = $banks->getValue($product['currency']);
-
 
                 $this->saved_schema['nodes'][$key]['product_id'] = $product['id'];
                 $this->saved_schema['nodes'][$key]['product_name'] = $product['name'];
@@ -179,21 +174,20 @@ class Configuration extends Component
 
     public function deleteProduct($id)
     {
-        //dd($id);
-        //unset($this->products[$id]);
+        // удаление продукта из схемы
     }
 
     public function updateFilter($template_id, $node_id = null, $conn_id = null)
     {
-        //dd($template_id, $node_id , $conn_id, $this->saved_schema );
-        //$this->product_filter_select = [];
-        //$this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
-        
-        //$this->product_rules_select = [];
-        //$this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
+        // при смене шаблона подгружаем новые опции и правила для фильтра
+        if ($template_id != 1) {
+            $this->product_filter_select = [];
+            $this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
+            
+            $this->product_rules_select = [];
+            $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
+        }
 
-        //dd($this->saved_schema, $this->getData, $this->getRules);
-        
         // фильтр для узлов
         foreach($this->saved_schema['nodes'] as $key => $node)
         {
@@ -228,15 +222,17 @@ class Configuration extends Component
                 $this->getRules = $this->saved_schema['connections'][$key]['params']['rules_fields'];
             }
         }
-        
-        // Отправляем данные в модальный компонент
-        $this->dispatch('updateFilter', template_id: $template_id, node_id: $node_id, conn_id: $conn_id)->to('blocks.form-edit-modal-fr');
-        $this->dispatch('syncModalData', getData: $this->getData, getRules: $this->getRules)->to('blocks.form-edit-modal-fr');
-        //dd($this->product_filter_select, $this->product_rules_select);    
+
+        // Отправляем данные в модальный компонент ЧРП
+        if ($template_id == 1) {
+            $this->dispatch('updateFilterFR', template_id: $template_id, node_id: $node_id, conn_id: $conn_id)->to('blocks.form-edit-modal-fr');
+            $this->dispatch('syncModalData', getData: $this->getData, getRules: $this->getRules)->to('blocks.form-edit-modal-fr');
+        }
     }
     
     public function syncModalDataBack($getData, $getRules)
     {
+        // Получаем данные из модального компонента ЧРП
         $this->getData = $getData;
         $this->getRules = $getRules;
     }

@@ -16,6 +16,7 @@ return new class extends Migration
         NodeGroup::create(['name' => 'ЧРП', 'template_id' => 1]);
         NodeGroup::create(['name' => 'КСО', 'template_id' => 2]);
         NodeGroup::create(['name' => 'Блок-Бокс', 'template_id' => 3]);
+        NodeGroup::create(['name' => 'УПП', 'template_id' => 4]);
     }
 
     /**

@@ -12,14 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Engineering::create(['name' => 'po', 'price' => 100.0]);
-        Engineering::create(['name' => 'kd', 'price' => 11.0]);
-        Engineering::create(['name' => 'pir', 'price' => 11.0]);
-        Engineering::create(['name' => 'pnr_po', 'price' => 21.0]);
-        Engineering::create(['name' => 'pnr', 'price' => 1.0]);
-        Engineering::create(['name' => 'smr_shmr', 'price' => 21.0]);
-        Engineering::create(['name' => 'assembly', 'price' => 21.0]);
-        Engineering::create(['name' => 'mounting', 'price' => 21.0]);
+        Engineering::create(['name' => 'ПО', 'key' => 'po', 'price' => 100.0]);
+        Engineering::create(['name' => 'КД', 'key' => 'kd', 'price' => 11.0]);
+        Engineering::create(['name' => 'ПИР', 'key' => 'pir', 'price' => 11.0]);
+        Engineering::create(['name' => 'ПНР ПО', 'key' => 'pnr_po', 'price' => 21.0]);
+        Engineering::create(['name' => 'ПНР', 'key' => 'pnr', 'price' => 1.0]);
+        Engineering::create(['name' => 'СМР/ШМР', 'key' => 'smr_shmr', 'price' => 21.0]);
+        Engineering::create(['name' => 'Сборка', 'key' => 'assembly', 'price' => 21.0]);
+        Engineering::create(['name' => 'Монтаж', 'key' => 'mounting', 'price' => 21.0]);
+        Engineering::create(['name' => 'ТКП', 'key' => 'tkp', 'price' => 21.0]);
+        Engineering::create(['name' => 'ПСД', 'key' => 'psd', 'price' => 21.0]);
     }
 
     /**

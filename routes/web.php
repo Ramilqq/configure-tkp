@@ -77,6 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('table-settings/dimension-schemes/{template_id}', App\Livewire\TableSettings\TemplateDimensionScheme::class)->name('table-settings.dimension-schemes');
 
+    Route::get('tkp/engineering-list', App\Livewire\Tkp\EngineeringList::class)->name('tkp.engineering-list');
+    Route::get('tkp/manufacturer-list', App\Livewire\Tkp\ManufacturerList::class)->name('tkp.manufacturer-list');
+
 });
 
 Route::get('/_scheme', function () {

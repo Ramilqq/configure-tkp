@@ -5,7 +5,6 @@
             <tr>
                 <th scope="col" style="width: 50px;">ID</th>
                 <th scope="col"  style="width: 300px; position: sticky;left: 0;">Имя</th>
-                <th scope="col"  style="width: 50px;">Валюта</th>
                 <th scope="col">Описание</th>
                 <th scope="col" style="width: 200px;">Кнопки</th>
             </tr>
@@ -16,15 +15,6 @@
                 <tr wire:key="{{$value->id}}" style="vertical-align: middle;"  class="table-active">
                     <th scope="row">{{ $value->id }}</th>
                     <td style="position: sticky;left: 0;">{{ $value->name }}</td>
-                    <td>
-                        @if($value->currency)
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#currencyModalForm" 
-                                @click="$dispatch('currencyEditOpenForm', {template_id : {{$value->id}} })"
-                            >
-                                {{ $value->currency->key }}
-                            </button>
-                        @else error! @endif
-                    </td>
                     <td>{{ $value->description }}</td>
                     <td>
                         <!-- кнопка изменить шаблон -->

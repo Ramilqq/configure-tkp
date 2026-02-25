@@ -18,20 +18,6 @@
         </div>
     </div>
 
-    <!-- Modal currency -->
-    <div class="modal fade" id="currencyModalForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="currencyModalFormLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="currencyModalFormLabel">Валюта</h1>
-                </div>
-                <div class="modal-body">
-                    <livewire:table-settings.currency-modal />
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Template Option -->
     <div class="modal fade" id="templateOptionModalForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="templateOptionModalFormLabel" aria-hidden="true">
         <div class="modal-dialog">

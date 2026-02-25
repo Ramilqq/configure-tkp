@@ -309,10 +309,38 @@
         $name        = isset($p['name']) ? $p['name'] : '';
         $description = isset($p['description']) ? $p['description'] : '';
         $manufacturer = isset($p['manufacturer']['name']) ? $p['manufacturer']['name'] : '';
-        $smr_shmr    = isset($p['smr_shmr']) ? floatval($p['smr_shmr']) : 0;
-        $po          = isset($p['po']) ? floatval($p['po']) : 0;
-        $pnr_po      = isset($p['pnr_po']) ? floatval($p['pnr_po']) : 0;
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
+
+        // инжиниринг
+        $kd = isset($p['engineering']['КД']) ? floatval($p['engineering']['КД']) : 0.0;
+        $kd = $kd * $saved_schema['engineering']['КД'];
+
+        $po = isset($p['engineering']['ПО']) ? floatval($p['engineering']['ПО']) : 0.0;
+        $po = $kd * $saved_schema['engineering']['ПО'];
+
+        $smr_shmr = isset($p['engineering']['СМР/ШМР']) ? floatval($p['engineering']['СМР/ШМР']) : 0.0;
+        $smr_shmr = $smr_shmr * $saved_schema['engineering']['СМР/ШМР'];
+
+        $pnr_po = isset($p['engineering']['ПНР ПО']) ? floatval($p['engineering']['ПНР ПО']) : 0.0;
+        $pnr_po = $pnr_po * $saved_schema['engineering']['ПНР ПО'];
+
+        $pir = isset($p['engineering']['ПИР']) ? floatval($p['engineering']['ПИР']) : 0.0;
+        $pir = $pir * $saved_schema['engineering']['ПИР'];
+
+        $assembly = isset($p['engineering']['Сборка']) ? floatval($p['engineering']['Сборка']) : 0.0;
+        $assembly = $assembly * $saved_schema['engineering']['Сборка'];
+
+        $mounting = isset($p['engineering']['Монтаж']) ? floatval($p['engineering']['Монтаж']) : 0.0;
+        $mounting = $mounting * $saved_schema['engineering']['Монтаж'];
+
+        $tkp = isset($p['engineering']['ТКП']) ? floatval($p['engineering']['ТКП']) : 0.0;
+        $tkp = $tkp * $saved_schema['engineering']['ТКП'];
+
+        $psd = isset($p['engineering']['ПСД']) ? floatval($p['engineering']['ПСД']) : 0.0;
+        $psd = $psd * $saved_schema['engineering']['ПСД'];
+
+        $pnr = isset($p['engineering']['ПНР']) ? floatval($p['engineering']['ПНР']) : 0.0;
+        $pnr = $pnr * $saved_schema['engineering']['ПНР'];
 
         // курс
         $currency_val = isset($p['currency_val']) ? floatval($p['currency_val']) : 0.0;;
@@ -418,17 +446,17 @@
         );
 
         // Работы
-        $table['product_col'][$pid][22] = 0;
-        $table['product_col'][$pid][23] = 0;
-        $table['product_col'][$pid][24] = 0;
-        $table['product_col'][$pid][25] = 0;
-        $table['product_col'][$pid][26] = 0;
-        $table['product_col'][$pid][27] = 0;
-        $table['product_col'][$pid][28] = $smr_shmr;
-        $table['product_col'][$pid][29] = $po;
-        $table['product_col'][$pid][30] = $pnr_po;
-        $table['product_col'][$pid][31] = 0;
-        $table['product_col'][$pid][32] = 0;
+        $table['product_col'][$pid][22] = 0; //Премия за управление проектом
+        $table['product_col'][$pid][23] = $psd; //Разработка ПСД
+        $table['product_col'][$pid][24] = $kd; //Разработка КД
+        $table['product_col'][$pid][25] = $po; //Разработка ПО
+        $table['product_col'][$pid][26] = $assembly; //Сборка оборудования
+        $table['product_col'][$pid][27] = 0; //Тестирование заводское
+        $table['product_col'][$pid][28] = $smr_shmr; //СМР/ШМР
+        $table['product_col'][$pid][29] = $pnr; //ПНР
+        $table['product_col'][$pid][30] = $pnr_po; //ПНР ПО
+        $table['product_col'][$pid][31] = 0; //Техобслуживание/ ремонт
+        $table['product_col'][$pid][32] = 0; //Затраты на управление работами
 
         // 33 — Итого по работам (сумма блока 22..32)
         $table['product_col'][$pid][33] = (

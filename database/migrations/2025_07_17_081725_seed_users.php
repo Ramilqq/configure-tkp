@@ -14,13 +14,16 @@ return new class extends Migration
     public function up(): void
     {
         // создание стандартного пользователя
-        User::create([
+        $user = User::create([
             'name' => 'admin',
-            'email' => 'admin@mail.ru',
+            'email' => 'admin@ru-drive.com',
+            'phone' => '+79999999999',
             'email_verified_at' => now(),
-            'password' => Hash::make('admin'),
+            'password' => Hash::make('admin@ru-drive.com'),
             'role' => User::ADMIN,
         ]);
+
+        $user->markEmailAsVerified();
     }
 
     /**

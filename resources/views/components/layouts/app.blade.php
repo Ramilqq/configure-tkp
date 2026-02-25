@@ -25,26 +25,22 @@
                         <li class="nav-item">
                             <a class="nav-link @if(url()->current() == route('table-settings.template-list')) active @endif" href="{{route('table-settings.template-list')}}">Шаблон</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @if(url()->current() == route('configuration-node-group')) active @endif" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a>
-                        </li>
-
+                        
                         <li class="nav-item">
                             <a class="nav-link @if(url()->current() == route('table-settings.products.excel-import')) active @endif" href="{{route('table-settings.products.excel-import')}}">Импорт/Экспорт</a>
                         </li>
 
                         
-                        <!--li class="nav-item dropdown">
+                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Страницы
+                                Настройки
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                <li><a class="dropdown-item @if(url()->current() == route('tkp.engineering-list')) active @endif" href="{{ route('tkp.engineering-list') }}">Инженерные данные</a></li>
+                                <li><a class="dropdown-item @if(url()->current() == route('tkp.manufacturer-list')) active @endif" href="{{ route('tkp.manufacturer-list') }}">Производители</a></li>
+                                <li><a class="dropdown-item @if(url()->current() == route('configuration-node-group')) active @endif" href="{{route('configuration-node-group')}}">Конфигуратор настройка</a></li>
                             </ul>
-                        </li-->
+                        </li>
 
                         <li class="nav-item">
                             <a class="nav-link @if(url()->current() == route('tkp.contact')) active @endif" href="{{route('tkp.contact')}}">ТКП создать</a>

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Cache;
 
 // App/Models/TableSettings/Product.php
 
@@ -57,10 +58,7 @@ class Product extends Model
     {
         // дефолты engineering — кешируем, чтобы не дергать БД на каждое создание
         static::creating(function (Product $product) {
-            if (empty(static::$engDefaultsCache)) {
-                $product = new Product;
-                $product->getEngineering();
-            }
+            $product->getEngineering(); // прогреваем кеш
             $product->engineering = (array)($product->engineering ?? static::$engDefaultsCache);
         });
 
@@ -86,10 +84,13 @@ class Product extends Model
 
     public function getEngineering()
     {
-        static::$engDefaultsCache = Engineering::query()
+        static::$engDefaultsCache = Cache::remember('engineering_defaults', now()->addHours(12), function () {
+            return Engineering::query()
                     ->pluck('name')
                     ->mapWithKeys(fn ($n) => [$n => 0])
                     ->all();
+        });
+
         return static::$engDefaultsCache;
     }
     
