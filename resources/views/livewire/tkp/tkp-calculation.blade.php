@@ -276,12 +276,20 @@
     // Утилиты
     $makeOptionsStr = function($product) {
         $str = '';
+        
         if (!empty($product['product']['product_option'])) {
             foreach($product['product']['product_option'] as $option) {
                 // если get_name может отсутствовать — проверяем
-                $name = isset($option['get_name']['name']) ? $option['get_name']['name'] : '';
-                $val  = isset($option['value']) ? $option['value'] : '';
-                $str .= trim($name) . ':' . trim($val) . ', ';
+                $description = isset($option['get_name']['description']) ? $option['get_name']['description'] : null;
+
+                if ($description) {
+                    $description = str_replace('['. $option['get_name']['key'] .']', $option['value'], $description);
+                    $str .= $description;
+                } else {
+                    $name = isset($option['get_name']['name']) ? $option['get_name']['name'] : '';
+                    $val  = isset($option['value']) ? $option['value'] : '';
+                    $str .= trim($name) . ':' . trim($val) . ', ';
+                }
             }
         }
 
@@ -550,8 +558,6 @@
     
     $this->saveParams();
 @endphp
-
-
             <table class="table">
                 <thead>
                     <tr class="table-tr-th">

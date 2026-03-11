@@ -15,6 +15,7 @@ class TemplateOptionForm extends BaseForm
     public int $group_id = 0;
     public string $name = '';
     public string $key = '';
+    public ?string $description = '';    
     public array $fields = [];
     
     protected function rules()
@@ -24,15 +25,16 @@ class TemplateOptionForm extends BaseForm
             'group_id' => 'required|numeric|exists:group_options,id',
             'name' => 'required|min:3|max:100',
             'key' => 'required|min:3|max:200',
+            'description' => 'nullable|min:3|max:200',
             'fields.*' => 'required|min:1|max:200',
         ];
     }
 
     public function saveForm($id = null)
     {
-        $this->key = StringTranslit::transliterate($this->name);
+        $this->key ?: $this->key = StringTranslit::transliterate($this->name);
         $valideate = $this->validate();
-        //dd($valideate);
+        
         $templateOption = TemplateOption::find($this->id);
 
         if($templateOption)

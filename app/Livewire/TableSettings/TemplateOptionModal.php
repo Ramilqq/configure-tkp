@@ -37,7 +37,6 @@ class TemplateOptionModal extends Component
 
     public function saveForm()
     {   
-        $this->form->key = $this->form->name;
         $valideate = $this->form->saveForm();
         session()->flash('status', 'Post successfully updated.');
         $this->dispatch('templateUpdateList');

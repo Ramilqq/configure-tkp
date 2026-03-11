@@ -13,6 +13,7 @@ class TemplatePriceRuleForm extends Form
 
     public string $name = '';
     public string $key = '';
+    public ?string $description = '';
 
     public bool $enabled = true;
     public int $sort = 100;
@@ -54,6 +55,7 @@ class TemplatePriceRuleForm extends Form
 
             'name' => 'required|min:2|max:150',
             'key'  => 'required|min:2|max:200|unique:template_price_rules,key,' . $this->id . ',id,template_id,' . $this->template_id,
+            'description' => 'required|min:1|max:250',
 
             'enabled' => 'boolean',
             'sort' => 'required|integer|min:0|max:100000',

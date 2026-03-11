@@ -42,13 +42,10 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link @if(url()->current() == route('tkp.contact')) active @endif" href="{{route('tkp.contact')}}">ТКП создать</a>
+                        <li class="nav-item d-flex">
+                            <a class="@if(url()->current() == route('tkp.contact')) active @endif btn btn-success" href="{{route('tkp.contact')}}">Создать ТКП</a>
                         </li>
-
-                        <li class="nav-item">
-                        <a class="nav-link disabled">Disabled</a>
-                        </li>
+                        
                     </ul>
                     <!--form class="d-flex" role="search">
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">

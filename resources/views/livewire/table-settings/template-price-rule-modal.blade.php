@@ -7,6 +7,11 @@
             <input type="text" class="form-control" wire:model.lazy="form.name" placeholder="Напр. Синхронизация по мощности" />
             <div class="text-danger">@error('form.name') {{ $message }} @enderror</div>
         </div>
+        <div class="mb-3">
+            <label class="form-label">Описание</label>
+            <input type="text" class="form-control" wire:model.lazy="form.description" placeholder="Напр. Синхронизация: Есть" />
+            <div class="text-danger">@error('form.description') {{ $message }} @enderror</div>
+        </div>
 
         <div class="row mb-3">
             <div class="col-6">

@@ -11,6 +11,7 @@ class TemplatePriceRule extends Model
         'template_id',
         'name',
         'key',
+        'description',
         'enabled',
         'sort',
         'target_field',

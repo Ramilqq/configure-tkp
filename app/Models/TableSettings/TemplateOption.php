@@ -12,6 +12,7 @@ class TemplateOption extends Model
         'group_id',
         'name',
         'key',
+        'description',
         'fields'
     ];
 

@@ -5,6 +5,15 @@
             <label for="name" class="form-label">Название</label>
             <input type="text" wire:model.lazy="form.name" class="form-control" placeholder="Название" id="name" />
         </div>
+        <div class="mb-3">
+            <label for="key" class="form-label">Ключ</label>
+            <input type="text" wire:model.lazy="form.key" class="form-control" placeholder="Ключ" id="key" />
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Поле для описания</label>
+            <input type="text" wire:model.lazy="form.description" class="form-control" placeholder="Описание" id="description" />
+        </div>
+        
 
         <div class="mb-3">
             <label for="group_id" class="form-label">Группа опции</label>
