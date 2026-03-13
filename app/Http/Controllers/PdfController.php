@@ -25,34 +25,42 @@ class PdfController extends Controller
             ],
             'total' => 1200*2 + 5800 + 7*250,
         ];
-        return view('pdf.tkp', $data); // смотри в браузере
+
+        $content = view('pdf.preview', compact('data'))->render();
+
+        $html2pdf = new Html2Pdf('P', 'A4', 'en', true, 'UTF-8', [0, 0, 0, 0]);
+        $html2pdf->setDefaultFont('dejavusans');
+        
+        $html2pdf->writeHTML($content);
+        $pdf = $html2pdf->output('TKP.pdf', 'S');
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="TKP.pdf"',
+        ]);
     }
 
     public function show($id, $tkp_version)
     {
-        $content = '';
+        $content = null;
 
-        $tkp = Tkp::where('tkp_version', $tkp_version)->first();
-        
-        // Проверка авторизации
-        if (!$tkp) {
-            abort(404, 'ТКП не найдена');
-        }
+        $tkp = Tkp::where('tkp_version', $tkp_version)->firstOrFail();
         
         $this->authorize('view', $tkp);
         
         $user = $tkp->user()->toArray();
         $tkp = $tkp->toArray();
 
-        $configuration = Configuration::where('tkp_version', $tkp_version)->first();
-        $configuration ? $configuration = $configuration->toArray() : exit('tkp not found');
+        $configuration = Configuration::where('tkp_version', $tkp_version)->firstOrFail();
+        $configuration = $configuration->toArray();
+
         $groupOptions = GroupOption::all()->toArray();
         $groupOptions = collect($groupOptions);
 
         // --- схемы габаритов (картинки) ---
         $dimensionSchemes = [];
         $resolver = app(DimensionSchemeResolver::class);
-        //dd($configuration);
+
         foreach (($configuration['saved_schema']['nodes'] ?? []) as $node) {
             $pid = $node['product']['id'] ?? null;
             
@@ -75,29 +83,12 @@ class PdfController extends Controller
                 }, $arr['images'] ?? []);
                 $dimensionSchemes[$pid][] = $arr;
             }
-            /*
-            $scheme = $resolver->resolveForNode($node);
-            //dd($scheme);
-            if ($scheme) {
-                $arr = $scheme->toArray();
-                $arr['images'] = array_map(function ($img) {
-                    
-                    $img['abs_path'] = public_path($img['file_path']);
-                    return $img;
-                }, $arr['images'] ?? []);
-                $dimensionSchemes[$pid] = $arr;
-            } else {
-                $dimensionSchemes[$pid] = null;
-            }
-            */
 
             if (!$schemes) {
                 $dimensionSchemes[$pid] = null;
             }
         }
-
-        //dd($tkp, $dimensionSchemes);
-
+        //dd($tkp, $configuration, $groupOptions, $dimensionSchemes);
         $content .= view('pdf.title', compact('tkp'))->render();
         $content .= view('pdf.table', compact('user', 'tkp', 'configuration'))->render();
         $content .= view('pdf.configuration', compact('user', 'tkp', 'configuration'))->render();

@@ -60,7 +60,7 @@
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
             <div style="position: absolute; right: 10mm;top:30px;">
-                <img src="assets/image/pdf/logo.png" style="width:100px; height:50px;">
+                <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
             </div>
         </div>
     </page_header>

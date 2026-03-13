@@ -18,31 +18,26 @@ class DimensionSchemeResolver
     {
         $templateId = (int)($node['template_id'] ?? ($node['product']['template_id'] ?? 0));
 
-        //dd($templateId, $node);
         if ($templateId <= 0) return null;
 
         $options = $this->extractOptionMap($node);
         $rules   = $this->extractRuleMap($node);
 
         $schemes = $this->loadSchemes($templateId);
-        //dd($schemes);
+        $results = [];
         foreach ($schemes as $scheme) {
             if (!$scheme->enabled) continue;
 
             $okOptions = $this->matchConditions((array)($scheme->conditions ?? []), (string)($scheme->match_mode ?? 'all'), $options, 'option_key');
-            //if (!$okOptions) continue;
-
             $okRules = $this->matchConditions((array)($scheme->rule_conditions ?? []), (string)($scheme->match_mode ?? 'all'), $rules, 'rule_key');
+            
             if (!$okRules || !$okOptions) continue;
-            if ($scheme->id == 6) {
-                //dd($node, $scheme, $options, $rules, $okOptions, $okRules);
-            }
-            //dd($node, $scheme->id, $okOptions, $okRules);
+
             // схема подошла
             $results[] = $scheme;
         }
 
-        return $results ?: [];
+        return $results;
     }
 
     private function loadSchemes(int $templateId)

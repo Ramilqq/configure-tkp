@@ -35,7 +35,7 @@
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
             <div style="position: absolute; right: 10mm;top:30px;">
-                <img src="assets/image/pdf/logo.png" style="width:100px; height:50px;">
+                <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
             </div>
         </div>
     </page_header>
@@ -51,7 +51,7 @@
             <tr>
                 <td style="border: none;"></td>
                 <td style="border: none;">
-                    <img src="assets/image/pdf/pdf_static_ch2.jpg" style="width:500px;height:250px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch2.jpg') ?>" style="width:500px;height:250px;">
                 </td>
                 <td style="border: none;"></td>
             </tr>
@@ -65,14 +65,14 @@
             <tr>
                <!-- <td style="width: 5%; text-align: left;border: none;"></td>-->
                 <td style="width: 100%; text-align: center;border: none;">
-                    <img src="assets/image/pdf/pdf_static_ch3.jpg" style="width:700px;height:300px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch3.jpg') ?>" style="width:700px;height:300px;">
                 </td>
                <!--  <td style="width: 5%; text-align: right;border: none;"></td>-->
             </tr>
         </tbody>
     </table>
 </page>
-<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="assets/image/pdf/bg6.png">
+<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="<?= public_path('assets/image/pdf/bg6.png') ?>">
     <page_header>
         <div class="pdf_page_header">
             <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
@@ -87,7 +87,7 @@
             <tr>
                <td style="width: 20%; text-align: left;border: none;"></td>
                 <td style="width: 60%; text-align: center;border: none;">
-                    <img src="assets/image/pdf/pdf_static_ch4.jpg" style="width:300px;height:200px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch4.jpg') ?>" style="width:300px;height:200px;">
                 </td>
                <td style="width: 20%; text-align: right;border: none;"></td>
             </tr>
@@ -114,7 +114,7 @@
             <tr>
                <td style="width: 20%; text-align: left;border: none;"></td>
                 <td style="width: 60%; text-align: center;border: none;">
-                    <img src="assets/image/pdf/pdf_static_ch5.jpg" style="width:300px;height:200px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch5.jpg') ?>" style="width:300px;height:200px;">
                 </td>
                <td style="width: 20%; text-align: right;border: none;"></td>
             </tr>
@@ -126,7 +126,7 @@
         </tbody>
     </table>
 </page>
-<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="assets/image/pdf/bg6.png">
+<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="<?= public_path('assets/image/pdf/bg6.png') ?>">
     <page_header>
         <div class="pdf_page_header">
             <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
@@ -141,7 +141,7 @@
             <tr>
                <!-- <td style="width: 5%; text-align: left;border: none;"></td>-->
                 <td style="width: 100%; text-align: center;border: none;">
-                    <img src="assets/image/pdf/pdf_static_ch6.jpg" style="width:480px;height:300px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch6.jpg') ?>" style="width:480px;height:300px;">
                 </td>
                <!--  <td style="width: 5%; text-align: right;border: none;"></td>-->
             </tr>
@@ -177,7 +177,7 @@
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
             <div style="position: absolute; right: 10mm;top:30px;">
-                <img src="assets/image/pdf/logo.png" style="width:100px; height:50px;">
+                <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
             </div>
         </div>
     </page_header>
@@ -296,21 +296,4 @@
         </tbody>
     </table>
 </page>
-<!--<page orientation="portrait" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="assets/image/pdf/bg6.png">
-    <page_header>
-        <div class="pdf_page_header">
-            <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
-            <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
-            <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
-        </div>
-    </page_header>
-    <h4 style="text-align: center;">9. Достигаемый эффект от внедрения</h4>
-    <ul>
-        <li>Экономия электроэнергии</li>
-        <li>Исключение просадок напряжения при пуске механизмов</li>
-        <li>Уменьшение эксплуатационных расходов и производственных потерь</li>
-        <li>Увеличение межремонтного цикла механизмов и электрооборудования</li>
-        <li>Увеличение срока службы трубопроводной арматуры, уменьшение риска порывов трубопроводов</li>
-        <li>Повышение качества ведения технологии за счет исключения человеческого фактора</li>
-    </ul>
-</page>-->
+

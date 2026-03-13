@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('tkps', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('tkp_version')->nullable()->default(NULL);           //версия ткп
-            $table->index('tkp_version');
+            $table->unsignedBigInteger('tkp_version')->nullable()->unique();           //версия ткп
+            //$table->index('tkp_version');
 
             $table->bigInteger('user_id')->nullable()->default(NULL);               // пользователь создал
             $table->bigInteger('update_user_id')->nullable()->default(NULL);        // пользователь обновил

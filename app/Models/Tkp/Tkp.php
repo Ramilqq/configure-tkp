@@ -4,13 +4,14 @@ namespace App\Models\Tkp;
 
 use App\Models\Configuration\Configuration;
 use App\Models\User;
-use App\Services\BankRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Tkp extends Model
 {
+    use HasFactory;
+    
     public $pay_params_defaults  = [
         //'currency' => 'CNY',   удалены с приложения
         //'currency_val' => '',  удалены с приложения
@@ -62,18 +63,15 @@ class Tkp extends Model
 
     protected static function booted(): void
     {
-        // запись перед сохранением модели
-        static::saving(function (Tkp $tkp) {
-            $tkp->user_id = Auth::id();
-        });
-
         // запись перед созданием
         static::created(function (Tkp $tkp) {
+            
+            if (!$tkp->user_id && Auth::check()) {
+                $tkp->user_id = Auth::id();
+            }
 
             // получение курса при создании ТКП
             if(!$tkp->pay_params){
-                $banks = new BankRequest();
-                $tkp->pay_params_defaults['currency_val'] = $banks->getValue($tkp->pay_params_defaults['currency']);
                 $tkp->pay_params = $tkp->pay_params_defaults;
             }
 
@@ -81,20 +79,24 @@ class Tkp extends Model
             if(!$tkp->delivery_params){
                 $tkp->delivery_params = $tkp->delivery_params_defaults;
             }
-
-            // сохранить автора ТКП
-            $tkp->user_id = Auth::id();
+            
             $tkp->save();
-
-            // очистка кэша после создания ТКП
-            Cache::forget('tkp_list');
         });
 
-        // удаление
-        static::deleted(function (Tkp $tkp) {
-            // очистка кэша после удаления ТКП
-            Cache::forget('tkp_list');
+        static::updating(function (Tkp $tkp) {
+            if (Auth::check()) {
+                $tkp->update_user_id = Auth::id();
+            }
         });
+
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('tkp_list');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('tkp_list');
+        });
+
     }
 
     public function user(): Model

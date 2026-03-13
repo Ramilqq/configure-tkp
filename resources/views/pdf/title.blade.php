@@ -18,7 +18,7 @@
         color:#fff;
     }
 </style>
-<page backimg="assets/image/pdf/bg2_shu.png" backtop="0mm" backbottom="0mm" backleft="0mm" backright="0mm">
+<page backimg="<?= public_path('assets/image/pdf/bg2_shu.png') ?>" backtop="0mm" backbottom="0mm" backleft="0mm" backright="0mm">
 
     <div class="title_name">
         <p>

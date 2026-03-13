@@ -45,7 +45,7 @@
                         $table[$name['name']][$oprion['get_name']['name']] = $oprion['value'];       
                     }
             ?>
-            <page orientation="portrait" backimg="assets/image/pdf/bg6.png" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
+            <page orientation="portrait" backimg="<?= public_path('assets/image/pdf/bg6.png') ?>" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
                 <page_header>
                     <div class="pdf_page_header">
                         <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
@@ -56,7 +56,7 @@
                     <h4 style="text-align: center;">Технические данные</h4>
                     <h4 style="text-align: center;width: 100%;">{{$node['product']['name']}}</h4>
             <?php
-                    //dd($table);
+                    
                     foreach($table as $title => $row){
             ?>
                         
@@ -92,17 +92,16 @@
             
             <?php
             
-            $schemes_prod = $pid ? ($dimensionSchemes[$pid] ?? null) : null;
-            
+            $schemes_prod = $pid ? ($dimensionSchemes[$pid] ?? []) : [];
+
             foreach($schemes_prod as $scheme) {
                 
-                //dd($scheme);
                 if ($scheme && !empty($scheme['images'])) {
                     $printed = 0;
                     
                     foreach ($scheme['images'] as $img) {
             ?>
-                <page orientation="portrait" backimg="assets/image/pdf/bg6.png" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
+                <page orientation="portrait" backimg="<?= public_path('assets/image/pdf/bg6.png') ?>" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
                     <page_header>
                         <div class="pdf_page_header">
                             <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>

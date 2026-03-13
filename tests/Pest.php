@@ -12,7 +12,7 @@
 */
 
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
 /*
@@ -44,4 +44,19 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function createUser($data = []) {
+    return \App\Models\User::factory()->create($data);
+}
+
+function createTkp(?\App\Models\User $user, $data = []) {
+    $data['user_id'] = $user?->id;
+    $data['update_user_id'] = $user?->id;
+    return \App\Models\Tkp\Tkp::factory()->create($data);
+}
+
+function createConfiguration(?\App\Models\Tkp\Tkp $tkp, $data = []) {
+    $data['tkp_version'] = $tkp?->tkp_version;
+    return \App\Models\Configuration\Configuration::factory()->create($data);
 }

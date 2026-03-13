@@ -5,9 +5,13 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Tkp\Tkp;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 
 class TkpAuthorizationTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected User $user1;
     protected User $user2;
     protected Tkp $tkp1;
@@ -15,26 +19,32 @@ class TkpAuthorizationTest extends TestCase
 
     protected function setUp(): void
     {
+        // Вызываем родительский метод setUp для инициализации тестовой среды
         parent::setUp();
 
         // Создаём двух пользователей
-        $this->user1 = User::factory()->create(['email' => 'user1@test.com']);
-        $this->user2 = User::factory()->create(['email' => 'user2@test.com']);
+        $this->user1 = createUser(['email' => 'user1@test.com']);
+        $this->user2 = createUser(['email' => 'user2@test.com']);
 
-        // Создаём ТКП для каждого пользователя
-        $this->tkp1 = Tkp::create([
+        // Авторизация первого пользователя для создания ТКП
+        $this->actingAs($this->user1);
+        // Создаём ТКП для первого пользователя
+        $this->tkp1 = createTkp(null, [
             'tkp_version' => 1,
-            'user_id' => $this->user1->id,
             'project_name' => 'Project 1',
             'client_name' => 'Client 1',
         ]);
 
-        $this->tkp2 = Tkp::create([
+        // Авторизация второго пользователя для создания второго ТКП
+        $this->actingAs($this->user2);
+        // Создаём ТКП для второго пользователя
+        $this->tkp2 = createTkp(null, [
             'tkp_version' => 2,
-            'user_id' => $this->user2->id,
             'project_name' => 'Project 2',
             'client_name' => 'Client 2',
         ]);
+
+        Auth::logout();
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Tkp\Tkp;
-use App\Policies\TkpPolicy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Gate;
@@ -11,7 +9,7 @@ use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        Tkp::class => TkpPolicy::class,
+        \App\Models\Tkp\Tkp::class => \App\Policies\TkpPolicy::class,
     ];
 
     /**

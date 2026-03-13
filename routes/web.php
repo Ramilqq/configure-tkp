@@ -1,15 +1,9 @@
 <?php
 
-use App\Http\Controllers\ExportArrayController;
 use App\Http\Controllers\PdfController;
-use App\Livewire\Configuration\Configuration;
 use App\Livewire\Configuration\NodeGroup;
-use App\Livewire\Configuration\Setting;
-use App\Livewire\Fr\FrList;
 use App\Livewire\TableSettings\Product;
-use App\Livewire\TableSettings\ProductList;
 use App\Livewire\TableSettings\Template;
-use App\Livewire\TableSettings\TemplateList;
 use App\Livewire\Tkp\TkpCalculation;
 use App\Livewire\Tkp\TkpConfiguration;
 use App\Livewire\Tkp\TkpContact;
@@ -32,8 +26,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'reset'])->name('password.update');
 });
 
-
-
 // подтверждение почты
 Route::get('/email/verify', [App\Http\Controllers\Auth\EmailVerificationController::class, 'notice'])
     //->middleware('auth')
@@ -47,7 +39,6 @@ Route::post('/email/verification-notification', [App\Http\Controllers\Auth\Email
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
 
-
 // Выход
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
@@ -59,7 +50,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('table-settings/template-list', Template::class)->name('table-settings.template-list');
     Route::get('table-settings/product-list/{template_id}', Product::class)->name('table-settings.product-list');
 
-    Route::get('configuration', Configuration::class)->name('configuration');
     Route::get('configuration/setting', NodeGroup::class)->name('configuration-node-group');
 
     Route::get('tkp/contact', TkpContact::class)->name('tkp.contact');
@@ -70,8 +60,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tkp/pdf/{id}/{tkp_version}',    [PdfController::class, 'show'])->name('tkp.pdf.show'); 
 
     Route::get('/pdf-preview', [PdfController::class, 'preview']);
-    Route::get('/export/array', [ExportArrayController::class, 'export']);
-
 
     Route::get('table-settings/products/excel-import', App\Livewire\TableSettings\ProductExcelImport::class)->name('table-settings.products.excel-import');
 
@@ -79,15 +67,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('tkp/engineering-list', App\Livewire\Tkp\EngineeringList::class)->name('tkp.engineering-list');
     Route::get('tkp/manufacturer-list', App\Livewire\Tkp\ManufacturerList::class)->name('tkp.manufacturer-list');
-
 });
-
-Route::get('/_scheme', function () {
-    return [
-        'request_scheme' => request()->getScheme(),
-        'app_url' => config('app.url'),
-        'url_root' => url('/'),
-    ];
-});
-
-

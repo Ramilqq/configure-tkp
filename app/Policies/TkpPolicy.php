@@ -12,7 +12,6 @@ class TkpPolicy
      */
     public function view(User $user, Tkp $tkp): bool
     {
-        return true;
         return $user->id === $tkp->user_id;
     }
 

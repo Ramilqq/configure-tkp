@@ -26,7 +26,7 @@ class BankRequest
                         ->withOptions(['curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
                         ->get($url)->throw()->body();
                 } catch (\Throwable $e) {
-                    $body = [];
+                    $body = '';
                     Log::warning('Http "' . $url . '" '. $e->getMessage());
                 }
             }

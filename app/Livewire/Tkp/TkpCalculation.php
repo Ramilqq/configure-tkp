@@ -6,7 +6,6 @@ use App\Livewire\Forms\Tkp\TkpCalculationForm;
 use App\Models\Configuration\Configuration;
 use App\Models\Tkp\Engineering;
 use App\Models\Tkp\Tkp;
-use App\Services\BankRequest;
 use Livewire\Component;
 use Illuminate\Support\Facades\Cache;
 
@@ -81,8 +80,9 @@ class TkpCalculation extends Component
             $this->saveConfiguration();
         }
 
-        $banks = new BankRequest();
-        $this->banks = $banks->get()['Valute'];
+        $banks = app(\App\Services\BankRequest::class);
+
+        $this->banks = $banks->get()['Valute'] ?? [];
     }
 
     // записываем обновление цен по всем продуктам

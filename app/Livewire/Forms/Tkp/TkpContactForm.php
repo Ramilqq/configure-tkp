@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\Tkp;
 use App\Models\Tkp\Tkp;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
+use Illuminate\Support\Facades\Auth;
 
 class TkpContactForm extends Form
 {
@@ -74,14 +75,14 @@ class TkpContactForm extends Form
 
         if($tkp)
         {
-            $valideate['update_user_id'] = 1;
+            $valideate['update_user_id'] = Auth::id();
             $tkp->update($valideate);
             $tkp->save();
         }
         else
         {
             $valideate['tkp_version'] = now()->timestamp;
-            $valideate['user_id'] = 1;
+            $valideate['user_id'] = Auth::id();
             $valideate['update_user_id'] = 0;
             $tkp = Tkp::create($valideate);
         }

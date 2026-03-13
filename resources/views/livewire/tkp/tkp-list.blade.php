@@ -40,11 +40,8 @@
                     <td colspan="4">Нет записей</td>
                 </tr>
             @endforelse
-        
-            
 
         </tbody>
     </table>
-
 
 </div>

@@ -303,6 +303,12 @@
         return $str;
     };
 
+    // параметры расчёта
+    $reserve      = isset($pay_params['reserve']) ? floatval($pay_params['reserve']) : 0.0;            // %
+    $marketing    = isset($pay_params['marketing']) ? floatval($pay_params['marketing']) : 0.0;        // коэффициент/%
+    $marketing_cf = isset($pay_params['marketing_coef']) ? floatval($pay_params['marketing_coef']) : 0.0;
+    $nds_percent  = isset($pay_params['nds']) ? floatval($pay_params['nds']) : 0.0;                    // %
+
     // Свод по товарам: объединяем по product_id
     $rowIndex = 0; // для колонки 0 (N пп)
     foreach(array_merge($nodes, $connections, $other) as $item) {
@@ -355,12 +361,6 @@
 
         // доставка
         $delivery = isset($p['delivery']) ? floatval($p['delivery']) : 0.0;
-
-        // параметры расчёта
-        $reserve      = isset($pay_params['reserve']) ? floatval($pay_params['reserve']) : 0.0;            // %
-        $marketing    = isset($pay_params['marketing']) ? floatval($pay_params['marketing']) : 0.0;        // коэффициент/%
-        $marketing_cf = isset($pay_params['marketing_coef']) ? floatval($pay_params['marketing_coef']) : 0.0;
-        $nds_percent  = isset($pay_params['nds']) ? floatval($pay_params['nds']) : 0.0;                    // %
 
         $oprionString = $makeOptionsStr($item);
 

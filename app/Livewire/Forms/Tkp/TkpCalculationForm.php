@@ -6,6 +6,7 @@ use App\Models\Tkp\Tkp;
 use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
+use Illuminate\Support\Facades\Auth;
 
 class TkpCalculationForm extends Form
 {
@@ -76,15 +77,15 @@ class TkpCalculationForm extends Form
         //dd($this);
         if($tkp)
         {
-            $valideate['update_user_id'] = 1;
+            $valideate['update_user_id'] = Auth::id();
             $tkp->update($valideate);
             $tkp->save();
         }
         else
         {
             $valideate['tkp_version'] = now()->timestamp;
-            $valideate['user_id'] = 1;
-            $valideate['update_user_id'] = 0;
+            $valideate['user_id'] = Auth::id();
+            $valideate['update_user_id'] = Auth::id();
             $tkp = Tkp::create($valideate);
         }
         
