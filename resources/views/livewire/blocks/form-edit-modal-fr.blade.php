@@ -8,11 +8,93 @@
             
             <div class="modal-body" wire:loading.class="opacity-50">
 
-                
-
                 <hr />
                 <div class="row">
                     <div class="col-4">
+
+                        <div style="width: 100%; text-align: center;"><b>Опции</b></div>
+
+                        @php 
+                            $form_data = [
+                                'interface'                     => 'select',
+                                'plc_syn'                       => 'select',
+                                'vfd_series'                    => 'select',
+                                'material_trans'                => 'select',
+                                'power_cell_bypass'             => 'select',
+                                'sync_to_grid'                  => 'select',
+                                'ip'                            => 'select',
+                                'precharge_function'            => 'select',
+                                'precharge_function_exec'       => 'select',
+                                'precharge'                     => 'select',
+                                'service_vfd'                   => 'select',
+                                'bypass_vfd'                    => 'select',
+                            ];
+                        @endphp
+
+                        @foreach ($form_data as $key => $value)
+                            @if ($value = 'select')
+                                @foreach ($product_filter_select as $product_filter) 
+                                    @if ($product_filter['key'] == $key)
+                                        @if($key =='precharge')
+                                            <div class="mb-3" wire:show="getData.precharge_function == 'Да'"  wire:key="getDataDiv-{{$key}}">
+                                        @else
+                                            <div class="mb-3" wire:key="getDataDiv-{{$key}}">
+                                        @endif
+                                        
+                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}</label>
+                                            <select
+                                                wire:key="getData-{{$key}}"
+                                                wire:model.defer="getData.{{$key}}"
+                                                id="getData-{{$key}}"
+                                                class="form-select"
+                                                wire:change.debounce.500ms="updateData()"
+                                                style="font-size: 11px;"
+                                            >
+                                                @foreach ($product_filter['fields'] as $field)
+                                                    <option value="{{$field}}">{{$field}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endforeach
+                        
+                    </div>
+
+                    <div class="col-4">
+                        <div style="width: 100%; text-align: center;"><b>Общая информация</b></div>
+
+                        <div class="mb-3">
+                            <label for="modal-input1" class="form-label">Название</label>
+                            <div class="col-auto" style="margin-left:auto;">
+                                <input type="text" id="modal-input1" class="form-control" placeholder="Название или тип">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modal-input2" class="form-label">Дополнительно</label>
+                            <div class="col-auto" style="margin-left:auto;">
+                                <input type="text" id="modal-input2" class="form-control" placeholder="Дополнительно">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="getData.manufacturer_id" class="form-label">Завод изготовитель</label>
+                            <select
+                                wire:key="getData.manufacturer_id"
+                                wire:model.defer="getData.manufacturer_id"
+                                id="getData.manufacturer_id"
+                                class="form-select"
+                                wire:change.debounce.500ms="updateValueManufacturer($event.target.value)"
+                            >
+                                @foreach($product_manufacturer_select as $manufacturer)
+                                    <option value="{{ $manufacturer['id'] }}">{{ $manufacturer['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
 
                         <div style="width: 100%; text-align: center;"><b>Правило цены</b></div>
                         @php 
@@ -62,41 +144,6 @@
                         @else
                             <p>Нет правил для выбора</p>
                         @endif
-                    </div>
-
-                    <div class="col-4">
-                        <div style="width: 100%; text-align: center;"><b>Общая информация</b></div>
-
-                        <div class="mb-3">
-                            <label for="modal-input1" class="form-label">Название</label>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input1" class="form-control" placeholder="Название или тип">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="modal-input2" class="form-label">Дополнительно</label>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input2" class="form-control" placeholder="Дополнительно">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="getData.manufacturer_id" class="form-label">Завод изготовитель</label>
-                            <select
-                                wire:key="getData.manufacturer_id"
-                                wire:model.defer="getData.manufacturer_id"
-                                id="getData.manufacturer_id"
-                                class="form-select"
-                                wire:change.debounce.500ms="updateValueManufacturer($event.target.value)"
-                            >
-                                @foreach($product_manufacturer_select as $manufacturer)
-                                    <option value="{{ $manufacturer['id'] }}">{{ $manufacturer['name'] }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-
 
                     </div>
 
@@ -112,17 +159,17 @@
                                 class="form-select"
                             >
                                 <option value="">---</option>
-                                <option value="Асинхронный">Асинхронный</option>
-                                <option value="Синхронный">Синхронный</option>
+                                <option value="A">Асинхронный</option>
+                                <option value="S">Синхронный</option>
                             </select>
                         </div>
                     
                         <div class="mb-3">
-                            <label for="getData.output_voltage" class="form-label">Номинальное напряжение,В</label>
+                            <label for="getData.v_output" class="form-label">Номинальное напряжение,В</label>
                             <select
-                                wire:key="getData.output_voltage"
-                                wire:model.defer="getData.output_voltage"
-                                id="getData.output_voltage"
+                                wire:key="getData.v_output"
+                                wire:model.defer="getData.v_output"
+                                id="getData.v_output"
                                 class="form-select"
                                 wire:change.debounce.500ms="updateValueVoltage($event.target.value)"
                             >
@@ -137,12 +184,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="getData.full_power" class="form-label">Мощность,кВт</label>
+                            <label for="getData.p_output" class="form-label">Мощность,кВт</label>
                             <input
                                 type="number"
-                                wire:key="getData.full_power"
-                                wire:model.defer="getData.full_power"
-                                id="getData.full_power"
+                                wire:key="getData.p_output"
+                                wire:model.defer="getData.p_output"
+                                id="getData.p_output"
                                 class="form-control"
                                 placeholder="0"
                                 wire:change.debounce.500ms="updateValuePower($event.target.value)"

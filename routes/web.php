@@ -11,6 +11,8 @@ use App\Livewire\Tkp\TkpDelivery;
 use App\Livewire\Tkp\TkpList;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/test', [App\Http\Controllers\TestController::class, 'index'])->name('test');
+
 // если гость или не авторизован
 Route::middleware('guest')->group(function () {
     Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'index'])->name('login');

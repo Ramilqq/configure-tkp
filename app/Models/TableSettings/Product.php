@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 class Product extends Model
 {
     protected $fillable = [
+        'fr_hash',
         'template_id',
         'name',
         'description',
@@ -23,6 +24,7 @@ class Product extends Model
         'price',
         'delivery',
         'engineering',
+        'drawing'   // чертеж, схема
     ];
 
     protected $casts = [
@@ -48,6 +50,14 @@ class Product extends Model
         return $this->hasMany(ProductOption::class, 'product_id', 'id')
             ->select(['id','product_id','template_option_id','value'])
             ->with(['getName' => function($q){
+                $q->select(['id','key','name','fields']); // поля, которые реально используете
+            }]);
+    }
+
+    public function productOptionPrice(): HasMany
+    {
+        return $this->hasMany(ProductOptionPrice::class, 'product_id', 'id')
+            ->with(['templateOption' => function($q){
                 $q->select(['id','key','name','fields']); // поля, которые реально используете
             }]);
     }

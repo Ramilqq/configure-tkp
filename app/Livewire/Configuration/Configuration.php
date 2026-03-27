@@ -6,6 +6,7 @@ use App\Models\Configuration\Configuration as TkpConfiguration;
 use App\Models\Configuration\Node;
 use App\Models\Configuration\NodeGroup;
 use App\Models\TableSettings\Product;
+use App\Models\TableSettings\ProductOptionPrice;
 use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
 use App\Models\Tkp\Tkp;
@@ -62,20 +63,23 @@ class Configuration extends Component
         foreach($this->saved_schema['nodes'] as $key => $node){
             if($node['id'] === $node_id){
 
+                if ($node['template_id'] == 1) {
+                    $query->with('productOptionPrice');
+                }
                 $query->where('template_id', $node['template_id']);
                 
                 // отделбный поиск для ЧРП
                 if ($node['template_id'] == 1) {
                     $query->whereHas('productOption', function ($q) {                           // тип двигате
-                        $q->where('value', $this->getData['motor_type'] ?? 'Синхронный');
+                        $q->where('value', (string)$this->getData['motor_type'] ?? 'A')->where('template_option_id', 7);
                     })->whereHas('productOption', function ($q) {                               // номинальное напряжение
-                        $q->where('value', '>=', $this->getData['output_voltage'] ?? '6000');
+                        $q->where('value', '>=', (integer)$this->getData['v_output'] ?? '10000')->where('template_option_id', 14);
                     })->whereHas('productOption', function ($q) {                               // мощность
-                        $q->where('value', '>=', $this->getData['full_power'] ?? '0');
+                        $q->where('value', '>=', (integer)$this->getData['p_output'] ?? '0')->where('template_option_id', 12);
                     })->whereHas('productOption', function ($q) {                               // номинальный ток
-                        $q->where('value', '>=', $this->getData['nominalnyi_tok_ed_a'] ?? '0');
+                        $q->where('value', '>=', (integer)$this->getData['nominalnyi_tok_ed_a'] ?? '0')->where('template_option_id', 16);
                     });
-                    //dd($query->first()?->toArray(), $this->getData);
+                    
                 // поиск для других шаблонов
                 } else {
                     foreach ($this->getData as $value) {
@@ -86,12 +90,35 @@ class Configuration extends Component
                 }
 
                 $productModel = $query->first() ?: null;
-                
+
                 if(!$productModel) {return;}
 
                 // --- применяем правила цены ---
                 $basePrice = $productModel->price;
                 $baseDelivery = $productModel->delivery;
+
+                // изменение цены от опции товара и сохранение схемы
+                $option_price_applied = [];
+                $option_drawing_applied = [];
+                $option_name_applied = [];
+                foreach ($productModel->productOptionPrice as $productOptionPrice) {
+                    if ($productOptionPrice->value == $this->getData[$productOptionPrice->templateOption->key]) {
+                        if ($productOptionPrice->price > 0) {
+                            $productModel->price = $productModel->price + $productOptionPrice->price;
+                            $option_price_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->price;
+                        }
+                        if ($productOptionPrice->drawing != '') {
+                            $option_drawing_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->drawing;
+                        }
+                        if ($productOptionPrice->rename != null) {
+                            $option_name_applied[$productOptionPrice->rename_target] = $productOptionPrice->rename;
+                        }
+                        if ($productOptionPrice->rename_end != null) {
+                            $option_name_applied[$productOptionPrice->rename_end_target] = $productOptionPrice->rename_end;
+                        }
+
+                    }
+                }
 
                 $calc = $priceRules->apply($productModel, $this->getRules);
 
@@ -109,16 +136,23 @@ class Configuration extends Component
 
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
+                $product['option_drawing_applied'] = $option_drawing_applied;
+                $product['option_price_applied'] = $option_price_applied;
+                $product['option_name_applied'] = $option_name_applied;
                 $product['price_rules_applied'] = $applied_rules;
 
                 if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
                 else $product['currency_val'] = $banks->getValue($product['currency']);
+
+                
 
                 $this->saved_schema['nodes'][$key]['product_id'] = $product['id'];
                 $this->saved_schema['nodes'][$key]['product_name'] = $product['name'];
                 $this->saved_schema['nodes'][$key]['filter_fields'] = $this->getData;
                 $this->saved_schema['nodes'][$key]['rules_fields'] = $this->getRules;
                 $this->saved_schema['nodes'][$key]['product'] = $product;
+
+                //dd($product, $this->saved_schema);
             }
         }
 
@@ -188,6 +222,11 @@ class Configuration extends Component
             $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
         }
 
+        if ($template_id == 1) {
+            $this->product_filter_select = [];
+            $this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
+        }
+
         // фильтр для узлов
         foreach($this->saved_schema['nodes'] as $key => $node)
         {
@@ -195,13 +234,28 @@ class Configuration extends Component
             {
                 if ($template_id == 1) {
                     $this->getData = [
-                        'motor_type' => $this->saved_schema['nodes'][$key]['filter_fields']['motor_type'] ?? 'Синхронный',
-                        'output_voltage' => $this->saved_schema['nodes'][$key]['filter_fields']['output_voltage'] ?? '6000',
-                        'full_power' => $this->saved_schema['nodes'][$key]['filter_fields']['full_power'] ?? '0',
+                        // Характеристики электродвигателя
+                        'motor_type' => $this->saved_schema['nodes'][$key]['filter_fields']['motor_type'] ?? 'A',
+                        'v_output' => $this->saved_schema['nodes'][$key]['filter_fields']['v_output'] ?? '6000',
+                        'p_output' => $this->saved_schema['nodes'][$key]['filter_fields']['p_output'] ?? '0',
                         'nominalnyi_tok_ed_a' => $this->saved_schema['nodes'][$key]['filter_fields']['nominalnyi_tok_ed_a'] ?? '0',
                         'kpd' => $this->saved_schema['nodes'][$key]['filter_fields']['kpd'] ?? '95',
                         'cos_phi' => $this->saved_schema['nodes'][$key]['filter_fields']['cos_phi'] ?? '0.86',
                         'manufacturer_id' => $this->saved_schema['nodes'][$key]['filter_fields']['manufacturer_id'] ?? '1',
+
+                        // Дополнительные опции
+                        'interface' => $this->saved_schema['nodes'][$key]['filter_fields']['interface'] ?? 'RS-485, Modbus RTU',
+                        'plc_syn' => $this->saved_schema['nodes'][$key]['filter_fields']['plc_syn'] ?? 'Нет',
+                        'vfd_series' => $this->saved_schema['nodes'][$key]['filter_fields']['vfd_series'] ?? 'Компакт (Минпромторг)',
+                        'material_trans' => $this->saved_schema['nodes'][$key]['filter_fields']['material_trans'] ?? 'Медь',
+                        'power_cell_bypass' => $this->saved_schema['nodes'][$key]['filter_fields']['power_cell_bypass'] ?? '',
+                        'sync_to_grid' => $this->saved_schema['nodes'][$key]['filter_fields']['sync_to_grid'] ?? 'Нет',
+                        'ip' => $this->saved_schema['nodes'][$key]['filter_fields']['ip'] ?? 31,
+                        'precharge_function' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function'] ?? 'Нет',
+                        'precharge_function_exec' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function_exec'] ?? 'Нет',
+                        'precharge' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge'] ?? 'Нет',
+                        'service_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? 'Одностороннее',
+                        'bypass_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? '',
                     ];
 
                     $this->getRules = $this->saved_schema['nodes'][$key]['rules_fields'];
@@ -222,10 +276,10 @@ class Configuration extends Component
                 $this->getRules = $this->saved_schema['connections'][$key]['params']['rules_fields'];
             }
         }
-
+        
         // Отправляем данные в модальный компонент ЧРП
         if ($template_id == 1) {
-            $this->dispatch('updateFilterFR', template_id: $template_id, node_id: $node_id, conn_id: $conn_id)->to('blocks.form-edit-modal-fr');
+            $this->dispatch('updateFilterFR', template_id: $template_id, node_id: $node_id, conn_id: $conn_id, product_filter_select: $this->product_filter_select)->to('blocks.form-edit-modal-fr');
             $this->dispatch('syncModalData', getData: $this->getData, getRules: $this->getRules)->to('blocks.form-edit-modal-fr');
         }
     }
@@ -304,7 +358,7 @@ class Configuration extends Component
 
         // формирование груп для узлов
         $groups = NodeGroup::get()->toArray();
-        
+        //dd($node, $groups);
         return view('livewire.configuration.configuration', [
                                                             'node' => $node,
                                                             'groups' => $groups,

@@ -373,7 +373,9 @@
                     defaultExtra: ""
                 }];
 
-                const nodeSettings =  JSON.parse(`{!! $node !!}`);
+                //const nodeSettings =  JSON.parse(`{!! $node !!}`);
+                const nodeSettings = JSON.parse(@json($node));
+
                 // Хранение текущей схемы: узлы и соединения
                 let savedSchema = {
                     nodes: [],

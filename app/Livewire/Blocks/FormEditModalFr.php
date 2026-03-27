@@ -10,6 +10,7 @@ use Livewire\Component;
 
 class FormEditModalFr extends Component
 {
+    public array $product_filter_select = [];
     public array $product_rules_select = [];
     public array $product_manufacturer_select = [];
     public array $getData = [];
@@ -17,10 +18,12 @@ class FormEditModalFr extends Component
 
     // обновляем список правил цены при выборе шаблона в модальном окне
     #[On('updateFilterFR')]
-    public function updateFilterFR($template_id, $node_id = null, $conn_id = null)
+    public function updateFilterFR($template_id, $node_id = null, $conn_id = null, $product_filter_select)
     {
         $this->product_manufacturer_select = Manufacturer::get()->toArray();
         $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
+        $this->product_filter_select = $product_filter_select;
+        //dd($this->product_filter_select);
     }
 
     // обновляем данные в модальном окне при открытии, получая их из конфигурации
@@ -54,28 +57,28 @@ class FormEditModalFr extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValuePower($value)
     {
-        if ($value < 0) $this->getData['full_power'] = 0;
-        if ($value > 100000) $this->getData['full_power'] = 100000;
+        if ($value < 0) $this->getData['p_output'] = 0;
+        if ($value > 100000) $this->getData['p_output'] = 100000;
         
-        $this->getData['full_power'] = $value;
+        $this->getData['p_output'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueVoltage($value)
     {
-        if ($value < 0) $this->getData['output_voltage'] = 0;
-        if ($value > 11000) $this->getData['output_voltage'] = 11000;
+        if ($value < 0) $this->getData['v_output'] = 0;
+        if ($value > 11000) $this->getData['v_output'] = 11000;
         
-        $this->getData['output_voltage'] = $value;
+        $this->getData['v_output'] = $value;
         $this->updateValueCurent();
     }
 
     // функция для пересчета номинального тока при изменении характеристик электродвигателя
     public function updateValueCurent()
     {
-        $p = $this->getData['full_power'] ?? 0;
-        $u = $this->getData['output_voltage'] ?? 0;
+        $p = $this->getData['p_output'] ?? 0;
+        $u = $this->getData['v_output'] ?? 0;
         $cos_phi = $this->getData['cos_phi'] ?? 0;
         $kpd = ($this->getData['kpd'] ?? 0) / 100;
 
@@ -96,6 +99,13 @@ class FormEditModalFr extends Component
     {
         $this->getData['manufacturer_id'] = $value;
         $this->updateValueCurent();
+    }
+
+    // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
+    public function updateData()
+    {
+        if ($this->getData['precharge_function'] == 'Нет') $this->getData['precharge'] = 'Нет';
+        $this->save();
     }
 
     // сохраняем данные в конфигурации
