@@ -7,6 +7,7 @@ use App\Models\TableSettings\ProductOption;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Numeric;
 
 class FrReplace
 {
@@ -40,7 +41,7 @@ class FrReplace
             if ($productOptionPrice->value == $filter[$productOptionPrice->templateOption->key]) {
 
                 if ($productOptionPrice->price > 0 && $productOptionPrice->templateOption->key == 'material_trans') {
-                    $this->name->price = $productOptionPrice->price;
+                    $this->product->price = (float)$productOptionPrice->price;
                     $option_price_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->price;
                 }elseif ($productOptionPrice->price > 0) {
                     $newPrice = $newPrice + $productOptionPrice->price;
@@ -183,7 +184,7 @@ class FrReplace
 
         $this->product->price = $this->product->price + $newPrice;
 
-        return [$this->name, $this->description, $newPrice, $option_drawing_applied ?? [], $option_price_applied ?? [], $option_name_applied ?? []];
+        return [$this->name, $this->description, $this->product->price, $option_drawing_applied ?? [], $option_price_applied ?? [], $option_name_applied ?? []];
     }
 
 
