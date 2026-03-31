@@ -144,7 +144,7 @@ class Configuration extends Component
                         $product['name'] .= '-' . $applied_rule['generation_name'];
                     }
                 }
-                dd($product, $this->getData);
+                //dd($product, $this->getData);
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
                 $product['option_drawing_applied'] = $option_drawing_applied;
@@ -163,7 +163,7 @@ class Configuration extends Component
                 $this->saved_schema['nodes'][$key]['rules_fields'] = $this->getRules;
                 $this->saved_schema['nodes'][$key]['product'] = $product;
 
-                dd($product, $this->saved_schema);
+                //dd($product, $this->saved_schema);
             }
         }
 
