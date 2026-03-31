@@ -88,7 +88,7 @@ class TkpCalculation extends Component
     // записываем обновление цен по всем продуктам
     public function currency()
     {
-        //dd($this->saved_schema);
+        dd($this->saved_schema);
 
         foreach (['nodes', 'connections', 'other'] as $name) {
             foreach ($this->saved_schema[$name] as $key => $product) {

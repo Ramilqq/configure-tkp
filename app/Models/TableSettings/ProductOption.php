@@ -22,7 +22,7 @@ class ProductOption extends Model
     }
 
 
-    public function temolateOption(): BelongsTo
+    public function templateOption(): BelongsTo
     {
         return $this->belongsTo(TemplateOption::class, 'template_option_id', 'id');
     }

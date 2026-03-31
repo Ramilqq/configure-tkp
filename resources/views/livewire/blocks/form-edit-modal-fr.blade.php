@@ -35,11 +35,7 @@
                             @if ($value = 'select')
                                 @foreach ($product_filter_select as $product_filter) 
                                     @if ($product_filter['key'] == $key)
-                                        @if($key =='precharge')
-                                            <div class="mb-3" wire:show="getData.precharge_function == 'Да'"  wire:key="getDataDiv-{{$key}}">
-                                        @else
-                                            <div class="mb-3" wire:key="getDataDiv-{{$key}}">
-                                        @endif
+                                        <div class="mb-3" wire:key="getDataDiv-{{$key}}">
                                         
                                             <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}</label>
                                             <select
@@ -49,6 +45,13 @@
                                                 class="form-select"
                                                 wire:change.debounce.500ms="updateData()"
                                                 style="font-size: 11px;"
+                                <?php 
+                                    if ($key == 'precharge') {
+                                        if ($getData['precharge_function'] == 'Да') {
+                                            echo 'disabled';
+                                        }
+                                    }
+                                ?>
                                             >
                                                 @foreach ($product_filter['fields'] as $field)
                                                     <option value="{{$field}}">{{$field}}</option>

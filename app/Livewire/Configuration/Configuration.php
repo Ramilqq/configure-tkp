@@ -11,6 +11,7 @@ use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
 use App\Models\Tkp\Tkp;
 use App\Services\BankRequest;
+use App\Services\FrReplace;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Services\TableSettings\TemplatePriceRuleService;
@@ -70,14 +71,40 @@ class Configuration extends Component
                 
                 // отделбный поиск для ЧРП
                 if ($node['template_id'] == 1) {
-                    $query->whereHas('productOption', function ($q) {                           // тип двигате
-                        $q->where('value', (string)$this->getData['motor_type'] ?? 'A')->where('template_option_id', 7);
-                    })->whereHas('productOption', function ($q) {                               // номинальное напряжение
+                    $query->whereHas('productOption', function ($q) {                               // номинальное напряжение
                         $q->where('value', '>=', (integer)$this->getData['v_output'] ?? '10000')->where('template_option_id', 14);
                     })->whereHas('productOption', function ($q) {                               // мощность
                         $q->where('value', '>=', (integer)$this->getData['p_output'] ?? '0')->where('template_option_id', 12);
                     })->whereHas('productOption', function ($q) {                               // номинальный ток
                         $q->where('value', '>=', (integer)$this->getData['nominalnyi_tok_ed_a'] ?? '0')->where('template_option_id', 16);
+                    })->whereHas('productOption', function ($q) {                               // наличие функции предзаряда
+                        $q->where('value', '=', (string)$this->getData['precharge_function'] ?? '')->where('template_option_id', 21);
+                    })->whereHas('productOption', function ($q) {                               // исполнение функции предзаряда
+                        $q->where('value', '=', (string)$this->getData['precharge_function_exec'] ?? '')->where('template_option_id', 22);
+                    })->whereHas('productOption', function ($q) {                               // наличие сервиса ЧРП
+                        $q->where('value', '=', (string)$this->getData['service_vfd'] ?? '')->where('template_option_id', 24);
+                    });
+
+                    $query->whereHas('productOptionPrice', function ($q) {                           // тип двигате
+                        $q->where('value', '=', (string)$this->getData['motor_type'] ?? 'A')->where('template_option_id', 7);
+                    })->whereHas('productOptionPrice', function ($q) {                               // интерфейс
+                        $q->where('value', '=', (string)$this->getData['interface'] ?? '')->where('template_option_id', 10);
+                    })->whereHas('productOptionPrice', function ($q) {                               // наличие ПЛК синхронизации
+                        $q->where('value', '=', (string)$this->getData['plc_syn'] ?? '')->where('template_option_id', 8);
+                    })->whereHas('productOptionPrice', function ($q) {                               // серия ЧРП
+                        $q->where('value', '=', (string)$this->getData['vfd_series'] ?? '')->where('template_option_id', 6);
+                    })->whereHas('productOptionPrice', function ($q) {                               // материал трансформатора
+                        $q->where('value', '=', (string)$this->getData['material_trans'] ?? '')->where('template_option_id', 1);
+                    })->whereHas('productOptionPrice', function ($q) {                               // наличие байпаса силовых ячеек
+                        $q->where('value', '=', (string)$this->getData['power_cell_bypass'] ?? '')->where('template_option_id', 2);
+                    })->whereHas('productOptionPrice', function ($q) {                               // наличие функции синхронизации с сетью
+                        $q->where('value', '=', (string)$this->getData['sync_to_grid'] ?? '')->where('template_option_id', 3);
+                    })->whereHas('productOptionPrice', function ($q) {                               // степень защиты
+                        $q->where('value', '=', (integer)$this->getData['ip'] ?? 31)->where('template_option_id', 4);
+                    })->whereHas('productOptionPrice', function ($q) {                               // наличие предзаряда
+                        $q->where('value', '=', (string)$this->getData['precharge'] ?? '')->where('template_option_id', 5);
+                    })->whereHas('productOptionPrice', function ($q) {                               // исполнение функции предзаряда
+                        $q->where('value', '=', (string)$this->getData['bypass_vfd'] ?? '')->where('template_option_id', 9);
                     });
                     
                 // поиск для других шаблонов
@@ -98,27 +125,10 @@ class Configuration extends Component
                 $baseDelivery = $productModel->delivery;
 
                 // изменение цены от опции товара и сохранение схемы
-                $option_price_applied = [];
-                $option_drawing_applied = [];
-                $option_name_applied = [];
-                foreach ($productModel->productOptionPrice as $productOptionPrice) {
-                    if ($productOptionPrice->value == $this->getData[$productOptionPrice->templateOption->key]) {
-                        if ($productOptionPrice->price > 0) {
-                            $productModel->price = $productModel->price + $productOptionPrice->price;
-                            $option_price_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->price;
-                        }
-                        if ($productOptionPrice->drawing != '') {
-                            $option_drawing_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->drawing;
-                        }
-                        if ($productOptionPrice->rename != null) {
-                            $option_name_applied[$productOptionPrice->rename_target] = $productOptionPrice->rename;
-                        }
-                        if ($productOptionPrice->rename_end != null) {
-                            $option_name_applied[$productOptionPrice->rename_end_target] = $productOptionPrice->rename_end;
-                        }
-
-                    }
-                }
+                $frReplace = new FrReplace($productModel);
+                [$productModel->name, $productModel->description, $productModel->price, $option_drawing_applied, $option_price_applied, $option_name_applied] = $frReplace->title($this->getData);
+                                
+                
 
                 $calc = $priceRules->apply($productModel, $this->getRules);
 
@@ -126,6 +136,7 @@ class Configuration extends Component
                 $productModel->price = $calc['price'];
                 $productModel->delivery = $calc['delivery'];
                 $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
+                
                 $product = $productModel->toArray();
                 
                 foreach ($applied_rules as $applied_rule) {
@@ -133,7 +144,7 @@ class Configuration extends Component
                         $product['name'] .= '-' . $applied_rule['generation_name'];
                     }
                 }
-
+                dd($product, $this->getData);
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
                 $product['option_drawing_applied'] = $option_drawing_applied;
@@ -152,7 +163,7 @@ class Configuration extends Component
                 $this->saved_schema['nodes'][$key]['rules_fields'] = $this->getRules;
                 $this->saved_schema['nodes'][$key]['product'] = $product;
 
-                //dd($product, $this->saved_schema);
+                dd($product, $this->saved_schema);
             }
         }
 
@@ -246,16 +257,16 @@ class Configuration extends Component
                         // Дополнительные опции
                         'interface' => $this->saved_schema['nodes'][$key]['filter_fields']['interface'] ?? 'RS-485, Modbus RTU',
                         'plc_syn' => $this->saved_schema['nodes'][$key]['filter_fields']['plc_syn'] ?? 'Нет',
-                        'vfd_series' => $this->saved_schema['nodes'][$key]['filter_fields']['vfd_series'] ?? 'Компакт (Минпромторг)',
+                        'vfd_series' => $this->saved_schema['nodes'][$key]['filter_fields']['vfd_series'] ?? 'Стандарт',
                         'material_trans' => $this->saved_schema['nodes'][$key]['filter_fields']['material_trans'] ?? 'Медь',
-                        'power_cell_bypass' => $this->saved_schema['nodes'][$key]['filter_fields']['power_cell_bypass'] ?? '',
+                        'power_cell_bypass' => $this->saved_schema['nodes'][$key]['filter_fields']['power_cell_bypass'] ?? 'Нет',
                         'sync_to_grid' => $this->saved_schema['nodes'][$key]['filter_fields']['sync_to_grid'] ?? 'Нет',
                         'ip' => $this->saved_schema['nodes'][$key]['filter_fields']['ip'] ?? 31,
                         'precharge_function' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function'] ?? 'Нет',
                         'precharge_function_exec' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function_exec'] ?? 'Нет',
                         'precharge' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge'] ?? 'Нет',
                         'service_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? 'Одностороннее',
-                        'bypass_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? '',
+                        'bypass_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['bypass_vfd'] ?? 'Нет',
                     ];
 
                     $this->getRules = $this->saved_schema['nodes'][$key]['rules_fields'];

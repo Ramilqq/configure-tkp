@@ -661,7 +661,7 @@ class FrProductExcelService
                 ->where('template_option_id', $templateOption->id)
                 ->delete();*/
 
-            $fields = [];
+            $fields = $templateOption->fields;
             
             // default/base variant — важен для rename/rename_end
             if (!$this->isFrVariantEmpty($base)) {
@@ -685,7 +685,9 @@ class FrProductExcelService
             }
 
             if (!empty($base['value'])) {
-                $fields[] = (string)$base['value'];
+                if(!in_array($base['value'], $fields, true)) {
+                     $fields[] = (string)$base['value'];
+                }
             }
 
             foreach (($group['variants'] ?? []) as $variantMap) {
@@ -694,8 +696,9 @@ class FrProductExcelService
                 if ($this->isFrVariantEmpty($variant)) {
                     continue;
                 }
-                $variant['value'] = $this->safeSheetTitle($variant['value']);
 
+                $variant['value'] = $this->safeSheetTitle($variant['value']);
+                
                 ProductOptionPrice::query()->updateOrCreate([
                     'product_id'         => $product->id,
                     'template_option_id' => $templateOption->id,
@@ -714,11 +717,18 @@ class FrProductExcelService
                 $updated++;
 
                 if (!empty($variant['value'])) {
-                    $fields[] = (string)$variant['value'];
+                    if(!in_array($variant['value'], $fields, true)) {
+                        $fields[] = (string)$variant['value'];
+                    }
                 }
+
+                /*if ($variantMap['value'] == '[VFD_Series (Minprom)]') {
+                    dd($variantMap, $variant['value'],  $fields);
+                }*/
             }
 
             $templateOption->fields = array_values(array_unique(array_filter($fields)));
+            
             $templateOption->save();
         }
 
@@ -743,11 +753,16 @@ class FrProductExcelService
             if (!$templateOption) {
                 continue;
             }
-
+            
+            
             $po = ProductOption::query()->firstOrNew([
                 'product_id' => $product->id,
                 'template_option_id' => $templateOption->id,
             ]);
+
+            /*if($cfg['key'] === 'service_vfd' && $product->id === 97 && $value != 'Одностороннее') {
+                dd( $product->id, $value);
+            }*/
 
             $newValue = (string)$value;
             if ($po->exists && (string)$po->value === $newValue) {
@@ -792,6 +807,7 @@ class FrProductExcelService
             'motor_type'         => (string)($rowByTech['[Motor_type]'] ?? ''),
             'ip'                 => (string)($rowByTech['[IP]'] ?? ''),
             'interface'          => (string)($rowByTech['[Interface]'] ?? ''),
+            'service_vfd'        => (string)($rowByTech['[Service_VFD]'] ?? ''),
         ];
 
         return md5(json_encode($signature, JSON_UNESCAPED_UNICODE));

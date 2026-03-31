@@ -37,6 +37,9 @@ class FormEditModalFr extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueKpd($value)
     {
+        if ($value === '' || $value === null) {
+            $value = 0;
+        }
         if ($value < 0)   $this->getData['kpd'] = 0;
         if ($value > 100) $this->getData['kpd'] = 100;
         
@@ -47,6 +50,9 @@ class FormEditModalFr extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueCosPhi($value)
     {
+        if ($value === '' || $value === null) {
+            $value = 0;
+        }
         if ($value < 0) $this->getData['cos_phi'] = 0;
         if ($value > 1) $this->getData['cos_phi'] = 1;
         
@@ -104,7 +110,8 @@ class FormEditModalFr extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateData()
     {
-        if ($this->getData['precharge_function'] == 'Нет') $this->getData['precharge'] = 'Нет';
+        if ($this->getData['precharge_function'] == 'Да') $this->getData['precharge'] = 'Нет';
+        //if ($this->getData['vfd_series'] != 'Компакт' && $this->getData['vfd_series'] != 'Компакт (Минпромторг)') $this->getData['service_vfd'] = 'Одностороннее';
         $this->save();
     }
 
