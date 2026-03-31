@@ -208,6 +208,7 @@
                                 id="getData.nominalnyi_tok_ed_a"
                                 class="form-control"
                                 placeholder="0"
+                                wire:change.debounce.500ms="updateValueCurent($event.target.value)"
                             >
                         </div>
                         

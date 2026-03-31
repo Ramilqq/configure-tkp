@@ -311,14 +311,15 @@
 
     // Свод по товарам: объединяем по product_id
     $rowIndex = 0; // для колонки 0 (N пп)
+    
     foreach(array_merge($nodes, $connections, $other) as $item) {
         if (!isset($item['product']) || !isset($item['product']['id'])) {
             continue;
         }
 
         $p = $item['product'];
-        $pid = $p['id'];
-
+        $pid = $p['fr_hash'] ?? $p['id'];
+        
         // Достаём базовые значения
         $name        = isset($p['name']) ? $p['name'] : '';
         $description = isset($p['description']) ? $p['description'] : '';
@@ -363,16 +364,6 @@
         $delivery = isset($p['delivery']) ? floatval($p['delivery']) : 0.0;
 
         $oprionString = $makeOptionsStr($item);
-
-        $rulesId = '';
-        if (!empty($item['product']['price_rules_applied'])) {
-            foreach($item['product']['price_rules_applied'] as $rules_key => $rules_value) {
-                $rulesId .= trim($rules_value['rule_key']) . ', ';
-            }
-        }
-
-        $pid = $pid . $rulesId;
-        
         
 
         // Если товар уже есть — наращиваем количество и пересчитываем зависящие колонки
@@ -400,6 +391,7 @@
 
         // --- Создаём новую строку товара ---
         $rowIndex++;
+        
         $table['product_col'][$pid] = [];
 
         // 0 — № пп
@@ -412,8 +404,8 @@
         $table['product_col'][$pid][2] = $name;
 
         // 3 — Наименование опций
-        $table['product_col'][$pid][3] = $oprionString;
-        //$table['product_col'][$pid][3] = $description;
+        //$table['product_col'][$pid][3] = $oprionString;
+        $table['product_col'][$pid][3] = $description;
 
         // 4 — Кол-во
         $table['product_col'][$pid][4] = 1;
@@ -540,6 +532,8 @@
 
         // 45 — Рентабельность = стабфонд / выручка
         $table['product_col'][$pid][45] = ($table['product_col'][$pid][8] == 0) ? 0 : ($table['product_col'][$pid][43] / $table['product_col'][$pid][8]);
+
+        
     }
 
     // --- Итоги по таблице ---

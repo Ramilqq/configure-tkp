@@ -120,6 +120,18 @@ class Configuration extends Component
 
                 if(!$productModel) {return;}
 
+
+                $option_applied = [];
+                foreach ($productModel->productOption as $productOption) {
+                    $option_applied[$productOption->templateOption->key] = $productOption->value;
+                }
+
+                foreach ($productModel->productOptionPrice as $productOptionPrice) {
+                    if ($this->getData[$productOptionPrice->templateOption->key] == $productOptionPrice->value) {
+                        $option_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->value;
+                    }
+                }
+
                 // --- применяем правила цены ---
                 $basePrice = $productModel->price;
                 $baseDelivery = $productModel->delivery;
@@ -137,13 +149,14 @@ class Configuration extends Component
                 $productModel->delivery = $calc['delivery'];
                 $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
                 
+
+                $productModel->fr_hash = $this->makeFrHash($option_applied + $applied_rules);
+
+
                 $product = $productModel->toArray();
                 
-                foreach ($applied_rules as $applied_rule) {
-                    if (isset($applied_rule['generation_name'])) {
-                        $product['name'] .= '-' . $applied_rule['generation_name'];
-                    }
-                }
+                
+                
                 //dd($product, $this->getData);
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
@@ -250,8 +263,8 @@ class Configuration extends Component
                         'v_output' => $this->saved_schema['nodes'][$key]['filter_fields']['v_output'] ?? '6000',
                         'p_output' => $this->saved_schema['nodes'][$key]['filter_fields']['p_output'] ?? '0',
                         'nominalnyi_tok_ed_a' => $this->saved_schema['nodes'][$key]['filter_fields']['nominalnyi_tok_ed_a'] ?? '0',
-                        'kpd' => $this->saved_schema['nodes'][$key]['filter_fields']['kpd'] ?? '95',
-                        'cos_phi' => $this->saved_schema['nodes'][$key]['filter_fields']['cos_phi'] ?? '0.86',
+                        'kpd' => $this->saved_schema['nodes'][$key]['filter_fields']['kpd'] ?? '0',
+                        'cos_phi' => $this->saved_schema['nodes'][$key]['filter_fields']['cos_phi'] ?? '0',
                         'manufacturer_id' => $this->saved_schema['nodes'][$key]['filter_fields']['manufacturer_id'] ?? '1',
 
                         // Дополнительные опции
@@ -295,6 +308,11 @@ class Configuration extends Component
         }
     }
     
+    private function makeFrHash(array $options): string
+    {
+        return md5(json_encode($options, JSON_UNESCAPED_UNICODE));
+    }
+
     public function syncModalDataBack($getData, $getRules)
     {
         // Получаем данные из модального компонента ЧРП

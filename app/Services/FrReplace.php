@@ -51,6 +51,7 @@ class FrReplace
 
                 if ($productOptionPrice->templateOption->key == 'motor_type') {
                     $this->name = str_replace('[Motor_type]', $productOptionPrice->rename_title, $this->name);
+                    $this->description = str_replace('[Motor_type_full]', $productOptionPrice->value, $this->description);
                 }
                 elseif ($productOptionPrice->templateOption->key == 'interface') {
                     $this->name = str_replace('[Interface_S]', $productOptionPrice->rename_title, $this->name);
@@ -76,6 +77,7 @@ class FrReplace
                 }
                 elseif ($productOptionPrice->templateOption->key == 'material_trans') {
                     $this->name = str_replace('[Material_trans]', $productOptionPrice->rename_title, $this->name);
+                    $this->description = str_replace('[Material_trans]', $productOptionPrice->value, $this->description);
                 }
                 elseif ($productOptionPrice->templateOption->key == 'power_cell_bypass') {
                     $productOptionPrice->value == 'Нет' ?: $power_cell_bypass = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value;
@@ -155,6 +157,12 @@ class FrReplace
             elseif ($productOption->templateOption->key == 'precharge_function_exec') {
                 $precharge_function_exec = $productOption->value == 'Да' ? 'Да' : 'Нет';
                 $this->description = str_replace('[PrechargeFunctionExec]', $productOption->value, $this->description);
+            }
+            elseif ($productOption->templateOption->key == 'material_trans') {
+                $this->description = str_replace('[Material_trans]', $productOption->value, $this->description);
+            }
+            elseif ($productOption->templateOption->key == 'motor_type') {
+                $this->description = str_replace('[Motor_type_full]', $productOption->value, $this->description);
             }
             
         }

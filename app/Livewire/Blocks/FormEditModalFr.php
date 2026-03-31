@@ -81,19 +81,26 @@ class FormEditModalFr extends Component
     }
 
     // функция для пересчета номинального тока при изменении характеристик электродвигателя
-    public function updateValueCurent()
+    public function updateValueCurent($value = null)
     {
         $p = $this->getData['p_output'] ?? 0;
         $u = $this->getData['v_output'] ?? 0;
         $cos_phi = $this->getData['cos_phi'] ?? 0;
         $kpd = ($this->getData['kpd'] ?? 0) / 100;
 
-        if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
-            $i = ($p * 1000) / ( sqrt(3) * $u * $cos_phi * $kpd);
-            $i = round($i, 2);
-            $this->getData['nominalnyi_tok_ed_a'] = $i;
+        if ($value !== null) {
+            if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
+                $p = ( sqrt(3) * $u * $cos_phi * $kpd * $value) / 1000;
+                $p = round($p, 2);
+            }
+            $this->getData['p_output'] = $p;
+            
         } else {
-            $this->getData['nominalnyi_tok_ed_a'] = 0;
+            if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
+                $i = ($p * 1000) / ( sqrt(3) * $u * $cos_phi * $kpd);
+                $i = round($i, 2);
+                $this->getData['nominalnyi_tok_ed_a'] = $i;
+            }
         }
 
         // обновляем данные в конфигурации
