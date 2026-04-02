@@ -141,7 +141,7 @@ class FormEditModalFr extends Component
             $this->getData['precharge_function_exec'] = '';
         }
 
-        if ($key == 'vfd_series' && ($value != 'Стандарт' || $value != 'Стандарт (Минпромторг)')) 
+        if ($key == 'vfd_series' && ($value != 'Стандарт' && $value != 'Стандарт (Минпромторг)')) 
         {
             $this->getData['precharge_function'] = $this->getData['precharge_function'] ?? 'Нет';
             $this->getData['precharge_function_exec'] =$this->getData['precharge_function_exec'] ??  'Нет';

@@ -66,15 +66,15 @@
                                     }
                                 ?>
                                             >
+                                            
+                                                @foreach ($product_filter['fields'] as $field)
+                                                    <option value="{{$field}}">{{$field}}</option>
+                                                @endforeach
                                 <?php
                                                     if (($key == 'precharge_function' || $key == 'precharge_function_exec') && ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)')) {
                                                         echo '<option value="">---</option>';
                                                     }
                                 ?>
-                                                    
-                                                @foreach ($product_filter['fields'] as $field)
-                                                    <option value="{{$field}}">{{$field}}</option>
-                                                @endforeach
                                             </select>
                                         </div>
                                     @endif

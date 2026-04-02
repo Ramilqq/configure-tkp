@@ -85,6 +85,7 @@ class Configuration extends Component
                     $checks = $this->getFrSearchChecks();
 
                     foreach ($checks as $check) {
+                        if ($check['value'] == '') continue;
                         $query = $this->applySearchCheck($query, $check);
                     }
                     
@@ -470,14 +471,14 @@ class Configuration extends Component
                 'relation' => 'productOption',
                 'template_option_id' => 21,
                 'operator' => '=',
-                'value' => (string)($this->getData['precharge_function'] ?? ''),
+                'value' => (string)($this->getData['precharge_function'] ?? null),
             ],
             [
                 'label' => 'Исполнение функции предзаряда',
                 'relation' => 'productOption',
                 'template_option_id' => 22,
                 'operator' => '=',
-                'value' => (string)($this->getData['precharge_function_exec'] ?? ''),
+                'value' => (string)($this->getData['precharge_function_exec'] ?? null),
             ],
             [
                 'label' => 'Наличие сервиса ЧРП',
@@ -578,6 +579,7 @@ class Configuration extends Component
         $steps = [];
 
         foreach ($checks as $check) {
+            if ($check['value'] == '') continue;
             $beforeCount = count($productIds);
 
             if ($beforeCount === 0) {
