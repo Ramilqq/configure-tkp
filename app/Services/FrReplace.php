@@ -120,7 +120,7 @@ class FrReplace
                 $this->description = str_replace('[V_input]', $productOption->value, $this->description);
             }
             elseif ($productOption->templateOption->key == 'v_output') {
-                $this->name = str_replace('[V_output_name]', '-'. substr($productOption->value, 0, 2), $this->name);
+                $this->name = str_replace('[V_output_name]', substr($productOption->value, 0, 2), $this->name);
                 $this->description = str_replace('[V_output]', $productOption->value, $this->description);
             }
             elseif ($productOption->templateOption->key == 'count_power_cell') {

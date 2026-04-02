@@ -16,6 +16,9 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Services\TableSettings\TemplatePriceRuleService;
 
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\TableSettings\ProductOption;
+
 class Configuration extends Component
 {
     use WithFileUploads;
@@ -47,9 +50,14 @@ class Configuration extends Component
     public int $id = 0;
     public string $image_name;
     public string $image_path;
+    public string $message_success = '';
+    public string $message_error = '';
 
     public function searchProduct($node_id = null, $conn_id = null, $type = 'nodes')
     {
+        $this->message_success = '';
+        $this->message_error = '';
+
         $query = Product::query()->with('template')
             ->with(['template.priceRules'])
             ->with('productOption')
@@ -71,41 +79,14 @@ class Configuration extends Component
                 
                 // отделбный поиск для ЧРП
                 if ($node['template_id'] == 1) {
-                    $query->whereHas('productOption', function ($q) {                               // номинальное напряжение
-                        $q->where('value', '>=', (integer)$this->getData['v_output'] ?? '10000')->where('template_option_id', 14);
-                    })->whereHas('productOption', function ($q) {                               // мощность
-                        $q->where('value', '>=', (integer)$this->getData['p_output'] ?? '0')->where('template_option_id', 12);
-                    })->whereHas('productOption', function ($q) {                               // номинальный ток
-                        $q->where('value', '>=', (integer)$this->getData['nominalnyi_tok_ed_a'] ?? '0')->where('template_option_id', 16);
-                    })->whereHas('productOption', function ($q) {                               // наличие функции предзаряда
-                        $q->where('value', '=', (string)$this->getData['precharge_function'] ?? '')->where('template_option_id', 21);
-                    })->whereHas('productOption', function ($q) {                               // исполнение функции предзаряда
-                        $q->where('value', '=', (string)$this->getData['precharge_function_exec'] ?? '')->where('template_option_id', 22);
-                    })->whereHas('productOption', function ($q) {                               // наличие сервиса ЧРП
-                        $q->where('value', '=', (string)$this->getData['service_vfd'] ?? '')->where('template_option_id', 24);
-                    });
+                    
+                    $query->with('productOptionPrice');
 
-                    $query->whereHas('productOptionPrice', function ($q) {                           // тип двигате
-                        $q->where('value', '=', (string)$this->getData['motor_type'] ?? 'A')->where('template_option_id', 7);
-                    })->whereHas('productOptionPrice', function ($q) {                               // интерфейс
-                        $q->where('value', '=', (string)$this->getData['interface'] ?? '')->where('template_option_id', 10);
-                    })->whereHas('productOptionPrice', function ($q) {                               // наличие ПЛК синхронизации
-                        $q->where('value', '=', (string)$this->getData['plc_syn'] ?? '')->where('template_option_id', 8);
-                    })->whereHas('productOptionPrice', function ($q) {                               // серия ЧРП
-                        $q->where('value', '=', (string)$this->getData['vfd_series'] ?? '')->where('template_option_id', 6);
-                    })->whereHas('productOptionPrice', function ($q) {                               // материал трансформатора
-                        $q->where('value', '=', (string)$this->getData['material_trans'] ?? '')->where('template_option_id', 1);
-                    })->whereHas('productOptionPrice', function ($q) {                               // наличие байпаса силовых ячеек
-                        $q->where('value', '=', (string)$this->getData['power_cell_bypass'] ?? '')->where('template_option_id', 2);
-                    })->whereHas('productOptionPrice', function ($q) {                               // наличие функции синхронизации с сетью
-                        $q->where('value', '=', (string)$this->getData['sync_to_grid'] ?? '')->where('template_option_id', 3);
-                    })->whereHas('productOptionPrice', function ($q) {                               // степень защиты
-                        $q->where('value', '=', (integer)$this->getData['ip'] ?? 31)->where('template_option_id', 4);
-                    })->whereHas('productOptionPrice', function ($q) {                               // наличие предзаряда
-                        $q->where('value', '=', (string)$this->getData['precharge'] ?? '')->where('template_option_id', 5);
-                    })->whereHas('productOptionPrice', function ($q) {                               // исполнение функции предзаряда
-                        $q->where('value', '=', (string)$this->getData['bypass_vfd'] ?? '')->where('template_option_id', 9);
-                    });
+                    $checks = $this->getFrSearchChecks();
+
+                    foreach ($checks as $check) {
+                        $query = $this->applySearchCheck($query, $check);
+                    }
                     
                 // поиск для других шаблонов
                 } else {
@@ -118,7 +99,22 @@ class Configuration extends Component
 
                 $productModel = $query->first() ?: null;
 
-                if(!$productModel) {return;}
+                if (!$productModel) {
+                    if ($node['template_id'] == 1) {
+                        $steps = $this->diagnoseFrSearch((int)$node['template_id'], $this->getFrSearchChecks());
+                        $this->message_error = $this->formatFrSearchError($steps);
+                    } else {
+                        $this->message_error = 'Продукт не найден.';
+                    }
+
+                    $this->dispatch(
+                        'editModalFr.getMessage',
+                        message_success: $this->message_success,
+                        message_error: $this->message_error
+                    )->to('blocks.form-edit-modal-fr');
+
+                    return;
+                }
 
 
                 $option_applied = [];
@@ -225,6 +221,9 @@ class Configuration extends Component
         }
         
         unset($query);
+        $this->message_success = 'Продукт найден и применен: ' . $product['name'];
+        $this->message_error = '';
+        $this->dispatch('editModalFr.getMessage', message_success: $this->message_success, message_error: $this->message_error)->to('blocks.form-edit-modal-fr');
 
         //dd($this->saved_schema, $this->getData, $this->getRules, $node_id, $conn_id, $type);
         $this->dispatch('saved_schema-updated');
@@ -237,6 +236,9 @@ class Configuration extends Component
 
     public function updateFilter($template_id, $node_id = null, $conn_id = null)
     {
+
+        $this->dispatch('editModalFr.getMessage', message_success: '', message_error: '')->to('blocks.form-edit-modal-fr');
+
         // при смене шаблона подгружаем новые опции и правила для фильтра
         if ($template_id != 1) {
             $this->product_filter_select = [];
@@ -275,8 +277,8 @@ class Configuration extends Component
                         'power_cell_bypass' => $this->saved_schema['nodes'][$key]['filter_fields']['power_cell_bypass'] ?? 'Нет',
                         'sync_to_grid' => $this->saved_schema['nodes'][$key]['filter_fields']['sync_to_grid'] ?? 'Нет',
                         'ip' => $this->saved_schema['nodes'][$key]['filter_fields']['ip'] ?? 31,
-                        'precharge_function' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function'] ?? 'Нет',
-                        'precharge_function_exec' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function_exec'] ?? 'Нет',
+                        'precharge_function' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function'] ?? '',
+                        'precharge_function_exec' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function_exec'] ?? '',
                         'precharge' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge'] ?? 'Нет',
                         'service_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? 'Одностороннее',
                         'bypass_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['bypass_vfd'] ?? 'Нет',
@@ -393,5 +395,290 @@ class Configuration extends Component
                                                             'groups' => $groups,
                                                             'product_filter_select' => $this->product_filter_select,
                                                             ]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private function getFrSearchChecks(): array
+    {
+        return [
+            [
+                'label' => 'Номинальное напряжение',
+                'relation' => 'productOption',
+                'template_option_id' => 14,
+                'operator' => '>=',
+                'value' => (int)($this->getData['v_output'] ?? 10000),
+            ],
+            [
+                'label' => 'Мощность',
+                'relation' => 'productOption',
+                'template_option_id' => 12,
+                'operator' => '>=',
+                'value' => (int)($this->getData['p_output'] ?? 0),
+            ],
+            [
+                'label' => 'Номинальный ток',
+                'relation' => 'productOption',
+                'template_option_id' => 16,
+                'operator' => '>=',
+                'value' => (float)($this->getData['nominalnyi_tok_ed_a'] ?? 0),
+            ],
+            [
+                'label' => 'Наличие функции предзаряда',
+                'relation' => 'productOption',
+                'template_option_id' => 21,
+                'operator' => '=',
+                'value' => (string)($this->getData['precharge_function'] ?? ''),
+            ],
+            [
+                'label' => 'Исполнение функции предзаряда',
+                'relation' => 'productOption',
+                'template_option_id' => 22,
+                'operator' => '=',
+                'value' => (string)($this->getData['precharge_function_exec'] ?? ''),
+            ],
+            [
+                'label' => 'Наличие сервиса ЧРП',
+                'relation' => 'productOption',
+                'template_option_id' => 24,
+                'operator' => '=',
+                'value' => (string)($this->getData['service_vfd'] ?? ''),
+            ],
+            [
+                'label' => 'Тип двигателя',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 7,
+                'operator' => '=',
+                'value' => (string)($this->getData['motor_type'] ?? 'A'),
+            ],
+            [
+                'label' => 'Интерфейс',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 10,
+                'operator' => '=',
+                'value' => (string)($this->getData['interface'] ?? ''),
+            ],
+            [
+                'label' => 'Наличие ПЛК синхронизации',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 8,
+                'operator' => '=',
+                'value' => (string)($this->getData['plc_syn'] ?? ''),
+            ],
+            [
+                'label' => 'Серия ЧРП',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 6,
+                'operator' => '=',
+                'value' => (string)($this->getData['vfd_series'] ?? ''),
+            ],
+            [
+                'label' => 'Материал трансформатора',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 1,
+                'operator' => '=',
+                'value' => (string)($this->getData['material_trans'] ?? ''),
+            ],
+            [
+                'label' => 'Наличие байпаса силовых ячеек',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 2,
+                'operator' => '=',
+                'value' => (string)($this->getData['power_cell_bypass'] ?? ''),
+            ],
+            [
+                'label' => 'Наличие функции синхронизации с сетью',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 3,
+                'operator' => '=',
+                'value' => (string)($this->getData['sync_to_grid'] ?? ''),
+            ],
+            [
+                'label' => 'Степень защиты',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 4,
+                'operator' => '=',
+                'value' => (int)($this->getData['ip'] ?? 31),
+            ],
+            [
+                'label' => 'Наличие предзаряда',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 5,
+                'operator' => '=',
+                'value' => (string)($this->getData['precharge'] ?? ''),
+            ],
+            [
+                'label' => 'Исполнение байпаса ЧРП',
+                'relation' => 'productOptionPrice',
+                'template_option_id' => 9,
+                'operator' => '=',
+                'value' => (string)($this->getData['bypass_vfd'] ?? ''),
+            ],
+        ];
+    }
+
+    private function applySearchCheck(Builder $query, array $check): Builder
+    {
+        return $query->whereHas($check['relation'], function ($q) use ($check) {
+            $q->where('template_option_id', $check['template_option_id'])
+            ->where('value', $check['operator'], $check['value']);
+        });
+    }
+
+    private function diagnoseFrSearch(int $templateId, array $checks): array
+    {
+        $productIds = Product::query()
+            ->where('template_id', $templateId)
+            ->pluck('id')
+            ->map(fn ($id) => (int)$id)
+            ->all();
+
+        $steps = [];
+
+        foreach ($checks as $check) {
+            $beforeCount = count($productIds);
+
+            if ($beforeCount === 0) {
+                $steps[] = [
+                    ...$check,
+                    'before' => 0,
+                    'after' => 0,
+                    'failed' => true,
+                    'available_values' => [],
+                ];
+                break;
+            }
+
+            $afterIds = Product::query()
+                ->whereIn('id', $productIds)
+                ->whereHas($check['relation'], function ($q) use ($check) {
+                    $q->where('template_option_id', $check['template_option_id'])
+                    ->where('value', $check['operator'], $check['value']);
+                })
+                ->pluck('id')
+                ->map(fn ($id) => (int)$id)
+                ->all();
+
+            $availableValues = [];
+
+            if (count($afterIds) === 0) {
+                $availableValues = $this->getAvailableOptionValues(
+                    $productIds,
+                    $check['relation'],
+                    (int)$check['template_option_id']
+                );
+            }
+
+            $steps[] = [
+                ...$check,
+                'before' => $beforeCount,
+                'after' => count($afterIds),
+                'failed' => count($afterIds) === 0,
+                'available_values' => $availableValues,
+            ];
+
+            $productIds = $afterIds;
+        }
+
+        return $steps;
+    }
+
+    private function getAvailableOptionValues(array $productIds, string $relation, int $templateOptionId): array
+    {
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $query = $relation === 'productOptionPrice'
+            ? ProductOptionPrice::query()
+            : ProductOption::query();
+
+        return $query
+            ->whereIn('product_id', $productIds)
+            ->where('template_option_id', $templateOptionId)
+            ->whereNotNull('value')
+            ->pluck('value')
+            ->map(fn ($value) => trim((string)$value))
+            ->filter(fn ($value) => $value !== '')
+            ->unique()
+            ->take(10)
+            ->values()
+            ->all();
+    }
+
+    private function formatFrSearchError(array $steps): string
+    {
+        $html = 'Продукт не найден.<br><br>';
+        $html .= 'Диагностика поиска:<br>';
+
+        foreach ($steps as $step) {
+            $html .= sprintf(
+                '%s (%s %s) — было: %d, осталось: %d%s<br>',
+                e($step['label']),
+                e($step['operator']),
+                e((string)$step['value']),
+                (int)$step['before'],
+                (int)$step['after'],
+                $step['failed'] ? ' ❌' : ''
+            );
+
+            if ($step['failed'] && !empty($step['available_values'])) {
+                $html .= 'Доступные значения у оставшихся товаров: '
+                    . e(implode(', ', $step['available_values']))
+                    . '<br>';
+            }
+        }
+
+        $failedStep = collect($steps)->firstWhere('failed', true);
+
+        if ($failedStep) {
+            $html .= '<br><b>Причина:</b> поиск обнулился на опции "'
+                . e($failedStep['label'])
+                . '".';
+        }
+
+        return $html;
     }
 }

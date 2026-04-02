@@ -16,6 +16,9 @@ class FormEditModalFr extends Component
     public array $getData = [];
     public array $getRules = [];
 
+    public string $message_success = '';
+    public string $message_error = '';
+
     // обновляем список правил цены при выборе шаблона в модальном окне
     #[On('updateFilterFR')]
     public function updateFilterFR($template_id, $node_id = null, $conn_id = null, $product_filter_select)
@@ -32,6 +35,13 @@ class FormEditModalFr extends Component
     {
         $this->getData = $getData;
         $this->getRules = $getRules;
+    }
+
+    #[On('editModalFr.getMessage')]
+    public function getMessage($message_success, $message_error)
+    {
+        $this->message_success = $message_success;
+        $this->message_error = $message_error;
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
@@ -115,10 +125,32 @@ class FormEditModalFr extends Component
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
-    public function updateData()
+    public function updateData($key, $value)
     {
+        foreach ($this->getData as $k => $v)
+        {
+            if ($v === '')
+            {
+                $this->getData[$k] = null;
+            }
+        }
+        //dd($key, $value, $this->getData);
+        if ($key == 'vfd_series' && ($value == 'Стандарт' || $value == 'Стандарт (Минпромторг)')) 
+        {
+            $this->getData['precharge_function'] = '';
+            $this->getData['precharge_function_exec'] = '';
+        }
+
+        if ($key == 'vfd_series' && ($value != 'Стандарт' || $value != 'Стандарт (Минпромторг)')) 
+        {
+            $this->getData['precharge_function'] = $this->getData['precharge_function'] ?? 'Нет';
+            $this->getData['precharge_function_exec'] =$this->getData['precharge_function_exec'] ??  'Нет';
+        }
+
+
+
         if ($this->getData['precharge_function'] == 'Да') $this->getData['precharge'] = 'Нет';
-        //if ($this->getData['vfd_series'] != 'Компакт' && $this->getData['vfd_series'] != 'Компакт (Минпромторг)') $this->getData['service_vfd'] = 'Одностороннее';
+
         $this->save();
     }
 

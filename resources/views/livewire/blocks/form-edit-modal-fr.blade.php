@@ -43,16 +43,35 @@
                                                 wire:model.defer="getData.{{$key}}"
                                                 id="getData-{{$key}}"
                                                 class="form-select"
-                                                wire:change.debounce.500ms="updateData()"
+                                                wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
                                                 style="font-size: 11px;"
                                 <?php 
+                                    // отключать "Предзаряд силовых ячеек" если включен "Наличие функции предзаряда"
                                     if ($key == 'precharge') {
                                         if ($getData['precharge_function'] == 'Да') {
                                             echo 'disabled';
                                         }
                                     }
+                                    // отключать "Наличие функции предзаряда" серии "Стандарт" и "Минпромторг"
+                                    if ($key == 'precharge_function') {
+                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
+                                            echo 'disabled';
+                                        }
+                                    }
+                                    // отключать "Исполнение функции предзаряда" серии "Стандарт" и "Минпромторг"
+                                    if ($key == 'precharge_function_exec') {
+                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
+                                            echo 'disabled';
+                                        }
+                                    }
                                 ?>
                                             >
+                                <?php
+                                                    if (($key == 'precharge_function' || $key == 'precharge_function_exec') && ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)')) {
+                                                        echo '<option value="">---</option>';
+                                                    }
+                                ?>
+                                                    
                                                 @foreach ($product_filter['fields'] as $field)
                                                     <option value="{{$field}}">{{$field}}</option>
                                                 @endforeach
@@ -257,10 +276,18 @@
             <div class="modal-body" wire:loading>
                 Загрузка фильтра ...
             </div>
+            <div class="modal-body">
+                <div class="alert alert-success" role="alert" wire:show="message_success">
+                    {!! $message_success !!}
+                </div>
+                <div class="alert alert-danger" role="alert" wire:show="message_error">
+                    {!! $message_error !!}
+                </div>
+            </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal" wire:loading.attr="disabled">Удалить</button>
-                <button type="submit" class="btn btn-primary" onclick="saveModal()" data-bs-dismiss="modal" wire:loading.attr="disabled">Сохранить</button>
+                <button type="submit" class="btn btn-primary" onclick="saveModal()" wire:loading.attr="disabled">Сохранить</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
             </div>
         </div>
