@@ -17,6 +17,9 @@ class TkpDelivery extends Component
 
     public function saveForm()
     {
+        $tkp = Tkp::findOrFail($this->id);
+        $this->authorize('update', $tkp);
+        
         $this->form->saveForm($this->id, $this->tkp_version,);
     }
 

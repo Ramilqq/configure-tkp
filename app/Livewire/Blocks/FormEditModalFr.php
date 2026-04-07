@@ -134,20 +134,26 @@ class FormEditModalFr extends Component
                 $this->getData[$k] = null;
             }
         }
-        //dd($key, $value, $this->getData);
+        // отключаем "Наличие функции предзаряда" и "Исполнение функции предзаряда" для серии "Стандарт" и "Минпромторг"
         if ($key == 'vfd_series' && ($value == 'Стандарт' || $value == 'Стандарт (Минпромторг)')) 
         {
             $this->getData['precharge_function'] = '';
             $this->getData['precharge_function_exec'] = '';
         }
-
-        if ($key == 'vfd_series' && ($value != 'Стандарт' && $value != 'Стандарт (Минпромторг)')) 
+        elseif ($key == 'vfd_series' && ($value != 'Стандарт' && $value != 'Стандарт (Минпромторг)')) 
         {
             $this->getData['precharge_function'] = $this->getData['precharge_function'] ?? 'Нет';
             $this->getData['precharge_function_exec'] =$this->getData['precharge_function_exec'] ??  'Нет';
         }
-
-
+        // отключаем "Сервисный интерфейс" для серии "Стандарт" и "Минпромторг"
+        if ($key == 'vfd_series' && ($value == 'Стандарт' || $value == 'Стандарт (Минпромторг)')) 
+        {
+            $this->getData['service_vfd'] = '';
+        }
+        elseif ($key == 'vfd_series' && ($value != 'Стандарт' && $value != 'Стандарт (Минпромторг)')) 
+        {
+            $this->getData['service_vfd'] = $this->getData['service_vfd'] ?? 'Одностороннее';
+        }
 
         if ($this->getData['precharge_function'] == 'Да') $this->getData['precharge'] = 'Нет';
 

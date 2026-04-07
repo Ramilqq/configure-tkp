@@ -81,7 +81,7 @@ class Configuration extends Component
                 if ($node['template_id'] == 1) {
                     
                     $query->with('productOptionPrice');
-
+                    
                     $checks = $this->getFrSearchChecks();
 
                     foreach ($checks as $check) {
@@ -281,7 +281,7 @@ class Configuration extends Component
                         'precharge_function' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function'] ?? '',
                         'precharge_function_exec' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge_function_exec'] ?? '',
                         'precharge' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge'] ?? 'Нет',
-                        'service_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? 'Одностороннее',
+                        'service_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? '',
                         'bypass_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['bypass_vfd'] ?? 'Нет',
                     ];
 
@@ -325,6 +325,10 @@ class Configuration extends Component
 
     public function saveForm()
     {
+
+        $tkp = Tkp::findOrFail($this->id);
+        $this->authorize('update', $tkp);
+        
         $data = [
             'tkp_version' => $this->tkp_version,
             'image' => $this->image_path,
@@ -464,7 +468,7 @@ class Configuration extends Component
                 'relation' => 'productOption',
                 'template_option_id' => 16,
                 'operator' => '>=',
-                'value' => (float)($this->getData['nominalnyi_tok_ed_a'] ?? 0),
+                'value' => (int)($this->getData['nominalnyi_tok_ed_a'] ?? 0),
             ],
             [
                 'label' => 'Наличие функции предзаряда',

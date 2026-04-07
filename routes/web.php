@@ -59,7 +59,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('tkp/sheme/{id}/{tkp_version}', TkpConfiguration::class)->name('tkp.sheme.edit');
     Route::get('tkp/delivery/{id}/{tkp_version}', TkpDelivery::class)->name('tkp.delivery.edit');
     Route::get('tkp/calculation/{id}/{tkp_version}', TkpCalculation::class)->name('tkp.calculation.edit');
+    Route::get('tkp/calculation/{id}/{tkp_version}/duplicate', TkpCalculation::class)->name('tkp.calculation.duplicate');
     Route::get('/tkp/pdf/{id}/{tkp_version}',    [PdfController::class, 'show'])->name('tkp.pdf.show'); 
+    
 
     Route::get('/pdf-preview', [PdfController::class, 'preview']);
 

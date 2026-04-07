@@ -37,7 +37,7 @@
                                     @if ($product_filter['key'] == $key)
                                         <div class="mb-3" wire:key="getDataDiv-{{$key}}">
                                         
-                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}</label>
+                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}. {{$getData[$key]}}</label>
                                             <select
                                                 wire:key="getData-{{$key}}"
                                                 wire:model.defer="getData.{{$key}}"
@@ -45,36 +45,54 @@
                                                 class="form-select"
                                                 wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
                                                 style="font-size: 11px;"
-                                <?php 
-                                    // отключать "Предзаряд силовых ячеек" если включен "Наличие функции предзаряда"
-                                    if ($key == 'precharge') {
-                                        if ($getData['precharge_function'] == 'Да') {
-                                            echo 'disabled';
-                                        }
-                                    }
-                                    // отключать "Наличие функции предзаряда" серии "Стандарт" и "Минпромторг"
-                                    if ($key == 'precharge_function') {
-                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
-                                            echo 'disabled';
-                                        }
-                                    }
-                                    // отключать "Исполнение функции предзаряда" серии "Стандарт" и "Минпромторг"
-                                    if ($key == 'precharge_function_exec') {
-                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
-                                            echo 'disabled';
-                                        }
-                                    }
-                                ?>
+                                                <?php 
+                                                    // отключать "Предзаряд силовых ячеек" если включен "Наличие функции предзаряда"
+                                                    if ($key == 'precharge') {
+                                                        if ($getData['precharge_function'] == 'Да') {
+                                                            echo 'disabled';
+                                                        }
+                                                    }
+                                                    // отключать "Наличие функции предзаряда" серии "Стандарт" и "Минпромторг"
+                                                    if ($key == 'precharge_function') {
+                                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
+                                                            echo 'disabled';
+                                                        }
+                                                    }
+                                                    // отключать "Исполнение функции предзаряда" серии "Стандарт" и "Минпромторг"
+                                                    if ($key == 'precharge_function_exec') {
+                                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
+                                                            echo 'disabled';
+                                                        }
+                                                    }
+                                                    // отключать "Сервисный интерфейс" серии "Стандарт" и "Минпромторг"
+                                                    if ($key == 'service_vfd') {
+                                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
+                                                            echo 'disabled';
+                                                        }
+                                                    }
+                                                ?>
                                             >
-                                            
+                                
+                                                <?php
+                                                    // 
+                                                    if (($key == 'precharge_function' || $key == 'precharge_function_exec')) {
+                                                        ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') ? $disabled = '' : $disabled = 'disabled';
+                                                        echo '<option value="" ' . $disabled . '>---</option>';
+                                                    }
+                                                    // 
+                                                    if ($key == 'service_vfd') {
+                                                        ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') ? $disabled = '' : $disabled = 'disabled';
+                                                        echo '<option value="" ' . $disabled . '>---</option>';
+                                                    }
+                                                ?>
+
+
+
+                                                    
                                                 @foreach ($product_filter['fields'] as $field)
                                                     <option value="{{$field}}">{{$field}}</option>
                                                 @endforeach
-                                <?php
-                                                    if (($key == 'precharge_function' || $key == 'precharge_function_exec') && ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)')) {
-                                                        echo '<option value="">---</option>';
-                                                    }
-                                ?>
+                                
                                             </select>
                                         </div>
                                     @endif

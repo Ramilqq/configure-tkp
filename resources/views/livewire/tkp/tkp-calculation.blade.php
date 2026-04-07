@@ -40,7 +40,7 @@
                                 Расходы на <br />продвижение (%):
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pay_params.marketing" class="form-control" wire:model.lazy="pay_params.marketing">
+                                <input type="text" id="pay_params.marketing" class="form-control" wire:model.lazy="pay_params.marketing" wire:loading.attr="disabled">
                             </div>
                         </div>
 
@@ -49,7 +49,7 @@
                                 НДС:
                             </div>
                             <div class="col-8">
-                                <select class="form-select" wire:model.lazy="pay_params.nds" id="pay_params.nds" >
+                                <select class="form-select" wire:model.lazy="pay_params.nds" id="pay_params.nds" wire:loading.attr="disabled">
                                     <option value="0">0%</option>
                                     <option value="18">18%</option>
                                     <option value="20">20%</option>
@@ -63,7 +63,7 @@
                                 Резерв на <br />изменение (%):
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pay_params.reserve" class="form-control" wire:model.lazy="pay_params.reserve">
+                                <input type="text" id="pay_params.reserve" class="form-control" wire:model.lazy="pay_params.reserve" wire:loading.attr="disabled">
                             </div>
                         </div>
                     </div>
@@ -99,14 +99,19 @@
 
 <!-- блок с версиями -->
                     <div class="col-12 bg-light my-1 px-1 rounded">
-                        
-                        <div class="row g-3 align-items-center pb-1">
-                            <a target="_blank" href="{{route('tkp.pdf.show', ['id' => $id, 'tkp_version' => $tkp_version])}}" type="button" class="btn btn-success">Открыть PDF</a>
+                        <div class="col g-3 align-items-center pb-1 d-flex">
+                            <a target="_blank" href="{{route('tkp.pdf.show', ['id' => $id, 'tkp_version' => $tkp_version])}}" type="button" class="btn btn-success w-100 m-auto">Открыть<br/>PDF</a>
+                            <button wire:click="saveParams()" wire:loading.attr="disabled" type="button" class="btn btn-primary w-100 m-auto">Сохранить<br/>изменения</button>
                         </div>
-                        <div class="row g-3 align-items-center pb-1">
-                        
-                        </div>
+                    </div>
 
+                    <div class="col-12 bg-light my-1 px-1 rounded">
+                        <span>Создать Копию</span>
+                        <div class="col g-3 align-items-center pb-1 d-flex">
+                            <input type="text" id="dublicate_comments" class="form-control" wire:model="dublicate_comments" placeholder="Комментарий к новой версии">
+                            <button wire:click="saveDublicate()" title="Создать копию" wire:loading.attr="disabled" type="button" class="btn btn-primary"><i class="bi bi-copy"></i></button>
+                        </div>
+                        <div class="text-danger">@error('dublicate_comments') {{ $message }} @enderror</div>
                     </div>
 
                 </div>
@@ -550,7 +555,6 @@
     $form->pay_params['resault_nds'] = $nds;
     $form->pay_params['resault_total_nds'] = $total_nds;
     
-    $this->saveParams();
 @endphp
             <table class="table">
                 <thead>

@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     
@@ -15,5 +17,16 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (AuthorizationException $e, Request $request) {
+            dd(1);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage() ?: 'Доступ запрещён.',
+                ], 403);
+            }
+
+            return redirect()
+                ->route('home')
+                ->with('warning', $e->getMessage() ?: 'У вас нет доступа к этому разделу.');
+        });
     })->create()->usePublicPath(realpath(base_path('public_html')));

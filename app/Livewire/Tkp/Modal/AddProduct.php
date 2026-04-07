@@ -4,6 +4,7 @@ namespace App\Livewire\Tkp\Modal;
 
 use App\Livewire\Forms\Tkp\AddProductForm;
 use Livewire\Component;
+use App\Models\Tkp\Tkp;
 
 class AddProduct extends Component
 {
@@ -20,6 +21,9 @@ class AddProduct extends Component
 
     public function saveForm()
     {
+        $tkp = Tkp::where('tkp_version', $this->tkp_version)->firstOrFail();
+        $this->authorize('update', $tkp);
+
         $this->form->saveForm($this->tkp_version);
         $this->dispatch('addProductUpdateList');
 
@@ -37,6 +41,9 @@ class AddProduct extends Component
 
     public function addProductRemove($product_id)
     {
+        $tkp = Tkp::where('tkp_version', $this->tkp_version)->firstOrFail();
+        $this->authorize('delete', $tkp);
+
         $this->form->remove($this->tkp_version, $product_id);
         $this->dispatch('addProductUpdateList');
     }

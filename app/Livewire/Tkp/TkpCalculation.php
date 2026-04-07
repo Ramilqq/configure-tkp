@@ -8,6 +8,8 @@ use App\Models\Tkp\Engineering;
 use App\Models\Tkp\Tkp;
 use Livewire\Component;
 use Illuminate\Support\Facades\Cache;
+use PSpell\Config;
+use Illuminate\Support\Facades\Auth;
 
 class TkpCalculation extends Component
 {
@@ -21,25 +23,53 @@ class TkpCalculation extends Component
     public array $saved_schema = [];
     public array $pay_params = [];
     public array $banks;
-
-
-    public function updated($key, $val)
-    {
-        $this->form->pay_params = $this->pay_params;
-        $this->form->saveForm($this->id);
-    }
+    public string $dublicate_comments = '';
 
     public function saveParams()
     {
+        $tkp = Tkp::findOrFail($this->id);
+        $this->authorize('update', $tkp);
+        
+        $this->form->pay_params = $this->pay_params;
+
         $this->form->saveForm($this->id, $this->tkp_version);
-        //dd($this->form);
     }
 
-    public function saveConfiguration () {
+    public function saveConfiguration ()
+    {
         if($configuration = Configuration::where('tkp_version', $this->tkp_version)->first())
         {
             $configuration->update(['saved_schema' => $this->saved_schema]);
         }
+    }
+
+    public function saveDublicate()
+    {
+        if ($this->dublicate_comments == '') {
+            $this->addError('dublicate_comments', 'Комментарий к новой версии не может быть пустым.');
+            return;
+        }
+
+        $tkpModel = Tkp::findOrFail($this->id);
+        $configurationModel = $tkpModel->configuration()->first();
+
+        $tkpModel->comments = $this->dublicate_comments;
+        $tkpModel->tkp_version = now()->timestamp;
+
+        $tkpModel->user_id = Auth::id();
+        $tkpModel->update_user_id = Auth::id();
+
+        $configurationModel->tkp_version = $tkpModel->tkp_version;
+
+        $newTkp = Tkp::create($tkpModel->toArray());
+        $newConfiguration = Configuration::create($configurationModel->toArray());
+        
+        if (!$newTkp || !$newConfiguration) {
+            $this->addError('dublicate_comments', 'Ошибка при создании копии. Пожалуйста, попробуйте снова.');
+            return;
+        }
+
+        redirect()->route('tkp.calculation.edit', ['id' => $newTkp->id, 'tkp_version' => $newTkp->tkp_version]);
     }
 
     public function mount($id = null, $tkp_version = null)

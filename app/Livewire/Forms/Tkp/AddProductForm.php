@@ -52,6 +52,7 @@ class AddProductForm extends Form
         $this->new_product = $valideate['new_product'];
         
         $configuration = Configuration::where('tkp_version', $this->tkp_version)->first();
+
         $data = $configuration->toArray();
 
         if(!$configuration) return [];

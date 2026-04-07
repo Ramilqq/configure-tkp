@@ -68,13 +68,15 @@ class TkpCalculationForm extends Form
 
     public function saveForm($id = null, $tkp_version = null)
     {
+        $id ?: $id = $this->id;
+        $tkp_version ?: $tkp_version = $this->tkp_version;
 
         $routeName = Route::currentRouteName();
 
         $valideate = $this->validate();
 
         $tkp = Tkp::find($id);
-        //dd($this);
+        
         if($tkp)
         {
             $valideate['update_user_id'] = Auth::id();
@@ -90,7 +92,8 @@ class TkpCalculationForm extends Form
         }
         
         //if ($routeName === 'livewire.update') return;
-        if ($routeName === 'tkp.calculation.edit') return;
+        if ($valideate['route'] === 'tkp.calculation.edit') return;
+        
         return redirect(route($valideate['route'] , ['tkp_version' => $tkp->tkp_version, 'id'=> $tkp->id]));
     }
 

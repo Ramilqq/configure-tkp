@@ -7,5 +7,6 @@
     </form>
     @if (session('status') === 'verification-link-sent')
         <p class="text-success mt-3">Ссылка отправлена!</p>
+        <p class="text-success mt-3">Для подтверждения почты сначала необходимо войти в личный кабинет!</p>
     @endif
 </x-layouts.app>
