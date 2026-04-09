@@ -5,7 +5,6 @@
     <x-blocks.error-message />
     
     <form wire:submit="saveForm">
-        <input type="hidden" name="form.route">
 
         <div class="mb-3">
             <label for="project_name" class="form-label">Проект</label>

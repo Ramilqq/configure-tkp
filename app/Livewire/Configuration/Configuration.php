@@ -15,7 +15,7 @@ use App\Services\FrReplace;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Services\TableSettings\TemplatePriceRuleService;
-
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\TableSettings\ProductOption;
 
@@ -125,6 +125,9 @@ class Configuration extends Component
 
                 foreach ($productModel->productOptionPrice as $productOptionPrice) {
                     if ($this->getData[$productOptionPrice->templateOption->key] == $productOptionPrice->value) {
+                        if($productOptionPrice->drawing && $productOptionPrice->drawing != '???') {
+                            $option_applied['drawing_' . $productOptionPrice->templateOption->key] = $productOptionPrice->drawing;
+                        }
                         $option_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->value;
                     }
                 }
@@ -161,11 +164,14 @@ class Configuration extends Component
                 $product['option_price_applied'] = $option_price_applied;
                 $product['option_name_applied'] = $option_name_applied;
                 $product['price_rules_applied'] = $applied_rules;
+                $product['option_applied'] = $option_applied;
+                $product['indicators_reliability'] =$this->getIndicatorsReliability();
 
                 if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
                 else $product['currency_val'] = $banks->getValue($product['currency']);
 
                 
+                //dd($product, $this->getData);
 
                 $this->saved_schema['nodes'][$key]['product_id'] = $product['id'];
                 $this->saved_schema['nodes'][$key]['product_name'] = $product['name'];
@@ -283,6 +289,9 @@ class Configuration extends Component
                         'precharge' => $this->saved_schema['nodes'][$key]['filter_fields']['precharge'] ?? 'Нет',
                         'service_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['service_vfd'] ?? '',
                         'bypass_vfd' => $this->saved_schema['nodes'][$key]['filter_fields']['bypass_vfd'] ?? 'Нет',
+
+                        'section_in_out' => $this->saved_schema['nodes'][$key]['filter_fields']['section_in_out'] ?? 'Нет',
+                        'plc_pt_100' => $this->saved_schema['nodes'][$key]['filter_fields']['plc_pt_100'] ?? 'Нет',
                     ];
 
                     $this->getRules = $this->saved_schema['nodes'][$key]['rules_fields'];
@@ -448,120 +457,142 @@ class Configuration extends Component
 
     private function getFrSearchChecks(): array
     {
-        return [
-            [
-                'label' => 'Номинальное напряжение',
-                'relation' => 'productOption',
-                'template_option_id' => 14,
-                'operator' => '>=',
-                'value' => (int)($this->getData['v_output'] ?? 10000),
-            ],
-            [
-                'label' => 'Мощность',
-                'relation' => 'productOption',
-                'template_option_id' => 12,
-                'operator' => '>=',
-                'value' => (int)($this->getData['p_output'] ?? 0),
-            ],
-            [
-                'label' => 'Номинальный ток',
-                'relation' => 'productOption',
-                'template_option_id' => 16,
-                'operator' => '>=',
-                'value' => (int)($this->getData['nominalnyi_tok_ed_a'] ?? 0),
-            ],
-            [
-                'label' => 'Наличие функции предзаряда',
-                'relation' => 'productOption',
-                'template_option_id' => 21,
-                'operator' => '=',
-                'value' => (string)($this->getData['precharge_function'] ?? null),
-            ],
-            [
-                'label' => 'Исполнение функции предзаряда',
-                'relation' => 'productOption',
-                'template_option_id' => 22,
-                'operator' => '=',
-                'value' => (string)($this->getData['precharge_function_exec'] ?? null),
-            ],
-            [
-                'label' => 'Наличие сервиса ЧРП',
-                'relation' => 'productOption',
-                'template_option_id' => 24,
-                'operator' => '=',
-                'value' => (string)($this->getData['service_vfd'] ?? ''),
-            ],
-            [
-                'label' => 'Тип двигателя',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 7,
-                'operator' => '=',
-                'value' => (string)($this->getData['motor_type'] ?? 'A'),
-            ],
-            [
-                'label' => 'Интерфейс',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 10,
-                'operator' => '=',
-                'value' => (string)($this->getData['interface'] ?? ''),
-            ],
-            [
-                'label' => 'Наличие ПЛК синхронизации',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 8,
-                'operator' => '=',
-                'value' => (string)($this->getData['plc_syn'] ?? ''),
-            ],
-            [
-                'label' => 'Серия ЧРП',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 6,
-                'operator' => '=',
-                'value' => (string)($this->getData['vfd_series'] ?? ''),
-            ],
-            [
-                'label' => 'Материал трансформатора',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 1,
-                'operator' => '=',
-                'value' => (string)($this->getData['material_trans'] ?? ''),
-            ],
-            [
-                'label' => 'Наличие байпаса силовых ячеек',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 2,
-                'operator' => '=',
-                'value' => (string)($this->getData['power_cell_bypass'] ?? ''),
-            ],
-            [
-                'label' => 'Наличие функции синхронизации с сетью',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 3,
-                'operator' => '=',
-                'value' => (string)($this->getData['sync_to_grid'] ?? ''),
-            ],
-            [
-                'label' => 'Степень защиты',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 4,
-                'operator' => '=',
-                'value' => (int)($this->getData['ip'] ?? 31),
-            ],
-            [
-                'label' => 'Наличие предзаряда',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 5,
-                'operator' => '=',
-                'value' => (string)($this->getData['precharge'] ?? ''),
-            ],
-            [
-                'label' => 'Исполнение байпаса ЧРП',
-                'relation' => 'productOptionPrice',
-                'template_option_id' => 9,
-                'operator' => '=',
-                'value' => (string)($this->getData['bypass_vfd'] ?? ''),
-            ],
-        ];
+        $templates = Cache::remember('templates_key', now()->addHours(1), function () {
+            return TemplateOption::where('template_id', 1)->get()->keyBy('key');
+        });
+
+        //dd($templates);
+
+        return Cache::remember('fr_search_checks', now()->addHours(1), function () use ($templates) {
+            return [
+                [
+                    'label' => 'Номинальное напряжение',
+                    'relation' => 'productOption',
+                    'template_option_id' => $templates['v_output']->id,
+                    'operator' => '>=',
+                    'value' => (int)($this->getData['v_output'] ?? 10000),
+                ],
+                [
+                    'label' => 'Мощность',
+                    'relation' => 'productOption',
+                    'template_option_id' => $templates['p_output']->id,
+                    'operator' => '>=',
+                    'value' => (int)($this->getData['p_output'] ?? 0),
+                ],
+                [
+                    'label' => 'Номинальный ток',
+                    'relation' => 'productOption',
+                    'template_option_id' => $templates['i_output']->id,
+                    'operator' => '>=',
+                    'value' => (int)($this->getData['nominalnyi_tok_ed_a'] ?? 0),
+                ],
+                [
+                    'label' => 'Наличие функции предзаряда',
+                    'relation' => 'productOption',
+                    'template_option_id' => $templates['precharge_function']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['precharge_function'] ?? null),
+                ],
+                [
+                    'label' => 'Исполнение функции предзаряда',
+                    'relation' => 'productOption',
+                    'template_option_id' => $templates['precharge_function_exec']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['precharge_function_exec'] ?? null),
+                ],
+                [
+                    'label' => 'Наличие сервиса ЧРП',
+                    'relation' => 'productOption',
+                    'template_option_id' => $templates['service_vfd']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['service_vfd'] ?? ''),
+                ],
+                [
+                    'label' => 'Тип двигателя',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['motor_type']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['motor_type'] ?? 'A'),
+                ],
+                [
+                    'label' => 'Интерфейс',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['interface']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['interface'] ?? ''),
+                ],
+                [
+                    'label' => 'Наличие ПЛК синхронизации',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['plc_syn']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['plc_syn'] ?? ''),
+                ],
+                [
+                    'label' => 'Серия ЧРП',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['vfd_series']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['vfd_series'] ?? ''),
+                ],
+                [
+                    'label' => 'Материал трансформатора',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['material_trans']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['material_trans'] ?? ''),
+                ],
+                [
+                    'label' => 'Наличие байпаса силовых ячеек',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['power_cell_bypass']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['power_cell_bypass'] ?? ''),
+                ],
+                [
+                    'label' => 'Наличие функции синхронизации с сетью',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['sync_to_grid']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['sync_to_grid'] ?? ''),
+                ],
+                [
+                    'label' => 'Степень защиты',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['ip']->id,
+                    'operator' => '=',
+                    'value' => (int)($this->getData['ip'] ?? 31),
+                ],
+                [
+                    'label' => 'Наличие предзаряда',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['precharge']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['precharge'] ?? ''),
+                ],
+                [
+                    'label' => 'Исполнение байпаса ЧРП',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['bypass_vfd']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['bypass_vfd'] ?? ''),
+                ],
+                [
+                    'label' => 'Секция ввода/вывода сверху',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['section_in_out']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['section_in_out'] ?? ''),
+                ],
+                [
+                    'label' => 'ПЛК и датчики контроля температуры обмоток и подшипников ЭД',
+                    'relation' => 'productOptionPrice',
+                    'template_option_id' => $templates['plc_pt_100']->id,
+                    'operator' => '=',
+                    'value' => (string)($this->getData['plc_pt_100'] ?? ''),
+                ],
+            ];
+        });
     }
 
     private function applySearchCheck(Builder $query, array $check): Builder
@@ -686,5 +717,23 @@ class Configuration extends Component
         }
 
         return $html;
+    }
+
+
+    public function getIndicatorsReliability()
+    {
+        return 
+        [
+            [
+                'group_name' => 'Показатели надежности',
+                'indicators' =>
+                    [
+                        ['name' => 'Среднее время наработки на отказ', 'value' => '1000 часов'],
+                        ['name' => 'Среднее время ремонта, не более', 'value' => '20 минут'],
+                        ['name' => 'Срок службы, не менее', 'value' => '20 лет'],
+                        ['name' => 'Гарантийный срок эксплуатации', 'value' => '12 месяцев с момента ввода в эксплуатацию, но не более 18 месяцев с момента отгрузки оборудования'],
+                    ]
+            ]
+        ];
     }
 }

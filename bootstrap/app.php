@@ -18,7 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (AuthorizationException $e, Request $request) {
-            dd(1);
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getMessage() ?: 'Доступ запрещён.',

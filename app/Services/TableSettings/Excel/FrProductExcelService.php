@@ -231,6 +231,38 @@ class FrProductExcelService
                 ],
             ],
         ],
+        
+        'section_in_out' => [
+            'template_name' => 'Секция ввода/вывода сверху',
+            'template_key'  => 'section_in_out',
+            'variants' => [
+                [
+                    'value'     => 'Нет',
+                ],
+                [
+                    'value'     => 'Да',
+                    'price'     => '[Price_InOut]',
+                    'drawing'   => '[Drawing_InOut]',
+                    'dimension' => '[Dimension_InOut]',
+                    'service'   => '[Service_InOut]',
+                    'weight'    => '[Weight_InOut]',
+                ],
+            ],
+        ],
+
+        'plc_pt_100' => [
+            'template_name' => 'ПЛК и датчики контроля температуры обмоток и подшипников ЭД',
+            'template_key'  => 'plc_pt_100',
+            'variants' => [
+                [
+                    'value'     => 'Нет',
+                ],
+                [
+                    'value'     => 'Да',
+                    'price'     => '[Price_PLC_Pt100]',
+                ],
+            ],
+        ],
     ];
 
     /**
@@ -1085,6 +1117,8 @@ class FrProductExcelService
             72 => 'Опция 10.1: Интерфейс = RS-485, Profibus',
             75 => 'Опция 10.2: Интерфейс = Ethernet, Modbus TCP',
             78 => 'Опция 10.3: Интерфейс = Ethernet, Profinet',
+            81 => 'Опция 11: Секция ввода/вывода сверху',
+            86 => 'Опция 12: ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100)',
         ];
     }
 
@@ -1166,6 +1200,14 @@ class FrProductExcelService
             78 => '[Profinet_S]',
             79 => '[Profinet]',
             80 => '[Price_Profinet]',
+
+            81 => '[Price_InOut]',
+            82 => '[Drawing_InOut]',
+            83 => '[Dimension_InOut]',
+            84 => '[Service_InOut]',
+            85 => '[Weight_InOut]',
+
+            86 => '[Price_PLC_Pt100]',
         ];
     }
 

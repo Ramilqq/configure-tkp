@@ -141,7 +141,7 @@
             <tr>
                <!-- <td style="width: 5%; text-align: left;border: none;"></td>-->
                 <td style="width: 100%; text-align: center;border: none;">
-                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch6.jpg') ?>" style="width:480px;height:300px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch6_2.png') ?>" style="width:480px;height:300px;">
                 </td>
                <!--  <td style="width: 5%; text-align: right;border: none;"></td>-->
             </tr>

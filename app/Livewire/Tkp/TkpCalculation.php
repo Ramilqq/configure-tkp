@@ -37,6 +37,9 @@ class TkpCalculation extends Component
 
     public function saveConfiguration ()
     {
+        $tkp = Tkp::findOrFail($this->id);
+        $this->authorize('update', $tkp);
+        
         if($configuration = Configuration::where('tkp_version', $this->tkp_version)->first())
         {
             $configuration->update(['saved_schema' => $this->saved_schema]);

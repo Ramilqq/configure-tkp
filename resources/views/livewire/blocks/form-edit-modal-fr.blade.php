@@ -28,6 +28,8 @@
                                 'precharge'                     => 'select',
                                 'service_vfd'                   => 'select',
                                 'bypass_vfd'                    => 'select',
+                                'section_in_out'                => 'select',
+                                'plc_pt_100'                    => 'select',
                             ];
                         @endphp
 
@@ -37,7 +39,7 @@
                                     @if ($product_filter['key'] == $key)
                                         <div class="mb-3" wire:key="getDataDiv-{{$key}}">
                                         
-                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}. {{$getData[$key]}}</label>
+                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}.</label>
                                             <select
                                                 wire:key="getData-{{$key}}"
                                                 wire:model.defer="getData.{{$key}}"

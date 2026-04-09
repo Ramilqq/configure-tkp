@@ -149,6 +149,10 @@
                                 <td>{{$nodes['product']['currency_val']}}</td>
                                 <td>{{$nodes['product']['delivery']}} RUB</td>
                                 <td>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editIndicatorsReliability"
+                                    @click="$dispatch('editIndicatorsReliabilityOpenForm', {tkp_version : {{$tkp_version}}, hash : '{{$nodes['product']['fr_hash']}}' })">
+                                        <i class="bi bi-shield-check"></i>
+                                    </button>
                                     <!-- кнопка изменить товар -->
                                     <button title="Изменить продукт" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductForm"
                                         @click="$dispatch('addProductOpenForm', {product_id : '{{$nodes['id']}}' })"
@@ -203,8 +207,7 @@
             </div>
             
 
-
-
+            <livewire:tkp.modal.indicators-reliability/>
 
         </div>
 

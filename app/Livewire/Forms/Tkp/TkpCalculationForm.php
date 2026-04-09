@@ -12,8 +12,8 @@ class TkpCalculationForm extends Form
 {
     public string $route = '';
 
-    public int $id;
-    public int $tkp_version;
+    public int $id = 0;
+    public int $tkp_version = 0;
     public int $user_id;
     public int $update_user_id;
 
@@ -44,18 +44,7 @@ class TkpCalculationForm extends Form
             'user_id' => 'nullable',
             'update_user_id' => 'nullable',
 
-            'project_name' => 'required',
-            'client_name' => 'required',
-            'contract_owner' => 'required',
-            'implementation_object' => 'required',
-            'industry' => 'required',
             'comments' => 'nullable',
-
-            'delivery_params' => 'nullable',
-            /*'delivery_time' => 'nullable',
-            'delivery_location' => 'nullable',
-            'payment_scheme' => 'nullable',
-            'offer_is_valid' => 'nullable',*/
 
             'pay_params.marketing' => 'numeric',
             'pay_params.nds' => 'nullable',
@@ -91,40 +80,13 @@ class TkpCalculationForm extends Form
             $tkp = Tkp::create($valideate);
         }
         
-        //if ($routeName === 'livewire.update') return;
-        if ($valideate['route'] === 'tkp.calculation.edit') return;
-        
-        return redirect(route($valideate['route'] , ['tkp_version' => $tkp->tkp_version, 'id'=> $tkp->id]));
+        return;
     }
 
     public function editForm($id = null, $tkp_version = null)
     {
-        //dd($tkp_version);
         $tkp = Tkp::find($id) ?: $this;
 
-        /*$tkp->project_name ?:           $tkp->project_name =            $this->project_name;
-        $tkp->client_name ?:            $tkp->client_name =             $this->client_name;
-        $tkp->contract_owner ?:         $tkp->contract_owner =          $this->contract_owner;
-        $tkp->implementation_object ?:  $tkp->implementation_object  =  $this->implementation_object;
-        $tkp->industry ?:               $tkp->industry  =               $this->industry;
-
-        $tkp->delivery_time ?:          $tkp->delivery_time =           $this->delivery_time;
-        $tkp->delivery_location ?:      $tkp->delivery_location =       $this->delivery_location;
-        $tkp->payment_scheme ?:         $tkp->payment_scheme =          $this->payment_scheme;
-        $tkp->offer_is_valid ?:         $tkp->offer_is_valid  =         $this->offer_is_valid;
-
-        $tkp->currency ?:               $tkp->currency =                $this->currency;
-        $tkp->currency_val ?:           $tkp->currency_val =            $this->currency_val;
-        $tkp->bank_loss ?:              $tkp->bank_loss =               $this->bank_loss;
-        $tkp->garant_fond ?:            $tkp->garant_fond  =            $this->garant_fond;
-        $tkp->bonuse ?:                 $tkp->bonuse  =                 $this->bonuse;
-        $tkp->nds ?:                    $tkp->nds  =                    $this->nds;
-        $tkp->stab_fond ?:              $tkp->stab_fond  =              $this->stab_fond;
-        $tkp->pay_params ?:             $tkp->pay_params  =             $this->pay_params;*/
-
-        //dd($tkp);
         $this->fill($tkp);
-
-        //dd($tkp);
     }
 }

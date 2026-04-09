@@ -4,7 +4,6 @@
     <x-blocks.error-message />
 
     <form wire:submit="saveForm">
-        <input type="hidden" name="form.delivery_params.route">
         
         <div class="mb-3">
             <label for="delivery_time" class="form-label">Срок поставки, дней</label>

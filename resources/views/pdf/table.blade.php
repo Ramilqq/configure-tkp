@@ -122,16 +122,17 @@
                 $products = array_merge($configuration['saved_schema']['nodes'], $configuration['saved_schema']['connections'], $configuration['saved_schema']['other']);
 
                 foreach($products as $key => $val) {
+                    $id = $val['product']['fr_hash'] ?? $val['product']['id'];
                     if (isset($val['params'])) $val = $val['params'];
 
-                    if (isset($product_data[$val['product']['id']]))
+                    if (isset($product_data[$id]))
                     {
-                        $product_data[$val['product']['id']]['product']['count'] += 1;
+                        $product_data[$id]['product']['count'] += 1;
                         continue;
                     }
 
                     $val['product']['count'] = 1;
-                    $product_data[$val['product']['id']] = $val;
+                    $product_data[$id] = $val;
                 }
                 
                 foreach($product_data as $key => $val) {

@@ -48,6 +48,9 @@ class FrReplace
                     $option_price_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->price;
                 }
 
+                if($productOptionPrice->drawing && $productOptionPrice->drawing != '???') {
+                    $option_drawing_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->drawing;
+                }
 
                 if ($productOptionPrice->templateOption->key == 'motor_type') {
                     $this->name = str_replace('[Motor_type]', $productOptionPrice->rename_title, $this->name);
