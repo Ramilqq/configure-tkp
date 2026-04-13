@@ -80,7 +80,7 @@
                     </form-->
                     @auth
                     <div class="d-flex">
-                        <a href="{{route('logout')}}">Выйти</a>
+                        <a href="{{route('logout')}}">Выйти: {{auth()->user()->name}}</a>
                     </div>
                     @endauth
                 </div>
