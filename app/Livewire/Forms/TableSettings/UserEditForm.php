@@ -24,28 +24,33 @@ class UserEditForm extends Form
     protected function editRules()
     {
         return [
-            'name' => 'required|string|min:1|max:255',
+            'name' => 'required|string|min:1|max:255|regex:/^[a-zA-Zа-яА-ЯёЁ]+\s[a-zA-Zа-яА-ЯёЁ]+$/u',
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->id, new EmailDomain],
             'role' => 'required|string|min:1|max:255',
-            'phone' => 'required|string|min:1|max:255|regex:/^\+?[1-9]\d{1,14}$/',
+            'phone' => 'required|string|min:1|max:255|regex:/^\+7\d{10}$/',
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
     protected function createRules()
     {
         return [
-            'name' => 'required|string|min:1|max:255',
+            'name' => 'required|string|min:1|max:255|regex:/^[a-zA-Zа-яА-ЯёЁ]+\s[a-zA-Zа-яА-ЯёЁ]+$/u',
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->id, new EmailDomain],
             'role' => 'required|string|min:1|max:255',
-            'phone' => 'required|string|min:1|max:255|regex:/^\+?[1-9]\d{1,14}$/',
+            'phone' => 'required|string|min:1|max:255|regex:/^\+7\d{10}$/',
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
     // Метод для сохранения изменений в базе данных
     public function saveForm()
     {
+        $validate_message = [
+            'name.regex' => 'Поле Имя Фамилие пожалуйста, введите фамилию и имя через пробел (например, Иван Иванов).',
+            'phone.regex' => 'Введите номер телефона в формате +79991234567.',
+        ];
+
         $this->id ? $rules = $this->editRules() : $rules = $this->createRules();
-        $valideate = $this->validate($rules);
+        $valideate = $this->validate($rules, $validate_message);
         
         if ($valideate['password']){
             $valideate['password'] = Hash::make($valideate['password']);

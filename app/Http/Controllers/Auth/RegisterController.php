@@ -19,10 +19,13 @@ class RegisterController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'phone'    => ['nullable', 'string', 'max:50', 'regex:/^\+?[1-9]\d{1,14}$/'],
+            'name'     => ['required', 'string', 'max:255', 'regex:/^[a-zA-Zа-яА-ЯёЁ]+\s[a-zA-Zа-яА-ЯёЁ]+$/u'],
+            'phone'    => ['nullable', 'string', 'max:50', 'regex:/^\+7\d{10}$/'],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email', new EmailDomain],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'name.regex' => 'Пожалуйста, введите фамилию и имя через пробел (например, Иван Иванов).',
+            'phone.regex' => 'Введите номер телефона в формате +79991234567.',
         ]);
 
         $user = User::create([

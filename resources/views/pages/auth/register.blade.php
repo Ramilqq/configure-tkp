@@ -4,7 +4,7 @@
         <legend>Регистрация учетной записи</legend>
 
         <div class="mb-3">
-            <label for="name" class="form-label">Имя</label>
+            <label for="name" class="form-label">Имя Фамилие</label>
             <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
             @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
         </div>
@@ -16,7 +16,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="email" class="form-label">Почта</label>
+            <label for="email" class="form-label">E-Mail</label>
             <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
             <div class="form-text">Разрешена только корпоративная почта</div>
             @error('email')<div class="text-danger small">{{ $message }}</div>@enderror

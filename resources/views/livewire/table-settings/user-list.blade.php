@@ -9,8 +9,9 @@
         <thead>
             <tr>
                 <th scope="col" style="width: 50px;">ID</th>
-                <th scope="col">Имя</th>
-                <th scope="col">Почта</th>
+                <th scope="col">Имя Фамилие</th>
+                <th scope="col">E-Mail</th>
+                <th scope="col">Телефон</th>
                 <th scope="col">Роль</th>
                 <th scope="col">Кнопки</th>
             </tr>
@@ -22,6 +23,7 @@
                 <td>{{ $value->id }}</td>
                 <td>{{ $value->name }}</td>
                 <td>{{ $value->email }}</td>
+                <td>{{ $value->phone }}</td>
                 <td>{{ $value->role }}</td>
 
                 <td>

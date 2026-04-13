@@ -9,12 +9,12 @@
                 <form wire:submit="save">
                     <x-blocks.error-message />
                     <div class="mb-3">
-                        <label for="name" class="form-label">Имя</label>
-                        <input type="text" wire:model="form.name" class="form-control" placeholder="Имя" id="name" />
+                        <label for="name" class="form-label">Имя Фамилие</label>
+                        <input type="text" wire:model="form.name" class="form-control" placeholder="Имя Фамилие" id="name" />
                         <div class="text-danger">@error('form.name') {{ $message }} @enderror</div>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Почта</label>
+                        <label for="email" class="form-label">E-Mail</label>
                         <input type="text" wire:model="form.email" class="form-control" placeholder="Почта" id="email" />
                         <div class="text-danger">@error('form.email') {{ $message }} @enderror</div>
                     </div>
