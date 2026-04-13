@@ -1,4 +1,9 @@
 <div>
+    <div class="btn-groups">
+        <button title="Добавить производителя" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#manufacturerModalForm"
+            @click="$dispatch('manufacturerCreateOpen')"
+        >Создать</button>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -15,15 +20,15 @@
                 <td>{{ $value->name }}</td>
 
                 <td>
-                    <!-- кнопка изменить шаблон -->
+                    <!-- кнопка изменить производителя -->
                     <button title="Изменить производителя" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#manufacturerModalForm"
                         @click="$dispatch('manufacturerEditOpen', {id : {{$value->id}} })"
                     ><i class="bi bi-pencil-square"></i></button>
 
-                    <!-- кнопка удалить шаблон -->
-                    <button title="Удалить шаблон" class="btn btn-danger btn-sm"
+                    <!-- кнопка удалить производителя -->
+                    <button title="Удалить производителя" class="btn btn-danger btn-sm"
                         wire:click="delete({{$value->id}})"
-                        disabled
+                        
                     ><i class="bi bi-trash"></i></button>
                 </td>
             </tr>
@@ -33,7 +38,7 @@
                 </tr>
             @endforelse
 
-            <livewire:tkp.manufacturer-edit />
+            <livewire:table-settings.manufacturer-edit />
 
         </tbody>
     </table>

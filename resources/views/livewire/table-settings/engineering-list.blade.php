@@ -1,4 +1,9 @@
 <div>
+    <div class="btn-groups">
+        <button title="Добавить инженерные данные" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#engineeringModalForm"
+            @click="$dispatch('engineeringCreateOpen')"
+        >Создать</button>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -27,7 +32,7 @@
                     <!-- кнопка удалить инженерные данные -->
                     <button title="Удалить инженерные данные" class="btn btn-danger btn-sm"
                         wire:click="delete({{$value->id}})"
-                        disabled
+                        
                     ><i class="bi bi-trash"></i></button>
                 </td>
             </tr>
@@ -37,7 +42,7 @@
                 </tr>
             @endforelse
 
-            <livewire:tkp.engineering-edit />
+            <livewire:table-settings.engineering-edit />
 
         </tbody>
     </table>

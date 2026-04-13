@@ -42,7 +42,7 @@ Route::post('/email/verification-notification', [App\Http\Controllers\Auth\Email
     ->name('verification.send');
 
 // Выход
-Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 // работа пользователя 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -69,6 +69,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('table-settings/dimension-schemes/{template_id}', App\Livewire\TableSettings\TemplateDimensionScheme::class)->name('table-settings.dimension-schemes');
 
-    Route::get('tkp/engineering-list', App\Livewire\Tkp\EngineeringList::class)->name('tkp.engineering-list');
-    Route::get('tkp/manufacturer-list', App\Livewire\Tkp\ManufacturerList::class)->name('tkp.manufacturer-list');
+    //Route::get('tkp/engineering-list', App\Livewire\Tkp\EngineeringList::class)->name('tkp.engineering-list');
+    //Route::get('tkp/manufacturer-list', App\Livewire\Tkp\ManufacturerList::class)->name('tkp.manufacturer-list');
+
+
+    Route::get('table-settings/engineering-list', App\Livewire\TableSettings\EngineeringList::class)->name('table-settings.engineering-list');
+    Route::get('table-settings/manufacturer-list', App\Livewire\TableSettings\ManufacturerList::class)->name('table-settings.manufacturer-list');
+    Route::get('table-settings/delivery-list', App\Livewire\TableSettings\DeliveryList::class)->name('table-settings.delivery-list');
+    Route::get('table-settings/industry-list', App\Livewire\TableSettings\IndustryList::class)->name('table-settings.industry-list');
+    Route::get('table-settings/payment-schemes', App\Livewire\TableSettings\PaymentSchemeList::class)->name('table-settings.payment-schemes');
+    Route::get('table-settings/contact-owner', App\Livewire\TableSettings\ContractOwnerList::class)->name('table-settings.contact-owner');
+    Route::get('table-settings/user', App\Livewire\TableSettings\UserList::class)->name('table-settings.user-list');
+    
 });

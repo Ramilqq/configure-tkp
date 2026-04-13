@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Cache;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -51,5 +52,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function booted () {
+        static::saved(function ($user) {
+            // Очистка кэша при сохранении модели
+            Cache::forget('user_list');
+        });
+
+        static::deleted(function ($user) {
+            // Очистка кэша при удалении модели
+            Cache::forget('user_list');
+        });
     }
 }

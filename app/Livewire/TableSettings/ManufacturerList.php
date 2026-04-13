@@ -1,22 +1,16 @@
 <?php
 
-namespace App\Livewire\Tkp;
+namespace App\Livewire\TableSettings;
 
-use App\Models\Tkp\Manufacturer;
 use Livewire\Component;
+use App\Models\Tkp\Manufacturer;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\On;
 
 class ManufacturerList extends Component
 {
-    // передаем данные в форму редактирования
-    #[On('manufacturerEditOpen')]
-    public function openForm($id)
-    {
-        $this->dispatch('fillManufacturerEdit', $id)->to('tkp.manufacturer-edit');
-    }
     // обновляем список после редактирования
-    #[On('manufacturerUpdated')]
+    #[On('manufacturerUpdateList')]
     public function refreshList()
     {
         $this->render();
@@ -24,9 +18,8 @@ class ManufacturerList extends Component
     // удаляем позицию
     public function delete($id)
     {
-        $manufacturer = Manufacturer::findOrFail($id);
-
-        // Проверка авторизации
+        // Проверка прав пользователя
+        $manufacturer = Manufacturer::find($id);
         $this->authorize('delete', $manufacturer);
         
         $manufacturer->delete();
@@ -34,10 +27,14 @@ class ManufacturerList extends Component
     // рендерим список с кэшированием
     public function render()
     {
+        // Проверка прав пользователя
+        $manufacturer = new Manufacturer;
+        $this->authorize('view', $manufacturer);
+
         $manufacturer = Cache::remember('manufacturer_list', now()->addHours(6), function () {
             return Manufacturer::all()->sortDesc();
         });
-
-        return view('livewire.tkp.manufacturer-list', ['manufacturer' => $manufacturer]);
+        
+        return view('livewire.table-settings.manufacturer-list', ['manufacturer' => $manufacturer]);
     }
 }

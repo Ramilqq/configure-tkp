@@ -14,9 +14,9 @@ class EmailDomain implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // Разрешаем только адреса в домене test.ru
+        // Разрешаем только адреса ru-drive
         if (!is_string($value) || !preg_match('/@ru-drive\.com$/i', $value)) {
-            $fail('Используйте корпоративную почту в домене.');
+            $fail('Используйте корпоративную почту.');
         }
     }
 }

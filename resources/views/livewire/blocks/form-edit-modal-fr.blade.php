@@ -88,14 +88,20 @@
                                                     }
                                                 ?>
 
-
-
-                                                    
                                                 @foreach ($product_filter['fields'] as $field)
+                                                    @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
+                                                    @else
                                                     <option value="{{$field}}">{{$field}}</option>
+                                                    @endif
                                                 @endforeach
                                 
                                             </select>
+                                            
+                                            @if ($product_filter['key'] == 'power_cell_bypass')
+                                            <div class="alert alert-warning" role="alert" wire:show="getData.power_cell_bypass == 'Механический'" style="font-size: 11px;">
+                                                Опция байпас неисправной силовой ячейки (электронный) предоставляется по запросу. Обратитесь в техническую поддержку продукта.
+                                            </div>
+                                            @endif
                                         </div>
                                     @endif
                                 @endforeach

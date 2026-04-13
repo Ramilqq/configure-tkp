@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Tkp;
+namespace App\Livewire\TableSettings;
 
 use App\Models\Tkp\Engineering;
 use Livewire\Component;
@@ -9,14 +9,8 @@ use Livewire\Attributes\On;
 
 class EngineeringList extends Component
 {
-    // передаем данные в форму редактирования
-    #[On('engineeringEditOpen')]
-    public function openForm($id)
-    {
-        $this->dispatch('fillEngineeringEdit', $id)->to('tkp.engineering-edit');
-    }
     // обновляем список после редактирования
-    #[On('engineeringUpdated')]
+    #[On('engineeringUpdateList')]
     public function refreshList()
     {
         $this->render();
@@ -24,9 +18,8 @@ class EngineeringList extends Component
     // удаляем позицию
     public function delete($id)
     {
-        $engineering = Engineering::findOrFail($id);
-
-        // Проверка авторизации
+        // Проверка прав пользователя
+        $engineering = Engineering::find($id);
         $this->authorize('delete', $engineering);
         
         $engineering->delete();
@@ -34,10 +27,14 @@ class EngineeringList extends Component
     // рендерим список с кэшированием
     public function render()
     {
+        // Проверка прав пользователя
+        $engineering = new Engineering;
+        $this->authorize('view', $engineering);
+
         $engineering = Cache::remember('engineering_list', now()->addHours(6), function () {
             return Engineering::all()->sortDesc();
         });
 
-        return view('livewire.tkp.engineering-list', ['engineering' => $engineering]);
+        return view('livewire.table-settings.engineering-list', ['engineering' => $engineering]);
     }
 }

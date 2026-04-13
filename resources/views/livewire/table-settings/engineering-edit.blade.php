@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="engineeringModalFormLabel">Изменить инженерные данные</h1>
+                <h1 class="modal-title fs-5" id="engineeringModalFormLabel">@if ($form->id) Изменить @else Создать @endif инженерные данные</h1>
             </div>
             <div class="modal-body">
                 
