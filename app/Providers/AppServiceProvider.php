@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Gate;
+use App\Mail\Transport\PhpMailTransport;
+use Illuminate\Support\Facades\Mail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Mail::extend('phpmail', function (array $config = []) {
+            return new PhpMailTransport();
+        });
+
         // Регистрация policies
         foreach ($this->policies as $model => $policy) {
             Gate::policy($model, $policy);

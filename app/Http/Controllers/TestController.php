@@ -21,7 +21,7 @@ class TestController extends Controller
             'Content-Type' => 'text/plain; charset=UTF-8',
         ];
 
-        $ok = \mail(
+        $ok = mail(
             'hadievrf@ru-drive.com',
             'Test',
             $message,
