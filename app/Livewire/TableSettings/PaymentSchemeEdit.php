@@ -27,12 +27,13 @@ class PaymentSchemeEdit extends Component
     public function save()
     {
         // Проверка прав пользователя
-        $paymentScheme = PaymentScheme::find($this->form->id);
-        $this->authorize('update', $paymentScheme);
-
-        // Проверка прав пользователя
-        $paymentScheme = new PaymentScheme;
-        $this->authorize('create', $paymentScheme);
+        if ($this->form->id){
+            $paymentScheme = PaymentScheme::find($this->form->id);
+            $this->authorize('update', $paymentScheme);
+        } else {
+            $paymentScheme = new PaymentScheme;
+            $this->authorize('create', $paymentScheme);
+        }
 
         $this->form->saveForm();
         $this->dispatch('paymentSchemeUpdateList')->to('table-settings.payment-scheme-list');

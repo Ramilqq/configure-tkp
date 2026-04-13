@@ -27,12 +27,13 @@ class ManufacturerEdit extends Component
     public function save()
     {
         // Проверка прав пользователя
-        $manufacturer = Manufacturer::find($this->form->id);
-        $this->authorize('update', $manufacturer);
-
-        // Проверка прав пользователя
-        $manufacturer = new Manufacturer;
-        $this->authorize('create', $manufacturer);
+        if ($this->form->id){
+            $manufacturer = Manufacturer::find($this->form->id);
+            $this->authorize('update', $manufacturer);
+        } else {
+            $manufacturer = new Manufacturer;
+            $this->authorize('create', $manufacturer);
+        }
 
         $this->form->saveForm($this->form->id);
         $this->dispatch('manufacturerUpdateList')->to('table-settings.manufacturer-list');

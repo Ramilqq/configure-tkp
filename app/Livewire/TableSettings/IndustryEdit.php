@@ -27,12 +27,13 @@ class IndustryEdit extends Component
     public function save()
     {
         // Проверка прав пользователя
-        $industry = Industry::find($this->form->id);
-        $this->authorize('update', $industry);
-
-        // Проверка прав пользователя
-        $industry = new Industry;
-        $this->authorize('create', $industry);
+        if ($this->form->id){
+            $industry = Industry::find($this->form->id);
+            $this->authorize('update', $industry);
+        } else {
+            $industry = new Industry;
+            $this->authorize('create', $industry);
+        }
 
         $this->form->saveForm($this->form->id);
         $this->dispatch('industryUpdateList')->to('table-settings.industry-list');

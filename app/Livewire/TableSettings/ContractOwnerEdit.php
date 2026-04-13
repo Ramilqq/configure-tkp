@@ -27,13 +27,14 @@ class ContractOwnerEdit extends Component
     public function save()
     {
         // Проверка прав пользователя
-        $contactOwner = ContractOwner::find($this->form->id);
-        $this->authorize('update', $contactOwner);
-
-        // Проверка прав пользователя
-        $contactOwner = new ContractOwner;
-        $this->authorize('create', $contactOwner);
-
+        if ($this->form->id){
+            $contactOwner = ContractOwner::find($this->form->id);
+            $this->authorize('update', $contactOwner);
+        } else {
+            $contactOwner = new ContractOwner;
+            $this->authorize('create', $contactOwner);
+        }
+        
         $this->form->saveForm($this->form->id);
         $this->dispatch('contactOwnerUpdateList')->to('table-settings.contract-owner-list');
     }

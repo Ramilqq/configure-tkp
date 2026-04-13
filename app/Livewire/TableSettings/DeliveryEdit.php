@@ -27,12 +27,13 @@ class DeliveryEdit extends Component
     public function save()
     {
         // Проверка прав пользователя
-        $delivery = Delivery::find($this->form->id);
-        $this->authorize('update', $delivery);
-
-        // Проверка прав пользователя
-        $delivery = new Delivery;
-        $this->authorize('create', $delivery);
+        if ($this->form->id){
+            $delivery = Delivery::find($this->form->id);
+            $this->authorize('update', $delivery);
+        } else {
+            $delivery = new Delivery;
+            $this->authorize('create', $delivery);
+        }
 
         $this->form->saveForm($this->form->id);
         $this->dispatch('deliveryUpdateList')->to('table-settings.delivery-list');

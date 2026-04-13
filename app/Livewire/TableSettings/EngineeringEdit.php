@@ -27,12 +27,13 @@ class EngineeringEdit extends Component
     public function save()
     {
         // Проверка прав пользователя
-        $engineering = Engineering::find($this->form->id);
-        $this->authorize('update', $engineering);
-
-        // Проверка прав пользователя
-        $engineering = new Engineering;
-        $this->authorize('create', $engineering);
+        if ($this->form->id){
+            $engineering = Engineering::find($this->form->id);
+            $this->authorize('update', $engineering);
+        } else {
+            $engineering = new Engineering;
+            $this->authorize('create', $engineering);
+        }
 
         $this->form->saveForm($this->form->id);
         $this->dispatch('engineeringUpdateList')->to('table-settings.engineering-list');
