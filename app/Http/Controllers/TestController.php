@@ -25,8 +25,7 @@ class TestController extends Controller
             'hadievrf@ru-drive.com',
             'Test',
             $message,
-            $headers,
-            '-ftkp_bot@ru-drive.com'
+            $headers
         );
 
         dd($ok, error_get_last());
