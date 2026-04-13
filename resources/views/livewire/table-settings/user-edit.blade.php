@@ -35,6 +35,7 @@
                     <div class="mb-3">
                         <label for="password" class="form-label">Новый пароль</label>
                         <input type="password" wire:model="form.password" class="form-control" id="password">
+                        <small id="passwordHelp" class="form-text text-muted">Вводить только при изменении пароля.</small>
                         <div class="text-danger">@error('form.password') {{ $message }} @enderror</div>
                     </div>
 
