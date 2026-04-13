@@ -20,7 +20,6 @@
                     </div>
                     <div class="mb-3">
                         <label for="role" class="form-label">Роль</label>
-                        
                         <select class="form-select" wire:model="form.role" id="role">
                             <option value="{{App\Models\User::USER}}">{{App\Models\User::USER}}</option>
                             <option value="{{App\Models\User::ADMIN}}">{{App\Models\User::ADMIN}}</option>

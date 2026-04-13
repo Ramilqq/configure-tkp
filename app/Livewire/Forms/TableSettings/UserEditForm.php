@@ -6,6 +6,7 @@ use App\Models\User;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 use App\Rules\EmailDomain;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserEditForm extends Form
@@ -26,7 +27,7 @@ class UserEditForm extends Form
             'name' => 'required|string|min:1|max:255',
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->id, new EmailDomain],
             'role' => 'required|string|min:1|max:255',
-            'phone' => 'required|string|min:1|max:255',
+            'phone' => 'required|string|min:1|max:255|regex:/^\+?[1-9]\d{1,14}$/',
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
@@ -36,7 +37,7 @@ class UserEditForm extends Form
             'name' => 'required|string|min:1|max:255',
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->id, new EmailDomain],
             'role' => 'required|string|min:1|max:255',
-            'phone' => 'required|string|min:1|max:255',
+            'phone' => 'required|string|min:1|max:255|regex:/^\+?[1-9]\d{1,14}$/',
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
@@ -52,6 +53,11 @@ class UserEditForm extends Form
             unset($valideate['password']);
         }
         
+        $user = User::find(Auth::id());
+        if ($user?->role == User::USER && $valideate['role'] != User::USER){
+            unset($valideate['role']);
+        }
+
         $user = User::updateOrCreate(
             ['id' => $this->id],
             $valideate

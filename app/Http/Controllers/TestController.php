@@ -12,22 +12,16 @@ class TestController extends Controller
 {
     public function index() {
 
-        $message = "Constructor bug\r\n\nТекст ошибки...";
+        $products = Product::all();
+        $template_options = TemplateOption::all();
+        $product_options = ProductOption::all();
+        $product_option_prices = ProductOptionPrice::all();
 
-        $headers = [
-            'From' => 'tkp_bot@ru-drive.com',
-            'Reply-To' => 'tkp_bot@ru-drive.com',
-            'X-Mailer' => 'PHP/' . phpversion(),
-            'Content-Type' => 'text/plain; charset=UTF-8',
-        ];
-
-        $ok = mail(
-            'hadievrf@ru-drive.com',
-            'Test',
-            $message,
-            $headers
+        dd(
+            'products=' . count($products),
+            'template_options=' . count($template_options),
+            'product_options=' . count($product_options),
+            'product_option_prices=' . count($product_option_prices),
         );
-
-        dd($ok, error_get_last());
     }
 }
