@@ -52,7 +52,14 @@
                                                             echo 'disabled';
                                                         }
                                                     }
+                                                    //
+                                                    if ($key == 'plc_syn') {
+                                                        if ($getData['motor_type'] == 'A') {
+                                                            echo 'disabled';
+                                                        }
+                                                    }
                                                 ?>
+
                                             >
                                 
                                                 <?php
@@ -103,16 +110,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="getData.manufacturer_id" class="form-label">Завод изготовитель</label>
+                            <label for="getData.manufacturer" class="form-label">Завод изготовитель</label>
                             <select
-                                wire:key="getData.manufacturer_id"
-                                wire:model.defer="getData.manufacturer_id"
-                                id="getData.manufacturer_id"
+                                wire:key="getData.manufacturer"
+                                wire:model.defer="getData.manufacturer"
+                                id="getData.manufacturer"
                                 class="form-select"
                                 wire:change.debounce.500ms="updateValueManufacturer($event.target.value)"
                             >
                                 @foreach($product_manufacturer_select as $manufacturer)
-                                    <option value="{{ $manufacturer['id'] }}">{{ $manufacturer['name'] }}</option>
+                                    <option value="{{ $manufacturer['name'] }}">{{ $manufacturer['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -180,8 +187,8 @@
                                 wire:model.defer="getData.motor_type"
                                 id="getData.motor_type" 
                                 class="form-select"
+                                wire:change.debounce.500ms="updateData('motor_type', $event.target.value)"
                             >
-                                <option value="">---</option>
                                 <option value="A">Асинхронный</option>
                                 <option value="S">Синхронный</option>
                             </select>
@@ -196,7 +203,6 @@
                                 class="form-select"
                                 wire:change.debounce.500ms="updateValueVoltage($event.target.value)"
                             >
-                                <option value="">---</option>
                                 <option value="3000">3000</option>
                                 <option value="3300">3300</option>
                                 <option value="6000">6000</option>

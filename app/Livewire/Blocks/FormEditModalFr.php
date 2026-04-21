@@ -144,6 +144,10 @@ class FormEditModalFr extends Component
         {
             $this->getData['service_vfd'] = $this->getData['service_vfd'] ?? 'Одностороннее';
         }
+        elseif (($key == 'plc_syn' && $this->getData['motor_type'] == 'A') || ($key == 'motor_type' && $this->getData['plc_syn'] == 'Да'))
+        {
+            $this->getData['plc_syn'] = 'Нет';
+        }
 
         $this->save();
     }

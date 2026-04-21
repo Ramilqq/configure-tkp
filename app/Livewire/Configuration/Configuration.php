@@ -42,8 +42,7 @@ class Configuration extends Component
     ];            // сохранение схемы
     public array $product_filter_select = [];   // значения в поле селект для каждой опции
     public array $product_rules_select = [];   // значения в поле селект для каждого правила
-    public array $product_manufacturer_select = [];   // значения в поле селект для каждого производителя
-    
+
     public array $getData = [];
     public array $getRules = [];
     public int $tkp_version = 0;
@@ -61,7 +60,6 @@ class Configuration extends Component
         $query = Product::query()->with('template')
             ->with(['template.priceRules'])
             ->with('productOption')
-            ->with('manufacturer')
             ->with('productOption.getName');
 
         $banks = new BankRequest();
@@ -160,7 +158,7 @@ class Configuration extends Component
                 $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
                 
 
-                $productModel->fr_hash = $this->makeFrHash($option_applied + $applied_rules);
+                $productModel->fr_hash = $this->makeFrHash($option_applied + $applied_rules + ['manufacturer' => $this->getData['manufacturer']]);
 
 
                 $product = $productModel->toArray();
@@ -242,8 +240,8 @@ class Configuration extends Component
         $this->message_error = '';
         $this->dispatch('editModalFr.getMessage', message_success: $this->message_success, message_error: $this->message_error)->to('blocks.form-edit-modal-fr');
 
-        //dd($this->saved_schema, $this->getData, $this->getRules, $node_id, $conn_id, $type);
         $this->dispatch('saved_schema-updated');
+        //dd($this->saved_schema, $this->getData, $this->getRules, $node_id, $conn_id, $type);
     }
 
     public function deleteProduct($id)
@@ -284,7 +282,7 @@ class Configuration extends Component
                         'nominalnyi_tok_ed_a' => $this->saved_schema['nodes'][$key]['filter_fields']['nominalnyi_tok_ed_a'] ?? '0',
                         'kpd' => $this->saved_schema['nodes'][$key]['filter_fields']['kpd'] ?? '0',
                         'cos_phi' => $this->saved_schema['nodes'][$key]['filter_fields']['cos_phi'] ?? '0',
-                        'manufacturer_id' => $this->saved_schema['nodes'][$key]['filter_fields']['manufacturer_id'] ?? '1',
+                        'manufacturer' => $this->saved_schema['nodes'][$key]['filter_fields']['manufacturer'] ?? 'ООО "Завод РУ-Драйв"',
 
                         // Дополнительные опции
                         'interface' => $this->saved_schema['nodes'][$key]['filter_fields']['interface'] ?? 'RS-485, Modbus RTU',

@@ -25,7 +25,6 @@ class GenericProductExcelService
         'id',
         'name',
         'description',
-        'manufacturer_id',
         'currency',
         'price',
         'delivery',
@@ -40,7 +39,6 @@ class GenericProductExcelService
         'id'              => 'ID',
         'name'            => 'Наименование',
         'description'     => 'Описание',
-        'manufacturer_id' => 'Производитель',
         'currency'        => 'Валюта',
         'price'           => 'Цена оборудования',
         'delivery'        => 'Цена доставки',
@@ -64,10 +62,6 @@ class GenericProductExcelService
 
         'описание' => 'description',
         'description' => 'description',
-
-        'производитель' => 'manufacturer_id',
-        'manufacturer_id' => 'manufacturer_id',
-        'manufacturer' => 'manufacturer_id',
 
         'валюта' => 'currency',
         'currency' => 'currency',
@@ -115,7 +109,7 @@ class GenericProductExcelService
 
         $products = Product::query()
             ->where('template_id', $templateId)
-            ->select(['id','template_id','name','description','manufacturer_id','currency','price','delivery','engineering'])
+            ->select(['id','template_id','name','description','currency','price','delivery','engineering'])
             ->orderBy('id')
             ->get();
 
@@ -161,7 +155,6 @@ class GenericProductExcelService
                 $p->id,
                 $p->name,
                 $p->description,
-                $p->manufacturer_id,
                 $p->currency,
                 $p->price,
                 $p->delivery,
@@ -283,7 +276,6 @@ class GenericProductExcelService
      * Импорт:
      * - заголовки на русском распознаются через HEADER_ALIASES_TO_BASE
      * - опции: name = русский заголовок, key = английский snake_case (транслит + _)
-     * - manufacturer_id: если пусто/нет колонки -> 1
      * - по id: UPDATE если найден в этом template_id, CREATE если нет, SKIP если id принадлежит другому template_id
      */
     public function import(string $path, string $sheetName, int $templateId): array
@@ -413,18 +405,6 @@ class GenericProductExcelService
                     $payload['engineering'] = $this->parseEngineering($payload['engineering']);
                 }
 
-                // manufacturer_id:
-                // - если колонка есть и пустая -> ставим 1
-                // - если колонки нет -> ставим 1 ТОЛЬКО при создании
-                $manufacturerProvided = array_key_exists('manufacturer_id', $payload);
-                if ($manufacturerProvided) {
-                    if ($this->isEmpty($payload['manufacturer_id'])) {
-                        $payload['manufacturer_id'] = 1;
-                    } else {
-                        $payload['manufacturer_id'] = (int)$payload['manufacturer_id'];
-                    }
-                }
-
                 if ($hasId) {
                     $id = (int)$idRaw;
 
@@ -443,10 +423,6 @@ class GenericProductExcelService
                         if ($name === '') {
                             $skippedNoNameOnCreate++;
                             continue;
-                        }
-
-                        if (!$manufacturerProvided) {
-                            $payload['manufacturer_id'] = 1;
                         }
 
                         $product = new Product();
@@ -471,10 +447,6 @@ class GenericProductExcelService
                     if ($name === '') {
                         $skippedNoNameOnCreate++;
                         continue;
-                    }
-
-                    if (!$manufacturerProvided) {
-                        $payload['manufacturer_id'] = 1;
                     }
 
                     $product = new Product();

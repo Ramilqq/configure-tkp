@@ -12,7 +12,6 @@ class ProductForm extends Form
     public string $template_id = '';
     public string $name = '';
     public string $description = '';
-    public int $manufacturer_id = 0;
     public string $currency = '';
     public float $price = 0.0;
     public float $delivery = 0.0;
@@ -24,7 +23,6 @@ class ProductForm extends Form
             'template_id' => 'required|numeric|exists:templates,id',
             'name' => 'required|min:3|max:100|unique:products,name,'.$this->id,
             'description' => 'required|min:3|max:1500',
-            'manufacturer_id' => 'required|numeric|exists:manufacturers,id',
             'currency' => 'required|min:3|max:3',
             'price' => 'required|numeric|min:0|max:200000',
             'delivery' => 'required|numeric|min:0|max:200000',

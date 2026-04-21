@@ -4,7 +4,7 @@
         <legend>Регистрация учетной записи</legend>
 
         <div class="mb-3">
-            <label for="name" class="form-label">Имя Фамилие</label>
+            <label for="name" class="form-label">ФИО</label>
             <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
             @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
         </div>

@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('name')->nullable()->default('name');
             $table->longText('description')->nullable()->default(NULL);
 
-            $table->foreignId('manufacturer_id')->constrained('manufacturers')->onUpdate('cascade')->onDelete('cascade');
-
             $table->string('currency')->nullable()->default('RUB');
             $table->decimal('price', 12, 2)->nullable()->default(0.00);
             $table->decimal('delivery', 12, 2)->nullable()->default(0.00);

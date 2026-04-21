@@ -54,7 +54,8 @@ class FrReplace
 
                 if ($productOptionPrice->templateOption->key == 'motor_type') {
                     $this->name = str_replace('[Motor_type]', $productOptionPrice->rename_title, $this->name);
-                    $this->description = str_replace('[Motor_type_full]', $productOptionPrice->value, $this->description);
+                    $motor_type_full = $productOptionPrice->value == 'A' ? 'Асинхронный' : 'Синхронный';
+                    $this->description = str_replace('[Motor_type_full]', $motor_type_full, $this->description);
                 }
                 elseif ($productOptionPrice->templateOption->key == 'interface') {
                     $this->name = str_replace('[Interface_S]', $productOptionPrice->rename_title, $this->name);
@@ -165,7 +166,8 @@ class FrReplace
                 $this->description = str_replace('[Material_trans]', $productOption->value, $this->description);
             }
             elseif ($productOption->templateOption->key == 'motor_type') {
-                $this->description = str_replace('[Motor_type_full]', $productOption->value, $this->description);
+                $motor_type_full = $productOptionPrice->value == 'A' ? 'Асинхронный' : 'Синхронный';
+                $this->description = str_replace('[Motor_type_full]', $motor_type_full, $this->description);
             }
             
         }

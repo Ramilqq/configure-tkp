@@ -15,6 +15,7 @@ return new class extends Migration
         // автоматическое создание стандартных Владельцев договора
         ContractOwner::create(['name' => 'ООО "КЭР-Инжиниринг"']);
         ContractOwner::create(['name' => 'ООО НПП "Ру-Инжиниринг"']);
+        ContractOwner::create(['name' => 'ООО "Завод РУ-Драйв"']);
     }
 
     /**

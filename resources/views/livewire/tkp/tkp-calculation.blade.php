@@ -331,7 +331,7 @@
         // Достаём базовые значения
         $name        = isset($p['name']) ? $p['name'] : '';
         $description = isset($p['description']) ? $p['description'] : '';
-        $manufacturer = isset($p['manufacturer']['name']) ? $p['manufacturer']['name'] : '';
+        $manufacturer = isset($item['filter_fields']['manufacturer']) ? $item['filter_fields']['manufacturer'] : '';
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
         // инжиниринг
@@ -425,7 +425,7 @@
         $table['product_col'][$pid][18] = ($price * $currency_val) + $delivery;
 
         // 19 — Резерв на изменения по ед.
-        $table['product_col'][$pid][19] = $table['product_col'][$pid][18] + ($table['product_col'][$pid][18] * ($reserve / 100));
+        $table['product_col'][$pid][19] = $table['product_col'][$pid][18] * ($reserve / 100);
 
         // 20 — ТЗР закупки по ед.
         $table['product_col'][$pid][20] = 0;

@@ -9,8 +9,8 @@
                 <form wire:submit="save">
                     <x-blocks.error-message />
                     <div class="mb-3">
-                        <label for="name" class="form-label">Имя Фамилие</label>
-                        <input type="text" wire:model="form.name" class="form-control" placeholder="Имя Фамилие" id="name" />
+                        <label for="name" class="form-label">ФИО</label>
+                        <input type="text" wire:model="form.name" class="form-control" placeholder="Иванов Иван Иванович" id="name" />
                         <div class="text-danger">@error('form.name') {{ $message }} @enderror</div>
                     </div>
                     <div class="mb-3">

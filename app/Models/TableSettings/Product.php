@@ -19,7 +19,6 @@ class Product extends Model
         'template_id',
         'name',
         'description',
-        'manufacturer_id',
         'currency',
         'price',
         'delivery',
@@ -35,12 +34,6 @@ class Product extends Model
     public function template(): HasOne
     {
         return $this->hasOne(Template::class, 'id', 'template_id')
-            ->select(['id','name']);
-    }
-
-    public function manufacturer(): HasOne
-    {
-        return $this->hasOne(Manufacturer::class, 'id', 'manufacturer_id')
             ->select(['id','name']);
     }
 
