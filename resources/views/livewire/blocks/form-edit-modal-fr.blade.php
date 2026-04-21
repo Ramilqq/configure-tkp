@@ -23,8 +23,6 @@
                                 'power_cell_bypass'             => 'select',
                                 'sync_to_grid'                  => 'select',
                                 'ip'                            => 'select',
-                                'precharge_function'            => 'select',
-                                'precharge_function_exec'       => 'select',
                                 'precharge'                     => 'select',
                                 'service_vfd'                   => 'select',
                                 'bypass_vfd'                    => 'select',
@@ -48,24 +46,6 @@
                                                 wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
                                                 style="font-size: 11px;"
                                                 <?php 
-                                                    // отключать "Предзаряд силовых ячеек" если включен "Наличие функции предзаряда"
-                                                    if ($key == 'precharge') {
-                                                        if ($getData['precharge_function'] == 'Да') {
-                                                            echo 'disabled';
-                                                        }
-                                                    }
-                                                    // отключать "Наличие функции предзаряда" серии "Стандарт" и "Минпромторг"
-                                                    if ($key == 'precharge_function') {
-                                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
-                                                            echo 'disabled';
-                                                        }
-                                                    }
-                                                    // отключать "Исполнение функции предзаряда" серии "Стандарт" и "Минпромторг"
-                                                    if ($key == 'precharge_function_exec') {
-                                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
-                                                            echo 'disabled';
-                                                        }
-                                                    }
                                                     // отключать "Сервисный интерфейс" серии "Стандарт" и "Минпромторг"
                                                     if ($key == 'service_vfd') {
                                                         if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
@@ -76,11 +56,6 @@
                                             >
                                 
                                                 <?php
-                                                    // 
-                                                    if (($key == 'precharge_function' || $key == 'precharge_function_exec')) {
-                                                        ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') ? $disabled = '' : $disabled = 'disabled';
-                                                        echo '<option value="" ' . $disabled . '>---</option>';
-                                                    }
                                                     // 
                                                     if ($key == 'service_vfd') {
                                                         ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') ? $disabled = '' : $disabled = 'disabled';
