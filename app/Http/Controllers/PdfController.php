@@ -50,7 +50,7 @@ class PdfController extends Controller
         
         $user = $tkp->user()->toArray();
         $tkp = $tkp->toArray();
-
+        
         $configuration = Configuration::where('tkp_version', $tkp_version)->firstOrFail();
         $configuration = $configuration->toArray();
 
@@ -122,18 +122,29 @@ class PdfController extends Controller
 
     }
 
-
-
-
-
-
-
     public function frTableParams($option_applied = [])
     {
+        $dimension_arr[] = explode('х', $option_applied['dimension_vfd_standard'] ?? '0х0х0');
+        $dimension_arr[] = explode('х', $option_applied['sync_to_grid_dimension'] ?? '0х0х0');
+        $dimension_arr[] = explode('х', $option_applied['power_cell_bypass_dimension'] ?? '0х0х0');
+        $dimension_arr[] = explode('х', $option_applied['precharge_dimension'] ?? '0х0х0');
+        $dimension_arr[] = explode('х', $option_applied['bypass_vfd_dimension'] ?? '0х0х0');
+        $dimension_arr[] = explode('х', $option_applied['section_in_out_dimension'] ?? '0х0х0');
+        
+        $dimension_all[0] = 0;
+        $dimension_all[1] = 0;
+        $dimension_all[2] = 0;
+        //dd($dimension_arr);
+        foreach ($dimension_arr as $dimension){
+            $dimension_all[0] = $dimension_all[0] + (int)$dimension[0] ?? 0;
+            $dimension_all[1] = $dimension_all[1] + (int)$dimension[1] ?? 0;
+            $dimension_all[2] = $dimension_all[2] + (int)$dimension[2] ?? 0;
+        }
+        //dd($dimension_all);
         return [
             'Входные параметры ПЧ' => [
-                'Полная мощность' => $option_applied['p_output'] . 'кВА' ?? 0 . 'кВА',
-                'Входное напряжение' => $option_applied['v_input'] . 'В' ?? 0 . 'В',
+                'Полная мощность' => $option_applied['s_trans'] . 'кВА' ?? 0 . 'кВА',
+                'Входное напряжение' => $option_applied['v_input'] . 'В АС, 3 фазы' ?? 0 . 'В АС, 3 фазы',
                 'Допустимые отклонения входного напряжения' => '±10% (до -35% снижения напряжения питающей сети с корректировкой выходных характеристик)',
                 'Номинальная частота питающей сети' => '50Гц ±5%',
                 'Напряжение оперативного питания' => '400В АС, 3 фазы',
@@ -144,7 +155,8 @@ class PdfController extends Controller
             'Выходные параметры ПЧ' => [
                 'Напряжение' => '0 ~ ' . $option_applied['v_output'] . 'В' ?? 0 . 'В',
                 'Ток' => '0 ~ ' . $option_applied['i_output'] . 'А' ?? 0 . 'А',
-                'Частота' => '0 ~ 50 / 60Гц',
+                'Частота' => '0 ~ 50',
+                'Мощность подключаемого двигателя' => $option_applied['p_output'] . 'кВт' ?? 0 . 'кВт',
                 'Перегрузочная способность' => '120% - 60с; 150% - авария',
                 'Длина кабеля электродвигателя' => 'до 1000 м',
                 'Минимальный шаг частоты' => '0,01Гц',
@@ -155,8 +167,8 @@ class PdfController extends Controller
                 'Коэффициент мощности' => '≥ 0,95 в диапазоне изменения нагрузки от 20% до 100%',
                 'Время разгона/торможения' => '1 - 3600с',
                 'Пульсация момента, не более' => '0,01%',
-                'Производительность вентиляторов охлаждения' => $option_applied['airflow_rate'] . 'м3/ч' ?? 0 . 'м3/ч',
-                'Тепловыделения' => 'до 32кВт',
+                'Производительность вентиляторов охлаждения ВПЧ' => $option_applied['airflow_rate'] . 'м3/ч' ?? 0 . 'м3/ч',
+                'Общая производительность вентиляторов охлаждения' => (int)$option_applied['airflow_rate'] ?? 0 + (int)$option_applied['sync_to_grid_airflow'] ?? 0 . 'м3/ч' ?? 0 . 'м3/ч',
                 'Количество ячеек на фазу (всего)' => '5 (15 всего)',
                 'Сейсмостойкость' => '9 баллов',
                 'Температура эксплуатации без снижения характеристик' => '+0…+40°С',
@@ -184,7 +196,14 @@ class PdfController extends Controller
             ],
             'Корпус' => [
                 'Габаритные размеры ВПЧ (ДхГхВ)' => $option_applied['dimension_vfd_standard'] . 'мм' ?? 0 . 'мм',
-                'Масса' => $option_applied['vfd_weight'] . 'кг' ?? 0 . 'кг',
+                'Масса ВПЧ' => $option_applied['vfd_weight'] . 'кг' ?? 0 . 'кг',
+                'Общий габаритный размер (ДхГхВ)' => $dimension_all[0] . 'x' . $dimension_all[1] . 'x' . $dimension_all[2] . 'мм' ?? 0 . 'мм',
+                'Общая масса' => (int)$option_applied['vfd_weight'] ?? 0
+                    + (int)$option_applied['sync_to_grid_weight'] ?? 0 
+                    + (int)$option_applied['power_cell_bypass_weight'] ?? 0 
+                    + (int)$option_applied['precharge_weight'] ?? 0
+                    + (int)$option_applied['bypass_vfd_weight'] ?? 0
+                    + (int)$option_applied['section_in_out_weight'] ?? 0 . 'кг' ?? 0 . 'кг',
                 'Ввод/вывод кабеля' => 'Снизу',
                 'Тип охлаждения' => 'Воздушное',
                 'Степень защиты' => 'IP' . $option_applied['ip'] ?? 'Нет',

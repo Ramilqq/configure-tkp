@@ -56,7 +56,7 @@
 <page orientation="L" backtop="20mm" backbottom="10mm" backleft="0mm" backright="0mm">
     <page_header>
         <div class="pdf_page_header">
-            <span><strong>ПРОЕКТ:<b>ПРОЕКТ:</b> </strong><?php echo $tkp['project_name'];?></span><br>
+            <span><strong><b>ПРОЕКТ:</b> </strong><?php echo $tkp['project_name'];?></span><br>
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
             <div style="position: absolute; right: 10mm;top:30px;">
@@ -67,10 +67,10 @@
 
 
 
-    <table class="tkp_table">
+    <table class="tkp_table" ыstyle="width: 100%; table-layout: fixed;">
         <thead>
             <col style="width:2%">
-            <col style="width:10%">
+            <col style="width:10%;overflow-wrap: break-word;">
             <col style="width:40%">
             <col style="width:5%">
             <col style="width:10%">
@@ -141,7 +141,7 @@
 
             <tr style="vertical-align: top;">
                 <td style="text-align: center;"><?php echo $i;?></td>
-                <td><?php echo $val['product']['name'];?></td>
+                <td style=""><?php echo wordwrap($val['product']['name'], 12, "<br />\n", true); ?></td>
                 <td><?php echo $val['product']['description'];?></td>
                 <td style="text-align: center;"><?php echo (int)$val['product']['count'];?></td>
                 <td style="text-align: center;"><?php echo $val['product']['currency'] .' '. number_format(ceil($val['product']['price']),0,',',' ');?></td>
@@ -208,7 +208,7 @@
             <tr style="text-align: center;">
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;">Дата:</td>
-                <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"><?php echo $tkp['created_at']; ?></td>
+                <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"><?php echo date('d.m.Y', strtotime($tkp['created_at'])); ?></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
@@ -216,7 +216,7 @@
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
             </tr>
-            <tr style="text-align: center;">
+            <!--tr style="text-align: center;">
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;">Валюта:</td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"><?php echo '-' ?></td>
@@ -226,7 +226,7 @@
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
                 <td style="border-top: none;border-right: none;border-left: none;text-align: left; border-bottom: none;"></td>
-            </tr>
+            </tr-->
         </tbody>
     </table>
     

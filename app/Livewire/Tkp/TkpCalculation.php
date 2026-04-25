@@ -29,8 +29,6 @@ class TkpCalculation extends Component
     {
         $tkp = Tkp::findOrFail($this->id);
         $this->authorize('update', $tkp);
-        
-        $this->form->pay_params = $this->pay_params;
 
         $this->form->saveForm($this->id, $this->tkp_version);
     }
@@ -116,13 +114,14 @@ class TkpCalculation extends Component
         $banks = app(\App\Services\BankRequest::class);
 
         $this->banks = $banks->get()['Valute'] ?? [];
+
+        $this->form->saveForm($this->id, $this->tkp_version);
+        
     }
 
     // записываем обновление цен по всем продуктам
     public function currency()
     {
-        dd($this->saved_schema);
-
         foreach (['nodes', 'connections', 'other'] as $name) {
             foreach ($this->saved_schema[$name] as $key => $product) {
                 foreach ($this->banks as $banks) {
@@ -144,7 +143,6 @@ class TkpCalculation extends Component
 
     public function render()
     {
-        //dd($this->pay_params);
         return view('livewire.tkp.tkp-calculation');
     }
 }

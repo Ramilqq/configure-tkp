@@ -44,7 +44,7 @@
                         <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
                     </div>
                 </page_header>
-                    <h4 style="text-align: center;">Технические данные</h4>
+                    <h4 style="text-align: center;">10. Технические данные</h4>
                     <h4 style="text-align: center;">{{$node['product']['name']}}</h4>
                     <table class="vfd_info_table">
                         <col style="width:50%">
@@ -144,9 +144,6 @@
                                 <?php
                                 
                                     echo '<div style="text-align:center; margin-top: 8mm;">';
-                                    if ($node['product']['name']) {
-                                        echo '<div style="font-size:12px; margin-bottom:3mm; margin-right:3mm;"><b>' . htmlspecialchars($node['product']['name'], ENT_QUOTES, 'UTF-8') . '</b></div>';
-                                    }
                                     echo '<img src="'.$img.'" style="width:180mm; height:auto;" />';
                                     echo '</div>';
                                 ?>
@@ -161,7 +158,7 @@
 
             <?php 
             if ($node['product']['option_drawing_applied']) {
-                foreach ($node['product']['option_drawing_applied'] as $img) {
+                foreach ($node['product']['option_drawing_applied'] as $key_img => $img) {
                     
                     $img = public_path('storage/drawing/'.$img.'.jpg');
                     if (!file_exists($img)) continue;
@@ -176,13 +173,18 @@
                                 </div>
                             </page_header>
                             
-                                <h4 style="text-align: center;">Габаритный чертеж: {{$node['product']['name']}}</h4>
+                                <h4 style="text-align: center;">
+                                    <?php 
+                                        if     ($key_img == 'power_cell_bypass') echo 'Габаритный чертеж: Байпас неисправной силовой ячейки.';
+                                        elseif ($key_img == 'sync_to_grid') echo 'Габаритный чертеж: Секция реактора.';
+                                        elseif ($key_img == 'precharge') echo 'Габаритный чертеж: Предзаряд силовых ячеек.';
+                                        elseif ($key_img == 'bypass_vfd') echo 'Габаритный чертеж: Байпас ВПЧ.';
+                                        elseif ($key_img == 'section_in_out') echo 'Габаритный чертеж: Секция ввода/вывода сверху.';
+                                    ?>
+                                </h4>
                                 <?php
                                 
                                     echo '<div style="text-align:center; margin-top: 8mm;">';
-                                    if ($node['product']['name']) {
-                                        echo '<div style="font-size:12px; margin-bottom:3mm; margin-right:3mm;"><b>' . htmlspecialchars($node['product']['name'], ENT_QUOTES, 'UTF-8') . '</b></div>';
-                                    }
                                     echo '<img src="'.$img.'" style="width:180mm; height:auto;" />';
                                     echo '</div>';
                                 ?>

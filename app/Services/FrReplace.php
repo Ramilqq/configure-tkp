@@ -35,6 +35,9 @@ class FrReplace
         $bypass_vfd = 'Нет';
         $power_cell_bypass = 'Нет';
         $sync_to_grid = 'Нет';
+        $plc_syn = 'Нет';
+        $section_in_out = 'Нет';
+        $plc_pt_100 = 'Нет';
 
         foreach ($this->product->productOptionPrice as $productOptionPrice) {
 
@@ -62,7 +65,7 @@ class FrReplace
                     $this->description = str_replace('[Interface]', $productOptionPrice->value, $this->description);
                 }
                 elseif ($productOptionPrice->templateOption->key == 'plc_syn') {
-                    
+                    $productOptionPrice->value == 'Нет' ?: $plc_syn = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value;
                 }
                 elseif ($productOptionPrice->templateOption->key == 'vfd_series') {
                     if ($productOptionPrice->rename_title == 'Empty') {
@@ -106,6 +109,16 @@ class FrReplace
                         $this->description = str_replace('[Airflow_rate]', $productOptionPrice->airflow, $this->description);
                     }
                 }
+                elseif ($productOptionPrice->templateOption->key == 'section_in_out') {
+                    $productOptionPrice->value == 'Нет' ?: $section_in_out = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value . '. Добавляется секция ввода/вывода (СВ) стандартно слева от ВПЧ. Габаритные размеры СВ: '.$productOptionPrice->dimension.' мм.
+Способ обслуживания СВ: '.$productOptionPrice->service.'. Вес СВ: '.$productOptionPrice->weight.'.';
+                    
+                }
+                elseif ($productOptionPrice->templateOption->key == 'plc_pt_100') {
+                    $productOptionPrice->value == 'Нет' ?: $plc_pt_100 = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value;
+                    
+                }
+
                 
             }
         }
@@ -183,6 +196,10 @@ class FrReplace
             $this->descriptionAdd($power_cell_bypass);
         }
 
+        if ($plc_syn != 'Нет') {
+            $this->descriptionAdd($plc_syn);
+        }
+
         if ($sync_to_grid != 'Нет') {
             $this->descriptionAdd($sync_to_grid);
         }
@@ -193,6 +210,14 @@ class FrReplace
 
         if ($precharge != 'Нет') {
             $this->descriptionAdd($precharge);
+        }
+
+        if ($section_in_out != 'Нет') {
+            $this->descriptionAdd($section_in_out);
+        }
+
+        if ($plc_pt_100 != 'Нет') {
+            $this->descriptionAdd($plc_pt_100);
         }
 
         $this->product->price = $this->product->price + $newPrice;
@@ -250,8 +275,7 @@ class FrReplace
 
     public function descriptionAdd(string $text): void
     {
-        $this->description = $this->description . '
-' .$text;
+        $this->description = $this->description . '<br />' .$text;
     }
 
 }

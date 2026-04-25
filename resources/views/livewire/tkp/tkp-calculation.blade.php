@@ -40,7 +40,7 @@
                                 Расходы на <br />продвижение (%):
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pay_params.marketing" class="form-control" wire:model.lazy="pay_params.marketing" wire:loading.attr="disabled">
+                                <input type="text" id="pay_params.marketing" class="form-control" wire:model.lazy="form.pay_params.marketing" wire:loading.attr="disabled">
                             </div>
                         </div>
 
@@ -49,7 +49,7 @@
                                 НДС:
                             </div>
                             <div class="col-8">
-                                <select class="form-select" wire:model.lazy="pay_params.nds" id="pay_params.nds" wire:loading.attr="disabled">
+                                <select class="form-select" wire:model.lazy="form.pay_params.nds" id="pay_params.nds" wire:loading.attr="disabled">
                                     <option value="0">0%</option>
                                     <option value="18">18%</option>
                                     <option value="20">20%</option>
@@ -63,7 +63,7 @@
                                 Резерв на <br />изменение (%):
                             </div>
                             <div class="col-8">
-                                <input type="text" id="pay_params.reserve" class="form-control" wire:model.lazy="pay_params.reserve" wire:loading.attr="disabled">
+                                <input type="text" id="pay_params.reserve" class="form-control" wire:model.lazy="form.pay_params.reserve" wire:loading.attr="disabled">
                             </div>
                         </div>
                     </div>
@@ -557,7 +557,6 @@
     $form->pay_params['resault_total'] = $total;
     $form->pay_params['resault_nds'] = $nds;
     $form->pay_params['resault_total_nds'] = $total_nds;
-    
 @endphp
             <table class="table">
                 <thead>
@@ -573,7 +572,7 @@
                     <tr >
                         @foreach($table['col'] as $key => $table_col)
                             @if(isset($prod_col[$key]))
-                            <td>{{$prod_col[$key]}}</td>
+                            <td>{!! $prod_col[$key] !!}</td>
                             @else
                             <td>{{$key}}</td>
                             @endif
@@ -591,7 +590,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>{{$total}}</td>
+                        <td>{{(int) $total}}</td>
                         <td></td>
                     </tr>
                     <tr>
@@ -603,7 +602,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>{{$nds}}</td>
+                        <td>{{(int) $nds}}</td>
                         <td></td>
                     </tr>
                     <tr>
@@ -615,7 +614,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>{{$total_nds}}</td>
+                        <td>{{(int) $total_nds}}</td>
                         <td></td>
                     </tr>
                 </tbody>

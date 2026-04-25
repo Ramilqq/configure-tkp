@@ -136,6 +136,11 @@ class Configuration extends Component
                             $this->getData[$productOptionPrice->templateOption->key] = 'Нет';
                         } else {
                             $option_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->value;
+                            $option_applied[$productOptionPrice->templateOption->key.'_drawing'] = $productOptionPrice->drawing;
+                            $option_applied[$productOptionPrice->templateOption->key.'_airflow'] = $productOptionPrice->airflow;
+                            $option_applied[$productOptionPrice->templateOption->key.'_dimension'] = $productOptionPrice->dimension;
+                            $option_applied[$productOptionPrice->templateOption->key.'_weight'] = $productOptionPrice->weight;
+                            $option_applied[$productOptionPrice->templateOption->key.'_service'] = $productOptionPrice->service;
                         }
                     }
                 }
@@ -730,7 +735,7 @@ class Configuration extends Component
                 'group_name' => 'Показатели надежности',
                 'indicators' =>
                     [
-                        ['name' => 'Среднее время наработки на отказ', 'value' => '1000 часов'],
+                        ['name' => 'Средняя наработка на отказ, не менее', 'value' => '50000 часов'],
                         ['name' => 'Среднее время ремонта, не более', 'value' => '20 минут'],
                         ['name' => 'Срок службы, не менее', 'value' => '20 лет'],
                         ['name' => 'Гарантийный срок эксплуатации', 'value' => '12 месяцев с момента ввода в эксплуатацию, но не более 18 месяцев с момента отгрузки оборудования'],

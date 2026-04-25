@@ -40,7 +40,9 @@
         </div>
     </page_header>
     <h4 style="text-align: center;">1. Назначение</h4>
+    
     <p>RU-DRIVE VFD – это универсальные преобразователи частоты, предназначенные для управления частотой вращения трехфазных асинхронных и синхронных двигателей мощностью от 200 кВт до 80 МВт и с номинальным напряжением от 3.0 до 13,8 кВ. Управление частотой вращения электродвигателей осуществляется за счет создания на выходе преобразователя частоты напряжения заданной частоты и амплитуды.</p>
+        
     <h4 style="text-align: center;">2. Топология преобразователя частоты</h4>
     <p>Преобразователи частоты серии RU-DRIVE VFD реализованы по схеме многоуровневого инвертора напряжения с интегрированным многообмоточным фазосдвигающим трансформатором.</p>
     <table style="position: relative;padding: 0px;display: table;width: 100%;">
@@ -188,9 +190,9 @@
             <col style="width:30%">
             <col style="width:60%">
             <tr style="background-color: #9fc5e8;">
-                <th></th>
-                <th style="padding: 5px;text-align: center;">Наименование защиты</th>
-                <th style="padding: 5px;text-align: center;">Описание</th>
+                <th class="table_header"></th>
+                <th class="table_header" style="padding: 5px;text-align: center;">Наименование защиты</th>
+                <th class="table_header" style="padding: 5px;text-align: center;">Описание</th>
             </tr>
         </thead>
         <tbody>
