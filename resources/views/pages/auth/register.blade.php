@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <form method="POST" action="{{ route('register.store') }}">
+    <form method="POST" action="{{ route('register.store', [], false) }}">
         @csrf
         <legend>Регистрация учетной записи</legend>
 

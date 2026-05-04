@@ -1,6 +1,6 @@
 <x-layouts.app>
     <h1>Новый пароль</h1>
-    <form method="POST" action="{{ route('password.update') }}">
+    <form method="POST" action="{{ route('password.update', [], false) }}">
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
         <div class="mb-3">

@@ -1,7 +1,7 @@
 <x-layouts.app>
     <h1>Подтвердите адрес электронной почты</h1>
     <p>Мы отправили письмо с ссылкой для подтверждения на ваш адрес. Не получили?</p>
-    <form method="POST" action="{{ route('verification.send') }}">
+    <form method="POST" action="{{ route('verification.send', [], false) }}">
         @csrf
         <button class="btn btn-primary">Отправить письмо ещё раз</button>
     </form>

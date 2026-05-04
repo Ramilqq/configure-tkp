@@ -1,6 +1,6 @@
 <x-layouts.app>
     <h1>Сброс пароля</h1>
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email', [], false) }}">
         @csrf
         <div class="mb-3">
             <label class="form-label">Почта</label>

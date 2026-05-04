@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <form method="POST" action="{{ route('login.store') }}">
+    <form method="POST" action="{{ route('login.store', [], false) }}">
         @csrf
         <legend>Вход в личный кабинет</legend>
 
