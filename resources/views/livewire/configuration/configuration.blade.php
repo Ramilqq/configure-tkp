@@ -315,9 +315,17 @@
                         @endif
 
                     </div>
+                    <div class="modal-body">
+                        <div class="alert alert-success" role="alert" wire:show="message_success">
+                            {!! $message_success !!}
+                        </div>
+                        <div class="alert alert-danger" role="alert" wire:show="message_error">
+                            {!! $message_error !!}
+                        </div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal">Удалить</button>
-                        <button type="button" class="btn btn-primary" onclick="saveModal()" data-bs-dismiss="modal">Сохранить</button>
+                        <button type="button" class="btn btn-primary" onclick="saveModal()">Сохранить</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     </div>
                 </div>

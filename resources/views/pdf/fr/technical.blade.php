@@ -23,14 +23,8 @@
     
             
             <?php
-                $node_repeat = [];
-                foreach($configuration['saved_schema']['nodes'] as $node){
-                    $pid = $node['product']['fr_hash'] ?? null;
-
-                    if(array_search($pid, $node_repeat) !== false) {
-                        continue;
-                    }
-                    $node_repeat[] = $pid;
+                $tkp = $tkp ?? [];
+                $node = $node ?? [];
             ?>
 
 
@@ -157,10 +151,10 @@
 
 
             <?php 
-            if ($node['product']['option_drawing_applied']) {
-                foreach ($node['product']['option_drawing_applied'] as $key_img => $img) {
+            if ($node['product']['option_applied']) {
+                foreach ($node['product']['option_applied'] as $key_img => $img) {
                     
-                    $img = public_path('storage/drawing/'.$img.'.jpg');
+                    $img = public_path('storage/drawing/'.$img['drawing'].'.jpg');
                     if (!file_exists($img)) continue;
 
                     ?>
@@ -193,13 +187,6 @@
                     <?php
                 }
             }
-            ?>
-                
-
-
-
-            <?php
-                }
             ?>
 
             

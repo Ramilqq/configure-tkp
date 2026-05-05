@@ -11,255 +11,70 @@ use Illuminate\Validation\Rules\Numeric;
 
 class FrReplace
 {
-    private $name;
-    private $description;
-    private $product;
+    private $name = '';
+    private $description = '';
+    private $product = null;
 
-    public function __construct(Product $product)
+    public function __construct()
+    {
+        $this->description();  
+    }
+
+    public function apply(Product $product, $option_applied = []): array
     {
         $this->product = $product;
         $this->name = $product->name;
         $this->description = $product->description;
-        $this->description();  
-    }
 
-    public function title(array $filter): array
-    {
         $option_price_applied = [];
-        $option_drawing_applied = [];
-        $option_name_applied = [];
         $newPrice = 0;
 
-        // опции:
-        $precharge = 'Нет';
-        $bypass_vfd = 'Нет';
-        $power_cell_bypass = 'Нет';
-        $sync_to_grid = 'Нет';
-        $plc_syn = 'Нет';
-        $section_in_out = 'Нет';
-        $plc_pt_100 = 'Нет';
-
-        foreach ($this->product->productOptionPrice as $productOptionPrice) {
-
-            if ($productOptionPrice->value == $filter[$productOptionPrice->templateOption->key]) {
-
-                if ($productOptionPrice->price > 0 && $productOptionPrice->templateOption->key == 'material_trans') {
-                    $this->product->price = (float)$productOptionPrice->price;
-                    $option_price_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->price;
-                }elseif ($productOptionPrice->price > 0) {
-                    $newPrice = $newPrice + $productOptionPrice->price;
-                    $option_price_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->price;
-                }
-
-                if($productOptionPrice->drawing && $productOptionPrice->drawing != '???') {
-                    $option_drawing_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->drawing;
-                }
-
-                if ($productOptionPrice->templateOption->key == 'motor_type') {
-                    $this->name = str_replace('[Motor_type]', $productOptionPrice->rename_title, $this->name);
-                    $motor_type_full = $productOptionPrice->value == 'A' ? 'Асинхронный' : 'Синхронный';
-                    $this->description = str_replace('[Motor_type_full]', $motor_type_full, $this->description);
-                }
-                elseif ($productOptionPrice->templateOption->key == 'interface') {
-                    $this->name = str_replace('[Interface_S]', $productOptionPrice->rename_title, $this->name);
-                    $this->description = str_replace('[Interface]', $productOptionPrice->value, $this->description);
-                }
-                elseif ($productOptionPrice->templateOption->key == 'plc_syn') {
-                    $productOptionPrice->value == 'Нет' ?: $plc_syn = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value;
-                }
-                elseif ($productOptionPrice->templateOption->key == 'vfd_series') {
-                    if ($productOptionPrice->rename_title == 'Empty') {
-                        $productOptionPrice->rename_title = null;
-                    } else {
-                        $productOptionPrice->rename_title = $productOptionPrice->rename_title . '-';
-                    }
-                    $this->name = str_replace('[VFD_Series_Start]-', $productOptionPrice->rename_title, $this->name);
-
-
-                    if ($productOptionPrice->rename_title_end == 'Empty') {
-                        $productOptionPrice->rename_title_end = null;
-                    }
-                    $this->name = str_replace('[VFD_Series_End]', $productOptionPrice->rename_title_end, $this->name);
-                    $this->description = str_replace('[VFD_Series]', $productOptionPrice->value, $this->description);
-                }
-                elseif ($productOptionPrice->templateOption->key == 'material_trans') {
-                    $this->name = str_replace('[Material_trans]', $productOptionPrice->rename_title, $this->name);
-                    $this->description = str_replace('[Material_trans]', $productOptionPrice->value, $this->description);
-                }
-                elseif ($productOptionPrice->templateOption->key == 'power_cell_bypass') {
-                    $productOptionPrice->value == 'Нет' ?: $power_cell_bypass = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value;
-                }
-                elseif ($productOptionPrice->templateOption->key == 'sync_to_grid') {
-                    $productOptionPrice->value == 'Нет' ?: $sync_to_grid = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value . '. Добавляется секция реактора (СР) стандартно справа от ВПЧ. Габаритные размеры СР: '.$productOptionPrice->dimension.' мм.
-Производительность вентиляторов СР: '.$productOptionPrice->airflow.' м3/ч. Способ обслуживания СР: '.$productOptionPrice->service.'. Вес СР: '.$productOptionPrice->weight.'.';
-                }
-                elseif ($productOptionPrice->templateOption->key == 'ip') {
-                    $this->name = str_replace('[IP]', $productOptionPrice->rename_title, $this->name);
-                    $this->description = str_replace('[IP]', $productOptionPrice->value, $this->description);
-                }
-                elseif ($productOptionPrice->templateOption->key == 'precharge') {
-                    $precharge = $productOptionPrice->value == 'Да' ? 'Да' : 'Нет';
-                    $productOptionPrice->value == 'Нет' ?: $precharge = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value . '. Добавляется секция предзаряда (СП) стандартно слева от ВПЧ. Габаритные размеры СП: '.$productOptionPrice->dimension.' мм.
-Способ обслуживания СП: '.$productOptionPrice->service.'. Вес СП: '.$productOptionPrice->weight.'.';
-                }
-                elseif ($productOptionPrice->templateOption->key == 'bypass_vfd') {
-                    $productOptionPrice->value == 'Нет' ?: $bypass_vfd = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value . '. Добавляется секция коммутации (СК) стандартно слева от ВПЧ. Габаритные размеры СК: '.$productOptionPrice->dimension.' мм.
-Способ обслуживания СК: '.$productOptionPrice->service.'. Вес СК: '.$productOptionPrice->weight.'.';
-                    if ($productOptionPrice->value == 'Механический') {
-                        $this->description = str_replace('[Airflow_rate]', $productOptionPrice->airflow, $this->description);
-                    }
-                }
-                elseif ($productOptionPrice->templateOption->key == 'section_in_out') {
-                    $productOptionPrice->value == 'Нет' ?: $section_in_out = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value . '. Добавляется секция ввода/вывода (СВ) стандартно слева от ВПЧ. Габаритные размеры СВ: '.$productOptionPrice->dimension.' мм.
-Способ обслуживания СВ: '.$productOptionPrice->service.'. Вес СВ: '.$productOptionPrice->weight.'.';
-                    
-                }
-                elseif ($productOptionPrice->templateOption->key == 'plc_pt_100') {
-                    $productOptionPrice->value == 'Нет' ?: $plc_pt_100 = $productOptionPrice->templateOption->name . ':' . $productOptionPrice->value;
-                    
-                }
-
-                
-            }
+        // собираем в массив ключи для замены из описания
+        preg_match_all('/\[[^\]]+\]/', $this->description, $matches);
+        $description_keys = $matches[0];
+        // собираем в массив ключи для замены из наименования
+        preg_match_all('/\[[^\]]+\]/', $this->product->name, $matches);
+        $this->name = $this->product->name;
+        $title_keys = $matches[0];
+        // замена ключей в описании на данные продукта
+        foreach ($description_keys as $description_key) {
+            $this->description = str_replace(
+                $description_key, 
+                $this->descriptionRules($description_key)($option_applied), 
+                $this->description
+            );
         }
 
-        $precharge_function = 'Нет';
-        $precharge_function_exec = 'Нет';
-
-        //dd($this->product->productOption);
-        foreach ($this->product->productOption as $productOption) {
-            // замена в названии товара наименования опции, если она является переименовываемой
-            if ($productOption->templateOption->key == 's_trans') {
-                $this->name = str_replace('[S_trans]', $productOption->value, $this->name);
-                $this->description = str_replace('[S_trans]', $productOption->value, $this->description);
-            }elseif ($productOption->templateOption->key == 'v_input') {
-                $this->name = str_replace('[V_input_name]',  substr($productOption->value, 0, 2), $this->name);
-                $this->description = str_replace('[V_input]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'v_output') {
-                $this->name = str_replace('[V_output_name]', substr($productOption->value, 0, 2), $this->name);
-                $this->description = str_replace('[V_output]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'count_power_cell') {
-                $this->name = str_replace('[Count_power_cell]', $productOption->value, $this->name);
-                $this->description = str_replace('[PWM_level]', 2 * $productOption->value +1, $this->description);
-                $this->description = str_replace('[Count_power_cell] * 6', $productOption->value * 6, $this->description);
-                $this->description = str_replace('[Count_power_cell]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'freq_output') {
-                $this->description = str_replace('[Freq_output]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'i_output') {
-                $this->description = str_replace('[I_output]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'p_output') {
-                $this->description = str_replace('[P_output]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'service_vfd') {
-                $this->description = str_replace('[Service_VFD]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'airflow_rate') {
-                $this->description = str_replace('[Airflow_rate]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'dimension_vfd_standard') {
-                $this->description = str_replace('[Dimension_VFD_standart]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'vfd_weight') {
-                $this->description = str_replace('[VFD_Weight]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'precharge_function') {
-                $precharge_function = $productOption->value == 'Да' ? 'Да' : 'Нет';
-                $this->description = str_replace('[PrechargeFunction]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'precharge_function_exec') {
-                $precharge_function_exec = $productOption->value == 'Да' ? 'Да' : 'Нет';
-                $this->description = str_replace('[PrechargeFunctionExec]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'material_trans') {
-                $this->description = str_replace('[Material_trans]', $productOption->value, $this->description);
-            }
-            elseif ($productOption->templateOption->key == 'motor_type') {
-                $motor_type_full = $productOptionPrice->value == 'A' ? 'Асинхронный' : 'Синхронный';
-                $this->description = str_replace('[Motor_type_full]', $motor_type_full, $this->description);
-            }
-            
+        foreach ($title_keys as $title_key) {
+            if ($title_key == '[VFD_Series_Start]') $title_key = '[VFD_Series_Start]-';
+            if ($title_key == '[VFD_Series_End]') $title_key = '-[VFD_Series_End]';
+            $this->name = str_replace(
+                $title_key, 
+                $this->titleRules($title_key)($option_applied), 
+                $this->name
+            );
         }
 
-        $this->descriptionAdd('Функция предзаряда по умолчанию: '.$precharge_function.'.');
-        if ($precharge_function == 'Да') {
-            $this->descriptionAdd('Исполнение функции предзаряда: '.$precharge_function_exec.'.');
-        }  
-
-        $this->descriptionAdd('Опции:
-');
-        if ($power_cell_bypass != 'Нет') {
-            $this->descriptionAdd($power_cell_bypass);
-        }
-
-        if ($plc_syn != 'Нет') {
-            $this->descriptionAdd($plc_syn);
-        }
-
-        if ($sync_to_grid != 'Нет') {
-            $this->descriptionAdd($sync_to_grid);
-        }
-
-        if ($bypass_vfd != 'Нет') {
-            $this->descriptionAdd($bypass_vfd);
-        }
-
-        if ($precharge != 'Нет') {
-            $this->descriptionAdd($precharge);
-        }
-
-        if ($section_in_out != 'Нет') {
-            $this->descriptionAdd($section_in_out);
-        }
-
-        if ($plc_pt_100 != 'Нет') {
-            $this->descriptionAdd($plc_pt_100);
+        // перерасчет цены
+        foreach ($option_applied as $option) {
+            if ((float)$option['price'] > 0 && $option['key'] == 'material_trans') {
+                $this->product->price = (float)$option['price'];
+                $option_price_applied[$option['key']] = (float)$option['price'];
+            }elseif ((float)$option['price'] > 0) {
+                $newPrice = $newPrice + (float)$option['price'];
+                $option_price_applied[$option['key']] = (float)$option['price'];
+            }
         }
 
         $this->product->price = $this->product->price + $newPrice;
 
-        return [$this->name, $this->description, $this->product->price, $option_drawing_applied ?? [], $option_price_applied ?? [], $option_name_applied ?? []];
+        return [$this->name, $this->description, $this->product->price, $option_price_applied ?? []];
     }
 
 
 
     public function description(): void
     {
-        $descriptionExample = 'Высоковольтный преобразователь частоты. Серия: [VFD_Series]. Технология: Мультиуровневая ШИМ [PWM_level] уровней. 
-Полная мощность трансформатора напряжения: [S_trans] кВА. 
-Входное напряжение: [V_input] В +/-10% 50Гц +/-5%.
-Выходное напряжение: 0- [V_output] В. Выходная частота: 0- [Freq_output] Гц. Выходной ток: [I_output] А.
-Тип двигателя: [Motor_type_full]. 
-Перегрузочная способность: 120% - 60 секунд, 150% - моментально. Количество квадрантов управления: 2.
-Материал обмоток трансформатора: [Material_trans]
-Количество силовые ячеек на фазу: [Count_power_cell]. Пульсность:  [Count_power_cell] * 6. Тип охлаждения: Воздушное.
-Степень защиты: IP [IP]. Способ обслуживания: [Service_VFD]. Температура окружающей среды: 0-40 градусов по Цельсию.
-Отображение: Сенсорная панель. Интерфейс связи с АСУ ТП: [Interface]. Производительность вентиляторов ВПЧ: [Airflow_rate]. 
-Габаритные размеры ВПЧ: [Dimension_VFD_standart] мм. Масса ВПЧ: [VFD_Weight] кг.
-Функция предзаряда по умолчанию: [PrechargeFunction]. If [PrechargeFunction] = Да, then print Исполнение функции предзаряда: [PrechargeFunctionExec].
-
-Опции:
-Наименование опции 2.1 (Если она есть) 
-Наименование опции 2.2 (Если она есть) 
-
-Наименование опции 3 (Если она есть). Добавляется секция реактора (СР) стандартно справа от ВПЧ. Габаритные размеры СР: [Dimension_Reactor] мм.
-Производительность вентиляторов СР: [Airflow_rate_Reactor] м3/ч. Способ обслуживания СР: [Service_Reactor]. Вес СР: [Weight_reactor].
-
-Наименование опции 5 (Если она есть). Добавляется секция предзаряда (СП) стандартно слева от ВПЧ. Габаритные размеры СП: [Dimension_PreCharge] мм.
-Способ обслуживания СП: [Service_PreCharge]. Вес СП: [Weight_PreCharge]. 
-
-Наименование опции 8 (Если она есть). Добавляется секция коммутации (СК) стандартно слева от ВПЧ. Габаритные размеры СК: [Dimension_bypassVFD] мм.
-Способ обслуживания СК: [Service_bypassVFD]. Вес СК: [Weight_bypassVFD]. 
-
-Наименование опции 9 (Если она есть). Добавляется секция коммутации (СК) стандартно слева от ВПЧ. Габаритные размеры СК: [Dimension_manbypassVFD] мм.
-Способ обслуживания СК: [Service_manbypassVFD]. Вес СК: [Weight_manbypassVFD].
-        ';
-
-
         $this->description = 'Высоковольтный преобразователь частоты. Серия: [VFD_Series]. Технология: Мультиуровневая ШИМ [PWM_level] уровней. 
 Полная мощность трансформатора напряжения: [S_trans] кВА. 
 Входное напряжение: [V_input] В +/-10% 50Гц +/-5%.
@@ -267,15 +82,175 @@ class FrReplace
 Тип двигателя: [Motor_type_full]. 
 Перегрузочная способность: 120% - 60 секунд, 150% - моментально. Количество квадрантов управления: 2.
 Материал обмоток трансформатора: [Material_trans]
-Количество силовые ячеек на фазу: [Count_power_cell]. Пульсность:  [Count_power_cell] * 6. Тип охлаждения: Воздушное.
+Количество силовые ячеек на фазу: [Count_power_cell]. Пульсность:  [Count_power_cell_pulse]. Тип охлаждения: Воздушное.
 Степень защиты: IP [IP]. Способ обслуживания: [Service_VFD]. Температура окружающей среды: 0-40 градусов по Цельсию.
 Отображение: Сенсорная панель. Интерфейс связи с АСУ ТП: [Interface]. Производительность вентиляторов ВПЧ: [Airflow_rate]. 
-Габаритные размеры ВПЧ: [Dimension_VFD_standart] мм. Масса ВПЧ: [VFD_Weight] кг.';
+Габаритные размеры ВПЧ: [Dimension_VFD_standart] мм. Масса ВПЧ: [VFD_Weight] кг.
+Функция предзаряда по умолчанию: [PrechargeFunction].
+[PrechargeFunctionExec]
+Опции:
+[Power_cell_bypass][Sync_to_grid][Precharge][Plc_syn][Bypass_vfd][Section_in_out][Plc_pt_100]';
     }
 
-    public function descriptionAdd(string $text): void
+    // правила для замены в описании
+    public function descriptionRules ($key = null)
     {
-        $this->description = $this->description . '<br />' .$text;
+        $description_name = [
+            '[VFD_Series]' => function ($value = []) {
+                return (string)$value['vfd_series']['value'];
+            },
+            '[PWM_level]' => function ($value = []) {
+                return 2 * (int)$value['count_power_cell']['value'] + 1;
+            },
+            '[S_trans]' => function ($value = []) {
+                return (int)$value['s_trans']['value'];
+            },
+            '[V_input]' => function ($value = []) {
+                return (int)$value['v_input']['value'];
+            },
+            '[V_output]' => function ($value = []) {
+                return (int)$value['v_output']['value'];
+            },
+            '[Freq_output]' => function ($value = []) {
+                return (int)$value['freq_output']['value'];
+            },
+            '[I_output]' => function ($value = []) {
+                return (int)$value['i_output']['value'];
+            },
+            '[Motor_type_full]' => function ($value = []) {
+                return (string)$value['motor_type']['value'] == 'A' ? 'Асинхронный' : 'Синхронный';
+            },
+            '[Material_trans]' => function ($value = []) {
+                return (string)$value['material_trans']['value'];
+            },
+            '[Count_power_cell]' => function ($value = []) {
+                return (int)$value['count_power_cell']['value'];
+            },
+            '[Count_power_cell_pulse]' => function ($value = []) {
+                return (int)$value['count_power_cell']['value'] * 6;
+            },
+            '[IP]' => function ($value = []) {
+                return (string)$value['ip']['value'];
+            },
+            '[Service_VFD]' => function ($value = []) {
+                return (string)$value['service_vfd']['value'];
+            },
+            '[Interface]' => function ($value = []) {
+                return (string)$value['interface']['value'];
+            },
+            '[Airflow_rate]' => function ($value = []) {
+                return (string)$value['airflow_rate']['value'];
+            },
+            '[Dimension_VFD_standart]' => function ($value = []) {
+                return (string)$value['dimension_vfd_standard']['value'];
+            },
+            '[VFD_Weight]' => function ($value = []) {
+                return (string)$value['vfd_weight']['value'];
+            },
+            '[PrechargeFunction]' => function ($value = []) {
+                return (string)$value['precharge_function']['value'];
+            },
+            '[PrechargeFunctionExec]' => function ($value = []) {
+                if ($value['precharge_function']['value'] == 'Да') {
+                    return PHP_EOL .'Исполнение функции предзаряда: ' . (string)$value['precharge_function_exec']['value'];
+                }
+                return null;
+            },
+            '[Power_cell_bypass]' => function ($value = []) {
+                if ($value['power_cell_bypass']['value'] == 'Механический') {
+                    return PHP_EOL .'Байпас неисправной силовой ячейки: ' . (string)$value['power_cell_bypass']['value'];
+                }
+                return null;
+            },
+            '[Sync_to_grid]' => function ($value = []) {
+                if ($value['sync_to_grid']['value'] == 'Да') {
+                    return PHP_EOL .'Синхронизация на Сеть='.(string)$value['sync_to_grid']['value'].'. Добавляется секция реактора (СР) стандартно справа от ВПЧ. Габаритные размеры СР: '.$value['sync_to_grid']['dimension'].' мм. Производительность вентиляторов СР: '.$value['sync_to_grid']['airflow'].' м3/ч. Способ обслуживания СР: '.$value['sync_to_grid']['service'].'. Вес СР: '.$value['sync_to_grid']['weight'].'кг.';   
+                }
+                return null;
+            },
+            '[Precharge]' => function ($value = []) {
+                if ($value['precharge']['value'] == 'Да') {
+                    return PHP_EOL .'Предзаряд силовых ячеек='.(string)$value['precharge']['value'].'. Добавляется секция предзаряда (СП) стандартно слева от ВПЧ. Габаритные размеры СП: '.$value['precharge']['dimension'].' мм. Способ обслуживания СП: '.$value['precharge']['service'].'. Вес СП: '.$value['precharge']['weight'].'кг';
+                }
+                return null;
+            },
+            '[Plc_syn]' => function ($value = []) {
+                if ($value['plc_syn']['value'] == 'Да') {
+                    return PHP_EOL .'ПЛК управления системой возбуждения='.(string)$value['plc_syn']['value'];
+                }
+                return null;
+            },
+            '[Bypass_vfd]' => function ($value = []) {
+                if ($value['bypass_vfd']['value'] == 'Да') {
+                    return PHP_EOL .'Байпас ВПЧ='.(string)$value['bypass_vfd']['value']. ' Добавляется секция коммутации (СК) стандартно слева от ВПЧ. Габаритные размеры СК: '.$value['bypass_vfd']['dimension'].' мм. Способ обслуживания СК: '.$value['bypass_vfd']['service'].'. Вес СК: '.$value['bypass_vfd']['weight'].'кг.';
+                }
+                return null;
+            },
+            '[Section_in_out]' => function ($value = []) {
+                if ($value['section_in_out']['value'] == 'Да') {
+                    return PHP_EOL .'Секция ввода/вывода сверху='.(string)$value['section_in_out']['value']. ' Добавляется секция ввода/вывода (СВ) стандартно слева от ВПЧ. Габаритные размеры СВ: '.$value['section_in_out']['dimension'].' мм. Способ обслуживания СВ: '.$value['section_in_out']['service'].'. Вес СВ: '.$value['section_in_out']['weight'].'кг.';
+                }
+                return null;
+            },
+            '[Plc_pt_100]' => function ($value = []) {
+                if ($value['plc_pt_100']['value'] == 'Да') {
+                    return PHP_EOL .'ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100='.(string)$value['plc_pt_100']['value'];
+                }
+                return null;
+            },
+            
+        ];
+
+        if (isset($description_name[$key])) {
+            return $description_name[$key];
+        }
+
+        return function ($value = []) {return '';};
+    }
+
+    // правила для замены в описании
+    public function titleRules ($key = null)
+    {
+        $title_name = [
+            '[VFD_Series_Start]-' => function ($value = []) {
+                if ((string)$value['vfd_series']['rename_title'] == 'Empty') return null;
+                if ((string)$value['vfd_series']['rename_title'] == '') return null;
+                return (string)$value['vfd_series']['rename_title'] . '-';
+            },
+            '[S_trans]' => function ($value = []) {
+                return (string)$value['s_trans']['value'];
+            },
+            '[V_input_name]' => function ($value = []) {
+                return substr((string)$value['v_input']['value'], 0, 2);
+            },
+            '[V_output_name]' => function ($value = []) {
+                return substr((string)$value['v_output']['value'], 0, 2);
+            },
+            '[Motor_type]' => function ($value = []) {
+                return (string)$value['motor_type']['value'];
+            },
+            '[Count_power_cell]' => function ($value = []) {
+                return (string)$value['count_power_cell']['value'];
+            },
+            '[IP]' => function ($value = []) {
+                return (string)$value['ip']['value'];
+            },
+            '[Interface_S]' => function ($value = []) {
+                return (string)$value['interface']['rename_title'];
+            },
+            '-[VFD_Series_End]' => function ($value = []) {
+                if ((string)$value['vfd_series']['rename_title_end'] == 'Empty') return null;
+                if ((string)$value['vfd_series']['rename_title_end'] == '') return null;
+                return '-'.(string)$value['vfd_series']['rename_title_end'];
+            },
+            
+        ];
+
+        if (isset($title_name[$key])) {
+            return $title_name[$key];
+        }
+
+        return function ($value = []) {return '';};
     }
 
 }

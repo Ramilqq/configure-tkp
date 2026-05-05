@@ -24,5 +24,10 @@
         </div>
     </page_header>
     <h4 style="text-align: center;">9. Условная схема подключения</h4>
+    
+    @if($node['product']['option_applied']['vfd_series'] == 'Стандарт' || $node['product']['option_applied']['vfd_series'] == 'Стандарт (Минпромторг)')
     <img src="<?= public_path('assets/image/pdf/scheme.jpg') ?>" style="width:750px;height:900px;">
+    @else
+    <img src="<?= public_path('assets/image/pdf/scheme_c.jpg') ?>" style="width:750px;height:900px;">
+    @endif
 </page>

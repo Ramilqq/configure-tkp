@@ -134,6 +134,7 @@ class FrProductExcelService
                 [
                     'value'  => '[VFD_Series (Minprom)]',
                     'rename_title'     => '[VFD_Series_Start (Minprom)]',
+                    'rename_title_end' => '[VFD_Series_End]',
                 ],
             ],
         ],

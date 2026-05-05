@@ -112,11 +112,11 @@ class TkpCalculation extends Component
         }
 
         $banks = app(\App\Services\BankRequest::class);
-
-        $this->banks = $banks->get()['Valute'] ?? [];
-
-        $this->form->saveForm($this->id, $this->tkp_version);
         
+        $this->banks = $banks->get()['Valute'] ?? [];
+        
+        $this->form->saveForm($this->id, $this->tkp_version);
+        //dd($this->saved_schema);
     }
 
     // записываем обновление цен по всем продуктам

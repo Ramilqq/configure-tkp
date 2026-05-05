@@ -18,7 +18,7 @@ class AddProductForm extends Form
             'template_id' => 0,
             'name',
             'description',
-            'manufacturer_id' => 0,
+            'manufacturer' => '',
             'currency_val' => 1,
             'currency' => 'RUB',
             'price',
@@ -35,8 +35,8 @@ class AddProductForm extends Form
             'new_product.product_name' => 'nullable',
             'new_product.product.id' => 'nullable',
             'new_product.product.name' => 'required|min:1|max:100',
-            'new_product.product.description' => 'required|min:1|max:250',
-            'new_product.product.manufacturer_id' => 'nullable',
+            'new_product.product.description' => 'required|min:1|max:2250',
+            'new_product.product.manufacturer' => 'nullable',
             'new_product.product.currency_val' => 'nullable',
             'new_product.product.currency' => 'nullable',
             'new_product.product.price' => 'required',
@@ -54,18 +54,39 @@ class AddProductForm extends Form
         $configuration = Configuration::where('tkp_version', $this->tkp_version)->first();
 
         $data = $configuration->toArray();
-
+        //dd($data);
         if(!$configuration) return [];
         
         // обновление существуюзего продукта в ткп
         if ($this->product_id) {
-            $nodes = collect($data['saved_schema']['nodes']);
-            $nodes->transform(function (array $item, int $key) { if ($this->product_id == $item['id']) { return $this->new_product; } return $item; });
-            $data['saved_schema']['nodes'] = $nodes->toArray();
+            
+            // для продуктов из схемы конфигруатора
+            $nodes = $data['saved_schema']['nodes'];
+            foreach($nodes as &$item) {
+                if ($this->product_id == $item['id']) {
+                    $item['id'] = $this->new_product['id'];
+                    $item['product_name'] = $this->new_product['product_name'];
+                    $item['product']['id'] = $this->new_product['product']['id'];
+                    $item['product']['name'] = $this->new_product['product']['name'];
+                    $item['product']['description'] = $this->new_product['product']['description'];
+                    $item['product']['manufacturer'] = $this->new_product['product']['manufacturer'];
+                    $item['product']['currency_val'] = $this->new_product['product']['currency_val'];
+                    $item['product']['currency'] = $this->new_product['product']['currency'];
+                    $item['product']['price'] = $this->new_product['product']['price'];
+                    $item['product']['delivery'] = $this->new_product['product']['delivery'];
+                    $item['product']['engineering'] = $this->new_product['product']['engineering'];
+                }
+            }
+            $data['saved_schema']['nodes'] = $nodes;
 
-            $other = collect($data['saved_schema']['other']);
-            $other->transform(function (array $item, int $key) { if ($this->product_id == $item['id']) { return $this->new_product; } return $item; });
-            $data['saved_schema']['other'] = $other->toArray();
+            // для продуктов дополнительных, добавленных в ткп
+            $other = $data['saved_schema']['other'];
+            foreach($other as &$item) {
+                if ($this->product_id == $item['id']) {
+                    $item = $this->new_product;
+                }
+            }
+            $data['saved_schema']['other'] = $other;
         
         // добавление дополнительного продукта в ткп
         } else {
@@ -79,10 +100,10 @@ class AddProductForm extends Form
 
             $data['saved_schema']['other'] = $other->toArray();
         }
-
+        //dd($data);
         // обновляем данные
         $configuration->update($data);
-        $configuration->save();
+        //$configuration->save();
         
         $this->resetExcept(['tkp_version', 'product_id']);
     }

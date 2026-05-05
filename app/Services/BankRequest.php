@@ -39,6 +39,10 @@ class BankRequest
 
             return json_decode(json_encode($xml), true) ?: [];
         });
+        if (empty($this->bank)) {
+            Cache::forget('cbr_xml_daily');
+            Log::error('Failed to fetch bank data from both sources.');
+        }
     }
 
     public function get(): array

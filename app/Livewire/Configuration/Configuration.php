@@ -18,6 +18,7 @@ use App\Services\TableSettings\TemplatePriceRuleService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\TableSettings\ProductOption;
+use App\Services\FrService\FrOptionsAppliedService;
 
 class Configuration extends Component
 {
@@ -65,7 +66,8 @@ class Configuration extends Component
         $banks = new BankRequest();
 
         $priceRules = app(TemplatePriceRuleService::class);
-        
+        $frReplace = app(FrReplace::class);
+
         // поиск узла по свойствам фильтра
         foreach($this->saved_schema['nodes'] as $key => $node){
             if($node['id'] === $node_id){
@@ -75,7 +77,7 @@ class Configuration extends Component
                 }
                 $query->where('template_id', $node['template_id']);
                 
-                // отделбный поиск для ЧРП
+                // отдельный поиск для ЧРП
                 if ($node['template_id'] == 1) {
                     
                     $query->with('productOptionPrice');
@@ -114,68 +116,38 @@ class Configuration extends Component
 
                     return;
                 }
-
-
-                $option_applied = [];
-                foreach ($productModel->productOption as $productOption) {
-                    $option_applied[$productOption->templateOption->key] = $productOption->value;
-                }
-
-                foreach ($productModel->productOptionPrice as $productOptionPrice) {
-                    if ($this->getData[$productOptionPrice->templateOption->key] == $productOptionPrice->value) {
-
-                        if($productOptionPrice->drawing && $productOptionPrice->drawing != '???') {
-                            $option_applied['drawing_' . $productOptionPrice->templateOption->key] = $productOptionPrice->drawing;
-                        }
-
-                        if ($option_applied['precharge_function'] == 'Да' &&
-                            $productOptionPrice->templateOption->key == 'precharge' &&
-                            $productOptionPrice->value == 'Да'
-                        ) {
-                            $option_applied[$productOptionPrice->templateOption->key] = 'Нет';
-                            $this->getData[$productOptionPrice->templateOption->key] = 'Нет';
-                        } else {
-                            $option_applied[$productOptionPrice->templateOption->key] = $productOptionPrice->value;
-                            $option_applied[$productOptionPrice->templateOption->key.'_drawing'] = $productOptionPrice->drawing;
-                            $option_applied[$productOptionPrice->templateOption->key.'_airflow'] = $productOptionPrice->airflow;
-                            $option_applied[$productOptionPrice->templateOption->key.'_dimension'] = $productOptionPrice->dimension;
-                            $option_applied[$productOptionPrice->templateOption->key.'_weight'] = $productOptionPrice->weight;
-                            $option_applied[$productOptionPrice->templateOption->key.'_service'] = $productOptionPrice->service;
-                        }
-                    }
-                }
-
-                // --- применяем правила цены ---
-                $basePrice = $productModel->price;
-                $baseDelivery = $productModel->delivery;
-
-                // изменение цены от опции товара и сохранение схемы
-                $frReplace = new FrReplace($productModel);
-                [$productModel->name, $productModel->description, $productModel->price, $option_drawing_applied, $option_price_applied, $option_name_applied] = $frReplace->title($this->getData);
-                                
                 
+                // сохранение базовых цен
+                $basePrice = (float)$productModel->price;
+                $baseDelivery = (float)$productModel->delivery;
 
+                // поиск выбранных опций
+                $FrOptionsAppliedService = new (FrOptionsAppliedService::class);
+                $option_applied = $FrOptionsAppliedService->apply($this->getData, $productModel->productOption, $productModel->productOptionPrice);
+
+                // изменение цены от опции товара, наименования и описания
+                [$productModel->name,
+                $productModel->description,
+                $productModel->price,
+                $option_price_applied] = $frReplace->apply($productModel, $option_applied);
+                
+                // применение правило цены, если есть
                 $calc = $priceRules->apply($productModel, $this->getRules);
-
-                // НЕ сохраняем, просто подменяем для вывода/схемы
+                
+                // НЕ сохраняем модель, просто подменяем для вывода/схемы
                 $productModel->price = $calc['price'];
                 $productModel->delivery = $calc['delivery'];
                 $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
                 
-
+                // создание хэша по опциям, для количества одинаковых продуктов
                 $productModel->fr_hash = $this->makeFrHash($option_applied + $applied_rules + ['manufacturer' => $this->getData['manufacturer']]);
 
-
+                // сохраняем данные
                 $product = $productModel->toArray();
-                
-                
-                
-                //dd($product, $this->getData);
                 $product['price_base'] = $basePrice;
+                $product['manufacturer'] = $this->getData['manufacturer'];
                 $product['delivery_base'] = $baseDelivery;
-                $product['option_drawing_applied'] = $option_drawing_applied;
                 $product['option_price_applied'] = $option_price_applied;
-                $product['option_name_applied'] = $option_name_applied;
                 $product['price_rules_applied'] = $applied_rules;
                 $product['option_applied'] = $option_applied;
                 $product['indicators_reliability'] =$this->getIndicatorsReliability();
@@ -183,16 +155,11 @@ class Configuration extends Component
                 if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
                 else $product['currency_val'] = $banks->getValue($product['currency']);
 
-                
-                //dd($product, $this->getData);
-
                 $this->saved_schema['nodes'][$key]['product_id'] = $product['id'];
                 $this->saved_schema['nodes'][$key]['product_name'] = $product['name'];
                 $this->saved_schema['nodes'][$key]['filter_fields'] = $this->getData;
                 $this->saved_schema['nodes'][$key]['rules_fields'] = $this->getRules;
                 $this->saved_schema['nodes'][$key]['product'] = $product;
-
-                //dd($product, $this->saved_schema);
             }
         }
 
@@ -209,7 +176,13 @@ class Configuration extends Component
                 }
 
                 $product = $query->first() ?: [];
-                if(!$product) {return;}
+                if(!$product) {
+                    $this->message_error = 'Продукт не найден.';
+
+                    
+
+                    return;
+                }
 
                  $productModel = $query->first() ?: [];
                 if(!$productModel) {return;}
@@ -239,7 +212,7 @@ class Configuration extends Component
                 $this->saved_schema['connections'][$key]['params']['product'] = $product;
             }
         }
-        
+
         unset($query);
         $this->message_success = 'Продукт найден и применен: ' . $product['name'];
         $this->message_error = '';
@@ -256,7 +229,8 @@ class Configuration extends Component
 
     public function updateFilter($template_id, $node_id = null, $conn_id = null)
     {
-
+        $this->message_success = '';
+        $this->message_error = '';
         $this->dispatch('editModalFr.getMessage', message_success: '', message_error: '')->to('blocks.form-edit-modal-fr');
 
         // при смене шаблона подгружаем новые опции и правила для фильтра

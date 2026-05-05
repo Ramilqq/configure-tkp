@@ -331,7 +331,7 @@
         // Достаём базовые значения
         $name        = isset($p['name']) ? $p['name'] : '';
         $description = isset($p['description']) ? $p['description'] : '';
-        $manufacturer = isset($item['filter_fields']['manufacturer']) ? $item['filter_fields']['manufacturer'] : '';
+        $manufacturer = isset($p['manufacturer']) ? $p['manufacturer'] : '';
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
         // инжиниринг

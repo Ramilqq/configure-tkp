@@ -18,7 +18,10 @@
                             <label for="new_product.product.description" class="form-label">Описание</label>
                             <input type="text" wire:model="form.new_product.product.description" class="form-control" placeholder="Описание" id="new_product.product.description" />
                         </div>
-                        
+                        <div class="mb-3">
+                            <label for="new_product.product.manufacturer" class="form-label">Производитель</label>
+                            <input type="text" wire:model="form.new_product.product.manufacturer" class="form-control" placeholder="Производитель" id="new_product.product.manufacturer" />
+                        </div>
                         
                         @php
                             $product = new \App\Models\TableSettings\Product;
