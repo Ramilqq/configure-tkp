@@ -120,7 +120,7 @@ class FormEditModalFr extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueManufacturer($value)
     {
-        $this->getData['manufacturer_id'] = $value;
+        $this->getData['manufacturer'] = $value;
         $this->updateValueCurent();
     }
 

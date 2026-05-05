@@ -202,6 +202,7 @@ class Configuration extends Component
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
                 $product['price_rules_applied'] = $calc['applied_rules'];
+                $product['manufacturer'] = $this->getData['manufacturer'];
 
                 if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
                 else $product['currency_val'] = $banks->getValue($product['currency']);
