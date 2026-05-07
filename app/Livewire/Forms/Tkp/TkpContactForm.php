@@ -16,7 +16,7 @@ class TkpContactForm extends Form
 
     public string $project_name = '';
     public string $client_name = '';
-    public string $contract_owner = '';
+    public string $contract_owner = 'ООО "Завод РУ-Драйв"';
     public string $implementation_object = '';
     public string $industry = '';
 
@@ -27,11 +27,11 @@ class TkpContactForm extends Form
             'user_id' => 'nullable',
             'update_user_id' => 'nullable',
 
-            'project_name' => 'required',
-            'client_name' => 'required',
+            'project_name' => 'nullable',
+            'client_name' => 'nullable',
             'contract_owner' => 'required',
-            'implementation_object' => 'required',
-            'industry' => 'required',
+            'implementation_object' => 'nullable',
+            'industry' => 'nullable',
         ];
     }
 

@@ -28,7 +28,7 @@ class UserEditForm extends Form
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->id, new EmailDomain],
             'role' => 'required|string|min:1|max:255',
             'phone' => 'required|string|min:1|max:255|regex:/^\+7\d{10}$/',
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8', 'max:20', 'confirmed'],
         ];
     }
     protected function createRules()
