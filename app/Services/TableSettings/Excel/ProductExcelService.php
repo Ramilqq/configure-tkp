@@ -10,6 +10,7 @@ class ProductExcelService
     public function __construct(
         private GenericProductExcelService $generic,
         private FrProductExcelService $fr,
+        private UppProductExcelService $upp,
     ) {}
 
     public function listSheets(string $path): array
@@ -19,23 +20,38 @@ class ProductExcelService
 
     public function exportData(int $templateId): StreamedResponse
     {
-        return $this->isFrTemplate($templateId)
-            ? $this->fr->exportData($templateId)
-            : $this->generic->exportData($templateId);
+        switch ($templateId) {
+            case 1:
+                return $this->fr->exportData($templateId);
+            case 4:
+                return $this->upp->exportData($templateId);
+            default:
+                return $this->generic->exportData($templateId);
+        }
     }
 
     public function preview(string $path, string $sheetName, int $templateId, int $limit = 10): array
     {
-        return $this->isFrTemplate($templateId)
-            ? $this->fr->preview($path, $sheetName, $templateId, $limit)
-            : $this->generic->preview($path, $sheetName, $templateId, $limit);
+        switch ($templateId) {
+            case 1:
+                return $this->fr->preview($path, $sheetName, $templateId, $limit);
+            case 4:
+                return $this->upp->preview($path, $sheetName, $templateId, $limit);
+            default:
+                return $this->generic->preview($path, $sheetName, $templateId, $limit);
+        }
     }
 
     public function import(string $path, string $sheetName, int $templateId): array
     {
-        return $this->isFrTemplate($templateId)
-            ? $this->fr->import($path, $sheetName, $templateId)
-            : $this->generic->import($path, $sheetName, $templateId);
+        switch ($templateId) {
+            case 1:
+                return $this->fr->import($path, $sheetName, $templateId);
+            case 4:
+                return $this->upp->import($path, $sheetName, $templateId);
+            default:
+                return $this->generic->import($path, $sheetName, $templateId);
+        }
     }
 
     private function isFrTemplate(int $templateId): bool

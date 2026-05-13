@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('drawing', 255)->nullable()->default(null)->after('engineering');
-            $table->string('fr_hash', 255)->nullable()->default(null)->after('id');
+            $table->string('hash', 255)->nullable()->default(null)->after('id');
         });
     }
 

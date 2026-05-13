@@ -1,4 +1,4 @@
-<div class="modal fade" id="editModalFR" tabindex="-1" wire:ignore.self>
+<div class="modal fade" id="editModalUPP" tabindex="-1" wire:ignore.self>
     <div class="modal-dialog" style="--bs-modal-width:800px !important">
         <div class="modal-content">
             <div class="modal-header" wire:ignore>
@@ -16,18 +16,15 @@
 
                         @php 
                             $form_data = [
-                                'interface'                     => 'select',
-                                'plc_syn'                       => 'select',
-                                'vfd_series'                    => 'select',
-                                'material_trans'                => 'select',
-                                'power_cell_bypass'             => 'select',
-                                'sync_to_grid'                  => 'select',
+                                'smv_series'                    => 'select',
+                                'v_control'                     => 'select',
                                 'ip'                            => 'select',
-                                'precharge'                     => 'select',
-                                'service_vfd'                   => 'select',
-                                'bypass_vfd'                    => 'select',
-                                'section_in_out'                => 'select',
-                                'plc_pt_100'                    => 'select',
+                                'bypass_breaker'                => 'select',
+                                'service_smv'                   => 'select',
+                                'interface'                     => 'select',
+                                'motor_reverse'                 => 'select',
+                                'cascade'                       => 'select',
+                                'line_switch'                   => 'select',
                             ];
                         @endphp
 
@@ -110,11 +107,11 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="getData.manufacturer.fr" class="form-label">Завод изготовитель</label>
+                            <label for="getData.manufacturer.upp" class="form-label">Завод изготовитель</label>
                             <select
-                                wire:key="getData.manufacturer.fr"
+                                wire:key="getData.manufacturer.upp"
                                 wire:model.defer="getData.manufacturer"
-                                id="getData.manufacturer.fr"
+                                id="getData.manufacturer.upp"
                                 class="form-select"
                                 wire:change.debounce.500ms="updateValueManufacturer($event.target.value)"
                             >
@@ -129,6 +126,8 @@
                                 @endforeach
                             </select>
                         </div>
+
+
 
                         <div style="width: 100%; text-align: center;"><b>Правило цены</b></div>
                         @php 
@@ -197,22 +196,32 @@
                                 <option value="S">Синхронный</option>
                             </select>
                         </div>
-                    
+
                         <div class="mb-3">
-                            <label for="getData.v_output" class="form-label">Номинальное напряжение,В</label>
+                            <label for="getData.v_input" class="form-label">Входное напряжение, В</label>
                             <select
-                                wire:key="getData.v_output"
-                                wire:model.defer="getData.v_output"
-                                id="getData.v_output"
+                                wire:key="getData.v_input"
+                                wire:model.defer="getData.v_input"
+                                id="getData.v_input"
                                 class="form-select"
                                 wire:change.debounce.500ms="updateValueVoltage($event.target.value)"
                             >
-                                <option value="3000">3000</option>
-                                <option value="3300">3300</option>
                                 <option value="6000">6000</option>
-                                <option value="6600">6600</option>
                                 <option value="10000">10000</option>
-                                <option value="11000">11000</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="getData.count_power_thyristors" class="form-label">Кол-во силовых тиристоров</label>
+                            <select
+                                wire:key="getData.count_power_thyristors"
+                                wire:model.defer="getData.count_power_thyristors"
+                                id="getData.count_power_thyristors"
+                                class="form-select"
+                                wire:change.debounce.500ms="updateValueVoltage($event.target.value)"
+                            >
+                                <option value="6000">18</option>
+                                <option value="10000">30</option>
                             </select>
                         </div>
 
@@ -243,7 +252,7 @@
                         </div>
                         
 
-                        <div class="mb-3">
+                        <!--div class="mb-3">
                             <label for="getData.kpd" class="form-label">КПД,%</label>
                             <small class="text-muted">Значение должно быть от 0 до 100</small>
                             <input
@@ -270,7 +279,7 @@
                                 wire:change.debounce.500ms="updateValueCosPhi($event.target.value)"
                                 step="0.1"
                             >
-                        </div>
+                        </div-->
 
                             
                     </div>

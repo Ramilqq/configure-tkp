@@ -30,6 +30,7 @@ class FrOptionsAppliedService
 
         // формирование динамических опций
         foreach ($optionPrices as $optionPrice) {
+            if (!isset($data_filter[$optionPrice->templateOption->key])) continue;
             if ($data_filter[$optionPrice->templateOption->key] != $optionPrice->value) continue;
 
             if($optionPrice->drawing && $optionPrice->drawing != '???') {

@@ -62,7 +62,7 @@ class PdfController extends Controller
         $resolver = app(DimensionSchemeResolver::class);
 
         foreach (($configuration['saved_schema']['nodes'] ?? []) as $key => $node) {
-            $pid = $node['product']['fr_hash'] ?? null;
+            $pid = $node['product']['hash'] ?? null;
             
             if (!empty($node['product']['price_rules_applied'])) {
                 foreach($node['product']['price_rules_applied'] as $rules_key => $rules_value) {
@@ -106,7 +106,7 @@ class PdfController extends Controller
         
         foreach ($configuration['saved_schema']['nodes'] ?? [] as $node) {
             //пропускаем повторяющиеся продукты (по фр хэшу) - чтобы не дублировать страницы для одинаковых продуктов
-            $pid = $node['product']['fr_hash'] ?? null;
+            $pid = $node['product']['hash'] ?? null;
             if(array_search($pid, $node_repeat) !== false) {
                 continue;
             }

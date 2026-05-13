@@ -8,7 +8,7 @@ use App\Models\Tkp\Manufacturer;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-class FormEditModalFr extends Component
+class FormEditModalUpp extends Component
 {
     public array $product_filter_select = [];
     public array $product_rules_select = [];
@@ -20,24 +20,23 @@ class FormEditModalFr extends Component
     public string $message_error = '';
 
     // обновляем список правил цены при выборе шаблона в модальном окне
-    #[On('editModalFr.updateFilterFR')]
-    public function updateFilterFR($template_id, $node_id = null, $conn_id = null, $product_filter_select)
+    #[On('editModalUpp.updateFilterUPP')]
+    public function updateFilterUPP($template_id, $node_id = null, $conn_id = null, $product_filter_select)
     {
         $this->product_manufacturer_select = Manufacturer::get()->toArray();
         $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
         $this->product_filter_select = $product_filter_select;
-        //dd($this->product_filter_select);
     }
 
     // обновляем данные в модальном окне при открытии, получая их из конфигурации
-    #[On('editModalFr.syncModalData')]
+    #[On('editModalUpp.syncModalData')]
     public function syncModalData($getData, $getRules)
     {
         $this->getData = $getData;
         $this->getRules = $getRules;
     }
 
-    #[On('editModalFr.getMessage')]
+    #[On('editModalUpp.getMessage')]
     public function getMessage($message_success, $message_error)
     {
         $this->message_success = $message_success;
@@ -47,72 +46,30 @@ class FormEditModalFr extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueKpd($value)
     {
-        if ($value === '' || $value === null) {
-            $value = 0;
-        }
-        if ($value < 0)   $this->getData['kpd'] = 0;
-        if ($value > 100) $this->getData['kpd'] = 100;
-        
-        $this->getData['kpd'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueCosPhi($value)
     {
-        if ($value === '' || $value === null) {
-            $value = 0;
-        }
-        if ($value < 0) $this->getData['cos_phi'] = 0;
-        if ($value > 1) $this->getData['cos_phi'] = 1;
-        
-        $this->getData['cos_phi'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValuePower($value)
     {
-        if ($value < 0) $this->getData['p_output'] = 0;
-        if ($value > 100000) $this->getData['p_output'] = 100000;
-        
-        $this->getData['p_output'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueVoltage($value)
     {
-        if ($value < 0) $this->getData['v_output'] = 0;
-        if ($value > 11000) $this->getData['v_output'] = 11000;
-        
-        $this->getData['v_output'] = $value;
         $this->updateValueCurent();
     }
 
     // функция для пересчета номинального тока при изменении характеристик электродвигателя
     public function updateValueCurent($value = null)
     {
-        $p = $this->getData['p_output'] ?? 0;
-        $u = $this->getData['v_output'] ?? 0;
-        $cos_phi = $this->getData['cos_phi'] ?? 0;
-        $kpd = ($this->getData['kpd'] ?? 0) / 100;
-
-        if ($value !== null) {
-            if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
-                $p = ( sqrt(3) * $u * $cos_phi * $kpd * $value) / 1000;
-                $p = round($p, 2);
-            }
-            $this->getData['p_output'] = $p;
-            
-        } else {
-            if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
-                $i = ($p * 1000) / ( sqrt(3) * $u * $cos_phi * $kpd);
-                $i = round($i, 2);
-                $this->getData['nominalnyi_tok_ed_a'] = $i;
-            }
-        }
-
         // обновляем данные в конфигурации
         $this->save();
     }
@@ -132,21 +89,6 @@ class FormEditModalFr extends Component
                 $this->getData[$k] = null;
             }
         }
-
-        // отключаем "Сервисный интерфейс" для серии "Стандарт" и "Минпромторг"
-        if ($key == 'vfd_series' && ($value == 'Стандарт' || $value == 'Стандарт (Минпромторг)')) 
-        {
-            $this->getData['service_vfd'] = '';
-        }
-        elseif ($key == 'vfd_series' && ($value != 'Стандарт' && $value != 'Стандарт (Минпромторг)')) 
-        {
-            $this->getData['service_vfd'] = $this->getData['service_vfd'] ?? 'Одностороннее';
-        }
-        elseif (($key == 'plc_syn' && $this->getData['motor_type'] == 'A') || ($key == 'motor_type' && $this->getData['plc_syn'] == 'Да'))
-        {
-            $this->getData['plc_syn'] = 'Нет';
-        }
-
         $this->save();
     }
 
@@ -156,14 +98,14 @@ class FormEditModalFr extends Component
         $this->dispatch('syncModalDataBack',$this->getData, $this->getRules)->to('configuration.configuration');
     }
 
-    public function maunt()
+    public function mount()
     {
-        ;
+        
     }
-    
+
     public function render()
     {
-        return view('livewire.blocks.form-edit-modal-fr');
+        return view('livewire.blocks.form-edit-modal-upp');
     }
 }
 

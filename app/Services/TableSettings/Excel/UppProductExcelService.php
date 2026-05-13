@@ -17,67 +17,38 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class FrProductExcelService
+class UppProductExcelService
 {
     private const HEADER_ROW = 3;
     private const LABEL_ROW  = 4;
     private const DATA_ROW   = 5;
 
     /**
-     * Бизнес-группы ЧРП.
+     * Бизнес-группы УПП.
      * Каждая группа = одна TemplateOption.
      * base = базовое значение опции
      * variants = связанные подполя/подварианты этой же опции
      */
     private const FR_GROUPS = [
-        'material_trans' => [
-            'template_name' => 'Материал обмоток ТН ВПЧ',
-            'template_key'  => 'material_trans',
+        'v_control' => [
+            'template_name' => 'Напряжение оперативного питания',
+            'template_key'  => 'v_control',
+
             'base' => [
-                'value' => '[Material_trans]',
+                'value' => '[V_Control]',
             ],
             'variants' => [
                 [
-                    'value' => '[Material_trans_AlumTrans]',
-                    'price' => '[Price_VFD_AlumTrans]',
-                ],
-            ],
-        ],
-
-        'power_cell_bypass' => [
-            'template_name' => 'Байпас неисправной силовой ячейки',
-            'template_key'  => 'power_cell_bypass',
-            'variants' => [
-                [
-                    'value'     => 'Нет',
+                    'value' => '[V_Control_220V_DC]',
+                    'price' => '[Price_220V_DC]',
                 ],
                 [
-                    'value'     => 'Механический',
-                    'price'     => '[Price_VFD_mechBypass]',
-                    'drawing'   => '[Drawing_VFD_mechBypass]',
-                    'airflow'   => '[Airflow_rate_VFD_mechBypass]',
-                    'dimension' => '[Dimension_VFD_mechBypass]',
-                    'weight'    => '[VFD_mechBypass_Weight]',
-                    'service'   => '[Service_VFD_mechBypass]',
-                ],
-            ],
-        ],
-
-        'sync_to_grid' => [
-            'template_name' => 'Синхронизация на сеть',
-            'template_key'  => 'sync_to_grid',
-            'variants' => [
-                [
-                    'value'     => 'Нет',
+                    'value' => '[V_Control_110V_AC]',
+                    'price' => '[Price_110V_AC]',
                 ],
                 [
-                    'value'     => 'Да',
-                    'price'     => '[Price_SynchrOption]',
-                    'drawing'   => '[Drawing_Reactor]',
-                    'dimension' => '[Dimension_Reactor]',
-                    'airflow'   => '[Airflow_rate_Reactor]',
-                    'service'   => '[Service_Reactor]',
-                    'weight'    => '[Weight_reactor]',
+                    'value' => '[V_Control_110V_DC]',
+                    'price' => '[Price_110V_DC]',
                 ],
             ],
         ],
@@ -101,90 +72,44 @@ class FrProductExcelService
                     'rename_title' => '[IP42]',
 
                 ],
+                [
+                    'value' => '[IP54]',
+                    'price' => '[Price_IP54]',
+                    'rename_title' => '[IP54]',
+
+                ],
             ],
         ],
 
-        'precharge' => [
-            'template_name' => 'Предзаряд силовых ячеек',
-            'template_key'  => 'precharge',
+        'bypass_breaker' => [
+            'template_name' => 'Байпасный выключатель',
+            'template_key'  => 'bypass_breaker',
+
             'variants' => [
                 [
-                    'value'     => 'Нет',
+                    'value'  => 'Нет',
                 ],
                 [
-                    'value'     => 'Да',
-                    'price'     => '[Price_PreCharge]',
-                    'drawing'   => '[Drawing_PreCharge]',
-                    'dimension' => '[Dimension_PreCharge]',
-                    'service'   => '[Service_PreCharge]',
-                    'weight'    => '[Weight_PreCharge]',
+                    'value'     => '[Bypass_Breaker]',
+                    'price'     => '[Price_Bypass_Breaker]',
                 ],
             ],
         ],
 
-        'vfd_series' => [
-            'template_name' => 'Серия ВПЧ',
-            'template_key'  => 'vfd_series',
+        'service_smv' => [
+            'template_name' => 'Способ обслуживания',
+            'template_key'  => 'service_smv',
+
             'base' => [
-                'value'      => '[VFD_Series]',
-                'rename_title'     => '[VFD_Series_Start]',
-                'rename_title_end' => '[VFD_Series_End]',
+                'value'     => '[Service_SMV]',
             ],
             'variants' => [
                 [
-                    'value'  => '[VFD_Series (Minprom)]',
-                    'rename_title'     => '[VFD_Series_Start (Minprom)]',
-                    'rename_title_end' => '[VFD_Series_End]',
-                ],
-            ],
-        ],
-
-
-        'motor_type' => [
-            'template_name' => 'Тип ЭД',
-            'template_key'  => 'motor_type',
-            'base' => [
-                'value'  => '[Motor_type]',
-                'rename_title' => '[Motor_type]',
-                'rename_description' => '[Motor_type_full]',
-            ],
-            'variants' => [
-                [
-                    'value'  => '[Motor_type_Syn]',
-                    'rename_title' => '[Motor_type_Syn]',
-                    'rename_description' => '[Motor_type_full_Syn]',
-
-                ],
-            ],
-        ],
-
-        'plc_syn' => [
-            'template_name' => 'Наличие ПЛК управления системой возбуждения',
-            'template_key'  => 'plc_syn',
-            'variants' => [
-                [
-                    'value' => 'Нет',
-                ],
-                [
-                    'value' => 'Да',
-                    'price' => '[Price_PLC_Syn]',
-                ],
-            ],
-        ],
-
-        'bypass_vfd' => [
-            'template_name' => 'Байпас ВПЧ',
-            'template_key'  => 'bypass_vfd',
-            'variants' => [
-                [
-                    'value'     => 'Нет',
-                ],
-                [
-                    'value'     => 'Опция 8',
-                    'price'     => '[Price_bypassVFD]',
-                    'drawing'   => '[Drawing_bypassVFD]',
-                    'dimension' => '[Dimension_bypassVFD]',
-                    'weight'    => '[Weight_bypassVFD]',
+                    'value'     => '[One_Service]',
+                    'price'     => '[Price_One_Service]',
+                    'dimension' => '[Dimension_One_Service]',
+                    'weight'    => '[Weight_One_Service]',
+                    'service'   => '[Drawing_One_Service]',
                 ],
             ],
         ],
@@ -201,54 +126,97 @@ class FrProductExcelService
                 [
                     'value'  => '[Profibus]',
                     'price'  => '[Price_Profibus]',
-                    'rename_title' => '[Profibus_S]',
-                    'rename_description' => '[Profibus]',
                 ],
                 [
                     'value'  => '[ModbusTCP]',
                     'price'  => '[Price_ModbusTCP]',
-                    'rename_title' => '[ModbusTCP_S]',
-                    'rename_description' => '[ModbusTCP]',
                 ],
                 [
                     'value'  => '[Profinet]',
                     'price'  => '[Price_Profinet]',
-                    'rename_title' => '[Profinet_S]',
-                    'rename_description' => '[Profinet]',
-                ],
-            ],
-        ],
-        
-        'section_in_out' => [
-            'template_name' => 'Секция ввода/вывода сверху',
-            'template_key'  => 'section_in_out',
-            'variants' => [
-                [
-                    'value'     => 'Нет',
-                ],
-                [
-                    'value'     => 'Да',
-                    'price'     => '[Price_InOut]',
-                    'drawing'   => '[Drawing_InOut]',
-                    'dimension' => '[Dimension_InOut]',
-                    'service'   => '[Service_InOut]',
-                    'weight'    => '[Weight_InOut]',
                 ],
             ],
         ],
 
-        'plc_pt_100' => [
-            'template_name' => 'ПЛК и датчики контроля температуры обмоток и подшипников ЭД',
-            'template_key'  => 'plc_pt_100',
+        'motor_type' => [
+            'template_name' => 'Тип ЭД',
+            'template_key'  => 'motor_type',
+            'base' => [
+                'value'  => 'A',
+                'rename_description' => '[Motor_type_full]',
+            ],
+            'variants' => [
+                [
+                    'value'  => 'S',
+                    'price'  => '[Price_Motor_type_Syn]',
+                    'rename_description' => '[Motor_type_full_Syn]',
+                ],
+            ],
+        ],
+
+        'motor_reverse' => [
+            'template_name' => 'Реверс двигателя (Секция реверса)',
+            'template_key'  => 'motor_reverse',
+            
+            'variants' => [
+                [
+                    'value'  => 'Нет',
+                ],
+                [
+                    'value'  => 'Да',
+                    'price'  => '[Price_Reverse]',
+                    'drawing' => '[Drawing_Reverse]',
+                    'service' => '[Service_Reverse]',
+                    'dimension' => '[Dimension_Reverse]',
+                    'weight' => '[Weight_Reverse]',
+                ],
+            ],
+        ],
+
+        'cascade' => [
+            'template_name' => 'Каскадный пуск (Секция коммутации)',
+            'template_key'  => 'cascade',
             'variants' => [
                 [
                     'value'     => 'Нет',
                 ],
                 [
                     'value'     => 'Да',
-                    'price'     => '[Price_PLC_Pt100]',
+                    'price'     => '[Price_Cascade]',
+                    'drawing'   => '[Drawing_Cascade]',
+                    'dimension' => '[Dimension_Cascade]',
+                    'weight'    => '[Weight_Cascade]',
+                    'service'   => '[Service_Cascade]',
                 ],
             ],
+        ],
+
+        'line_switch' => [
+            'template_name' => 'Линейный выключатель (Встроен в корпус УПП)',
+            'template_key'  => 'line_switch',
+            'variants' => [
+                [
+                    'value'     => 'Нет',
+                ],
+                [
+                    'value'     => '[Line_CB_Full]',
+                    'price'     => '[Price_Line_CB]',
+                    'drawing'   => '[Drawing_Line_CB]',
+                    'dimension' => '[Dimension_Line_CB]',
+                    'weight'    => '[Weight_Line_CB]',
+                    'service'   => '[Service_Line_CB]',
+                ],
+            ],
+        ],
+
+        'smv_series' => [
+            'template_name' => 'Серия УПП',
+            'template_key'  => 'smv_series',
+
+            'base' => [
+                'value'      => '[SMV_Series]',
+                'rename_title'     => '[SMV_Series_Start]',
+            ]
         ],
     ];
 
@@ -257,20 +225,14 @@ class FrProductExcelService
      * Всё, что входит в FR_GROUPS, сюда НЕ попадает.
      */
     private const FR_SCALAR_OPTION_MAP = [
-        '[S_trans]'                => ['name' => 'Номинальная полная мощность ТН, кВА', 'key' => 's_trans'],
-        '[P_Output]'               => ['name' => 'Мощность подключаемого электродвигателя, кВт', 'key' => 'p_output'],
         '[V_input]'                => ['name' => 'Входное напряжение, В', 'key' => 'v_input'],
-        '[V_output]'               => ['name' => 'Выходное напряжение, В', 'key' => 'v_output'],
-        '[Freq_output]'            => ['name' => 'Выходная частота, Гц', 'key' => 'freq_output'],
-        '[I_output]'               => ['name' => 'Выходной ток, А', 'key' => 'i_output'],
-        '[Count_power_cell]'       => ['name' => 'Кол-во силовых ячеек ВПЧ', 'key' => 'count_power_cell'],
-        '[Airflow_rate]'           => ['name' => 'Производительность вентиляторов охлаждения, м3/час', 'key' => 'airflow_rate'],
-        '[Dimension_VFD_standart]' => ['name' => 'Габаритные размеры стандартного ЧРП, мм', 'key' => 'dimension_vfd_standard'],
-        '[VFD_Weight]'             => ['name' => 'Масса, кг', 'key' => 'vfd_weight'],
-        '[PrechargeFunction]'      => ['name' => 'Наличие функции предзаряда', 'key' => 'precharge_function'],
-        '[PrechargeFunctionExec]'  => ['name' => 'Исполнение функции предзаряда', 'key' => 'precharge_function_exec'],
-        '[Drawing]'                => ['name' => 'Стандартный чертеж ЧРП', 'key' => 'drawing_default'],
-        '[Service_VFD]'            => ['name' => 'Способ обслуживания', 'key' => 'service_vfd'],
+        '[I_output]'               => ['name' => 'Номинальный ток, А', 'key' => 'i_output'],
+        '[P_Output]'               => ['name' => 'Мощность подключаемого электродвигателя, кВт', 'key' => 'p_output'],
+        '[Count_power_thyristors]' => ['name' => 'Кол-во силовых тиристоров УПП', 'key' => 'count_power_thyristors'],
+        '[Bypass]'                 => ['name' => 'Тип байпаса', 'key' => 'bypass'],
+        '[Drawing]'                => ['name' => 'Стандартный чертеж УПП', 'key' => 'drawing_default'],
+        '[Dimension_SMV]'          => ['name' => 'Габаритные размеры стандартного УПП, мм', 'key' => 'dimension_smv_standard'],
+        '[SMV_Weight]'             => ['name' => 'Масса, кг', 'key' => 'smv_weight'],
     ];
 
     public function listSheets(string $path): array
@@ -321,12 +283,10 @@ class FrProductExcelService
                 'fr_block_id' => $this->getMergedAwareCellValue($sheet, $r, 4, $mergeMap ?? []),
                 'name'        => $this->renderTemplateString($nameTemplate, $rowByTech),
                 'description' => $this->renderTemplateString($descTemplate, $rowByTech),
-                'price'       => $this->toDecimal($rowByTech['[Price_VFD]'] ?? null),
-                'S_trans'     => $rowByTech['[S_trans]'] ?? null,
+                'price'       => $this->toDecimal($rowByTech['[Price_SMV]'] ?? null),
                 'P_Output'    => $rowByTech['[P_Output]'] ?? null,
                 'V_input'     => $rowByTech['[V_input]'] ?? null,
-                'V_output'    => $rowByTech['[V_output]'] ?? null,
-                'Count_cell'  => $rowByTech['[Count_power_cell]'] ?? null,
+                'I_output'    => $rowByTech['[I_output]'] ?? null,
             ];
 
             $shown++;
@@ -351,11 +311,11 @@ class FrProductExcelService
     }
 
     /**
-     * Импорт ЧРП.
+     * Импорт УПП.
      *
      * Важно:
      * - ID из файла не используем
-     * - update/create делаем по fr_hash
+     * - update/create делаем по upp_hash
      * - имя/описание рендерим из merge-шаблонов E/F
      */
     public function import(string $path, string $sheetName, int $templateId): array
@@ -424,9 +384,9 @@ class FrProductExcelService
                     'name'             => $name,
                     'description'      => $description,
                     'currency'         => 'CNY',
-                    'price'            => $this->toDecimal($rowByTech['[Price_VFD]'] ?? null),
+                    'price'            => $this->toDecimal($rowByTech['[Price_SMV]'] ?? null),
                     'drawing'          => $rowByTech['[Drawing]'] ?? null,
-                    'hash'          => $hash,
+                    'hash'             => $hash,
                 ];
 
                 if (!$product) {
@@ -812,19 +772,13 @@ class FrProductExcelService
     private function makeFrHash(mixed $blockId, mixed $blockTitle, array $rowByTech): string
     {
         $signature = [
-            //'block_id'           => (string)($blockId ?? ''),
-            's_trans'            => (string)($rowByTech['[S_trans]'] ?? ''),
-            'p_output'           => (string)($rowByTech['[P_Output]'] ?? ''),
-            'v_input'            => (string)($rowByTech['[V_input]'] ?? ''),
-            'v_output'           => (string)($rowByTech['[V_output]'] ?? ''),
-            'freq_output'        => (string)($rowByTech['[Freq_output]'] ?? ''),
-            'i_output'           => (string)($rowByTech['[I_output]'] ?? ''),
-            'count_power_cell'   => (string)($rowByTech['[Count_power_cell]'] ?? ''),
-            'vfd_series'         => (string)($rowByTech['[VFD_Series]'] ?? ''),
-            'motor_type'         => (string)($rowByTech['[Motor_type]'] ?? ''),
-            'ip'                 => (string)($rowByTech['[IP]'] ?? ''),
-            'interface'          => (string)($rowByTech['[Interface]'] ?? ''),
-            'service_vfd'        => (string)($rowByTech['[Service_VFD]'] ?? ''),
+            'v_input'               => (string)($rowByTech['[V_input]'] ?? ''),
+            'i_output'              => (string)($rowByTech['[I_output]'] ?? ''),
+            'p_output'              => (string)($rowByTech['[P_Output]'] ?? ''),
+            'v_control'             => (string)($rowByTech['[V_Control]'] ?? ''),
+            'count_power_thyristors'=> (string)($rowByTech['[Count_power_thyristors]'] ?? ''),
+            'bypass'                => (string)($rowByTech['[Bypass]'] ?? ''),
+            'motor_type'            => (string)($rowByTech['[Motor_type_full]'] ?? ''),
         ];
 
         return md5(json_encode($signature, JSON_UNESCAPED_UNICODE));
@@ -888,7 +842,7 @@ class FrProductExcelService
     private function enrichFrDerivedValues(array $rowByTech): array
     {
         $vInput = (string)($rowByTech['[V_input]'] ?? '');
-        $vOutput = (string)($rowByTech['[V_output]'] ?? '');
+        $vOutput = (string)($rowByTech['[I_output]'] ?? '');
 
         $rowByTech['[V_input_name]'] = match ($vInput) {
             '6000'  => '60',
@@ -896,7 +850,7 @@ class FrProductExcelService
             default => $vInput,
         };
 
-        $rowByTech['[V_output_name]'] = match ($vOutput) {
+        $rowByTech['[I_output_name]'] = match ($vOutput) {
             '6000'  => '60',
             '10000' => '10',
             default => $vOutput,
@@ -1067,41 +1021,37 @@ class FrProductExcelService
         return [
             5  => 'Наименование',
             6  => 'Описание',
-            7  => 'Номинальная полная мощность ТН, кВА',
-            8  => 'Мощность подключаемого электродвигателя, кВт',
-            9  => 'Входное напряжение, В',
-            10 => 'Выходное напряжение, В',
-            11 => 'Выходная частота, Гц',
-            12 => 'Выходной ток, А',
-            13 => 'Стандартный чертеж ЧРП',
-            14 => 'Базовая цена ВПЧ',
-            15 => 'Материал обмоток ТН ВПЧ',
-            16 => 'Кол-во силовых ячеек ВПЧ',
-            17 => 'Серия ВПЧ',
-            20 => 'Тип ЭД',
-            22 => 'Способ обслуживания',
-            23 => 'IP',
-            24 => 'Интерфейс',
-            26 => 'Производительность вентиляторов охлаждения, м3/час',
-            27 => 'Габаритные размеры стандартного ЧРП, мм',
-            28 => 'Масса, кг',
-            29 => 'Наличие функции предзаряда',
-            30 => 'Исполнение функции предзаряда',
-            32 => 'Опция 1: Материал обмоток ТН ВПЧ - Алюминий',
-            34 => 'Опция 2.1: Байпас неисправной силовой ячейки (Механический)',
-            40 => 'Опция 3: Синхронизация на сеть',
-            46 => 'Опция 4.1: IP41',
-            48 => 'Опция 4.2: IP42',
-            50 => 'Опция 5: Предзаряд силовых ячеек',
-            55 => 'Опция 6: Серия ВПЧ - Минпромторг',
-            57 => 'Опция 7: Тип ЭД - синхронный',
-            59 => 'Опция 7.1: Наличие ПЛК управления системой возбуждения',
-            60 => 'Опция 8: Байпас ВПЧ (автоматический)',
-            64 => 'Опция 10.1: Интерфейс = RS-485, Profibus',
-            67 => 'Опция 10.2: Интерфейс = Ethernet, Modbus TCP',
-            70 => 'Опция 10.3: Интерфейс = Ethernet, Profinet',
-            73 => 'Опция 11: Секция ввода/вывода сверху',
-            78 => 'Опция 12: ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100)',
+            7  => 'Входное напряжение, В',
+            8  => 'Номинальный ток, А',
+            9  => 'Мощность подключаемого электродвигателя, кВт',
+            10 => 'Тип двигателя',
+            11 => 'Напряжение оперативного питания',
+            12 => 'Кол-во силовых тиристоров в УПП',
+            13 => 'Базовая цена УПП с упаковкой',
+            14 => 'Серия',
+            16 => 'Степень защиты IP',
+            17 => 'Тип байпаса',
+            18 => 'Интерфейс',
+            19 => 'Стандартный чертеж УПП',
+            20 => 'Способ обслуживания',
+            21 => 'Габаритные размеры стандартного УПП, мм (ДхГхВ]',
+            22 => 'Масса, кг',
+
+            24 => 'Опция 1.1: 220В DC',
+            26 => 'Опция 1.2: 110В AC',
+            28 => 'Опция 1.3: 110В DC',
+            30 => 'Опция 2.1: IP41',
+            32 => 'Опция 2.2: IP42',
+            34 => 'Опция 2.3: IP54',
+            36 => 'Опция 3: Байпасный выключатель',
+            38 => 'Опция 4: Односторонний',
+            43 => 'Опция 5.1: RS-485, Profibus',
+            45 => 'Опция 5.2: Ethernet, Modbus TCP',
+            47 => 'Опция 5.3: Ethernet, Profinet',
+            49 => 'Опция 6: Синхронный',
+            51 => 'Опция 7: Реверс двигателя',
+            56 => 'Опция 8: Каскадный пуск',
+            61 => 'Опция 9: Линейный выключатель',
         ];
     }
 
@@ -1110,77 +1060,66 @@ class FrProductExcelService
         return [
             5  => 'Наименование формируется исходя из выбранного ВПЧ',
             6  => 'Описание формируется исходя из выбранного ВПЧ',
-            7  => '[S_trans]',
-            8  => '[P_Output]',
-            9  => '[V_input]',
-            10 => '[V_output]',
-            11 => '[Freq_output]',
-            12 => '[I_output]',
-            13 => '[Drawing]',
-            14 => '[Price_VFD]',
-            15 => '[Material_trans]',
-            16 => '[Count_power_cell]',
-            17 => '[VFD_Series]',
-            18 => '[VFD_Series_Start]',
-            19 => '[VFD_Series_End]',
-            20 => '[Motor_type]',
-            21 => '[Motor_type_full]',
-            22 => '[Service_VFD]',
-            23 => '[IP]',
-            24 => '[Interface_S]',
-            25 => '[Interface]',
-            26 => '[Airflow_rate]',
-            27 => '[Dimension_VFD_standart]',
-            28 => '[VFD_Weight]',
-            29 => '[PrechargeFunction]',
-            30 => '[PrechargeFunctionExec]',
-            32 => '[Price_VFD_AlumTrans]',
-            33 => '[Material_trans_AlumTrans]',
-            34 => '[Price_VFD_mechBypass]',
-            35 => '[Drawing_VFD_mechBypass]',
-            36 => '[Airflow_rate_VFD_mechBypass]',
-            37 => '[Dimension_VFD_mechBypass]',
-            38 => '[VFD_mechBypass_Weight]',
-            39 => '[Service_VFD_mechBypass]',
-            40 => '[Price_SynchrOption]',
-            41 => '[Drawing_Reactor]',
-            42 => '[Dimension_Reactor]',
-            43 => '[Airflow_rate_Reactor]',
-            44 => '[Service_Reactor]',
-            45 => '[Weight_reactor]',
-            46 => '[IP41]',
-            47 => '[Price_IP41]',
-            48 => '[IP42]',
-            49 => '[Price_IP42]',
-            50 => '[Price_PreCharge]',
-            51 => '[Drawing_PreCharge]',
-            52 => '[Dimension_PreCharge]',
-            53 => '[Service_PreCharge]',
-            54 => '[Weight_PreCharge]',
-            55 => '[VFD_Series (Minprom)]',
-            56 => '[VFD_Series_Start (Minprom)]',
-            57 => '[Motor_type_Syn]',
-            58 => '[Motor_type_full_Syn]',
-            59 => '[Price_PLC_Syn]',
-            60 => '[Price_bypassVFD]',
-            61 => '[Drawing_bypassVFD]',
-            62 => '[Dimension_bypassVFD]',
-            63 => '[Weight_bypassVFD]',
-            64 => '[Profibus_S]',
-            65 => '[Profibus]',
-            66 => '[Price_Profibus]',
-            67 => '[ModbusTCP_S]',
-            68 => '[ModbusTCP]',
-            69 => '[Price_ModbusTCP]',
-            70 => '[Profinet_S]',
-            71 => '[Profinet]',
-            72 => '[Price_Profinet]',
-            73 => '[Price_InOut]',
-            74 => '[Drawing_InOut]',
-            75 => '[Dimension_InOut]',
-            76 => '[Service_InOut]',
-            77 => '[Weight_InOut]',
-            78 => '[Price_PLC_Pt100]',
+            7  => '[V_input]',
+            8  => '[I_output]',
+            9  => '[P_Output]',
+            10 => '[Motor_type_full]',
+            11 => '[V_Control]',
+            12 => '[Count_power_thyristors]',
+            13 => '[Price_SMV]',
+            14 => '[SMV_Series]',
+            15 => '[SMV_Series_Start]',
+            16 => '[IP]',
+            17 => '[Bypass]',
+            18 => '[Interface]',
+            19 => '[Drawing]',
+            20 => '[Service_SMV]',
+            21 => '[Dimension_SMV]',
+            22 => '[SMV_Weight]',
+            
+            24 => '[Price_220V_DC]',
+            25 => '[V_Control_220V_DC]',
+            26 => '[Price_110V_AC]',
+            27 => '[V_Control_110V_AC]',
+            28 => '[Price_110V_DC]',
+            29 => '[V_Control_110V_DC]',
+            30 => '[Price_IP41]',
+            31 => '[IP41]',
+            32 => '[Price_IP42]',
+            33 => '[IP42]',
+            34 => '[Price_IP54]',
+            35 => '[IP54]',
+            36 => '[Price_Bypass_Breaker]',
+            37 => '[Bypass_Breaker]',
+            38 => '[Price_One_Service]',
+            39 => '[Drawing_One_Service]',
+            40 => '[One_Service]',
+            41 => '[Dimension_One_Service]',
+            42 => '[Weight_One_Service]',
+            43 => '[Price_Profibus]',
+            44 => '[Profibus]',
+            45 => '[Price_Modbus_TCP]',
+            46 => '[Modbus_TCP]',
+            47 => '[Price_Profinet]',
+            48 => '[Profinet]',
+            49 => '[Price_Motor_type_Syn]',
+            50 => '[Motor_type_full_Syn]',
+            51 => '[Price_Reverse]',
+            52 => '[Drawing_Reverse]',
+            53 => '[Service_Reverse]',
+            54 => '[Dimension_Reverse]',
+            55 => '[Weight_Reverse](Minprom)]',
+            56 => '[Price_Cascade](Minprom)]',
+            57 => '[Drawing_Cascade]',
+            58 => '[Service_Cascade]',
+            59 => '[Dimension_Cascade]',
+            60 => '[Weight_Cascade]',
+            61 => '[Price_Line_CB]',
+            62 => '[Line_CB_Full]',
+            63 => '[Drawing_Line_CB]',
+            64 => '[Service_Line_CB]',
+            65 => '[Dimension_Line_CB]',
+            66 => '[Weight_Line_CB]',
         ];
     }
 
@@ -1195,7 +1134,7 @@ class FrProductExcelService
         $row = [];
 
         // базовые поля products
-        $row['[Price_VFD]'] = $product->price;
+        $row['[Price_SMV]'] = $product->price;
         $row['[Drawing]']   = $product->drawing;
 
         // scalar-опции

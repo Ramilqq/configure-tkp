@@ -7,6 +7,7 @@
 
         <style>
             #canvas {
+                
                 width: 100%;
                 height: 80vh;
                 background: #fff;
@@ -14,7 +15,12 @@
                 border: 1px solid #ccc;
                 overflow: auto;
             }
-            
+            .grid-page {
+                background-image:   linear-gradient(to right, #e0e0e0 1px, transparent 1px),
+                                    linear-gradient(to bottom, #e0e0e0 1px, transparent 1px) !important;
+                background-size: 20px 20px !important;
+                background-color: #fafafa !important;
+            }
             .node {
                 position: absolute;
                 width: 120px;
@@ -109,10 +115,10 @@
                         </div>
                         
                     </div>
-                    <button class="btn btn-secondary w-100 mb-2" onclick="saveAsImage()">Сохранить как изображение</button>
+                    <!--button class="btn btn-secondary w-100 mb-2" onclick="saveAsImage()">Сохранить как изображение</button-->
                     <button class="btn btn-secondary w-100 mb-2" onclick="saveData()">Сохранить схему</button>
-                    <button class="btn btn-secondary w-100 mb-2" onclick="loadData()">Загрузить схему</button>
-                    <button class="btn btn-secondary w-100 mb-2" onclick="chekData()">Проверить данные</button>
+                    <button class="btn btn-secondary w-100 mb-2" onclick="loadDataBtn()">Вернуть последнее</br>сохранение</button>
+                    <!--button class="btn btn-secondary w-100 mb-2" onclick="chekData()">Проверить данные</button-->
                     <button class="btn btn-success w-100 mb-2"   onclick="nextPage()">Далее</button>
                 </div>
                 <div class="col-md-10" id="canvas-wrapper" >
@@ -122,15 +128,15 @@
                     <button class="btn btn-sm btn-moove-up"    onclick="zoomUp()"><i class="bi bi-caret-up"></i></button>
                     <button class="btn btn-sm btn-moove-down"  onclick="zoomDown()"><i class="bi bi-caret-down"></i></button>
 
-                    <div id="canvas"></div>
+                    <div id="canvas" class="grid-page"></div>
                     <div id="canvas2"></div>
-                    
                 </div>
             </div>
         </div>
         
         <!-- окно для данных ЧРП -->
         <livewire:blocks.form-edit-modal-fr />
+        <livewire:blocks.form-edit-modal-upp />
 
         <!-- окно для данных узлов -->
         <div class="modal fade" id="editModal" tabindex="-1" wire:ignore.self>
@@ -226,7 +232,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal" wire:loading.attr="disabled">Удалить</button>
-                        <button type="submit" class="btn btn-primary" onclick="saveModal()" data-bs-dismiss="modal" wire:loading.attr="disabled">Сохранить</button>
+                        <button type="submit" class="btn btn-primary" onclick="saveModal()" wire:loading.attr="disabled">Сохранить</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     </div>
                 </div>
@@ -454,13 +460,13 @@
                     positionUpdate();
                 });
                 // Создание нового узла
-                function createNode(type, x, y, savedId = null, savedName = "", savedExtra = "") {
+                function createNode(type, x, y, savedId = null, savedName = "", savedExtra = "", n = null) {
                     const settings = nodeSettings.find(n => n.type === type);
                     if (!settings) return;
                     const node = document.createElement("div");
                     const id = savedId || "node" + Date.now(); //nodeIdCounter++;
                     const node_group_id = settings.node_group.id;
-                    node.className = "node bg-danger";
+                    node.className = n?.product?.id ? "node" : "node bg-danger";
                     node.title = "Нет привязки к продукту";
                     node.id = id;
                     node.style.left = x + "px";
@@ -493,6 +499,21 @@
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
                         });
+                    // окно для UPP
+                    } else if (node_group_id == 4) {
+                        node.addEventListener("dblclick", () => {
+                            modalTarget = node;
+                            modalType = "node";
+                            modalId = id;
+                            document.getElementById("modal-input1").value = node.dataset.name;
+                            document.getElementById("modal-input2").value = node.dataset.extra;
+                            document.getElementById("modal-title-node").innerText = "Редактировать узел";
+
+                            Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
+
+                            const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
+                            modal.show();
+                        });
                     // окно для остальных продуктов
                     } else {
                         node.addEventListener("dblclick", () => {
@@ -513,7 +534,7 @@
                     canvas.appendChild(node);
                     // Делаем узел перетаскиваемым
                     instance.draggable(node, {
-                        
+                        grid: [20, 20],
                         stop: () => {
                             const n = savedSchema.nodes.find(n => n.id === node.id);
                             if (n) {
@@ -717,8 +738,8 @@
                 // Сохранить схему (пока только в консоль)
                 function saveData() {
                     component.set('saved_schema', savedSchema);
-                    console.log("Текущая схема:", JSON.stringify(savedSchema, null, 2));
-                    console.log("Текущая схема:", JSON.stringify(instance.connect, null, 2));
+                    // Отправляем сигнал Livewire, что продукт удалён (по ID узла)
+                    Livewire.dispatch('saveBtn');
                     
                 }
                 // обновление после перемещения
@@ -726,20 +747,28 @@
                     component.set('saved_schema', savedSchema);
                     
                 }
-                
-                // 
+                // для теста, кнопка проверки данных с базы
                 function chekData() {
                     console.log(JSON.parse(JSON.stringify(component.get('saved_schema'))));
                 }
-
+                // запрос на обновление данных с базы
+                function loadDataBtn() {
+                    Livewire.dispatch('loadDataBtn');
+                }
+                // получение ответа, что данные готовы
+                Livewire.on('finish-load-data', () => {
+                    loadData();
+                });
                 // Загрузка схемы из savedSchema
                 function loadData() {
+                    savedSchema = component.get('saved_schema');
 
                     instance.deleteEveryConnection();
                     instance.deleteEveryEndpoint();
                     [...canvas.querySelectorAll(".node")].forEach(n => n.remove());
+
                     savedSchema.nodes.forEach(n => {
-                        createNode(n.type, n.x, n.y, n.id, n.name, n.extra);
+                        createNode(n.type, n.x, n.y, n.id, n.name, n.extra, n);
                     });
                     setTimeout(() => {
                         savedSchema.connections.forEach(c => {
@@ -756,6 +785,7 @@
                     }, 100);
                 }
                 // Сохранить канвас как изображение
+                // не используется, осталось для теста
                 function saveAsImage() {
                     
                     // скрывать пустые точки подключения перед созданием изображения
@@ -801,6 +831,8 @@
                         }
                     });
 
+                    document.getElementById('canvas').classList.remove('grid-page');
+
                     htmlToImage
                         .toJpeg(document.getElementById('canvas'), {
                             quality: 1,
@@ -822,6 +854,8 @@
                                     ep.canvas.style.display = 'block';
                                 }
                             });
+
+                            document.getElementById('canvas').classList.add('grid-page');
                         }).catch(error => {
                             console.error("Caught error:", error.message || error);
                         });
@@ -877,6 +911,7 @@
                 window.zoomRight = zoomRight;
                 window.saveAsImage = saveAsImage;
                 window.loadData = loadData;
+                window.loadDataBtn = loadDataBtn;
                 window.saveData = saveData;
                 window.nextPage = nextPage;
                 window.chekData = chekData;

@@ -150,7 +150,7 @@
                                 <td>{{$nodes['product']['delivery']}} RUB</td>
                                 <td>
                                     <button title="Изменить показатели надежности и гарантия" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editIndicatorsReliability"
-                                    @click="$dispatch('editIndicatorsReliabilityOpenForm', {tkp_version : {{$tkp_version}}, hash : '{{$nodes['product']['fr_hash']}}' })">
+                                    @click="$dispatch('editIndicatorsReliabilityOpenForm', {tkp_version : {{$tkp_version}}, hash : '{{$nodes['product']['hash']}}' })">
                                         <i class="bi bi-shield-check"></i>
                                     </button>
                                     <!-- кнопка изменить товар -->
@@ -326,7 +326,7 @@
         }
 
         $p = $item['product'];
-        $pid = $p['fr_hash'] ?? $p['id'];
+        $pid = $p['hash'] ?? $p['id'];
         
         // Достаём базовые значения
         $name        = isset($p['name']) ? $p['name'] : '';

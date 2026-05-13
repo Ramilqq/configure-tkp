@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
 class Product extends Model
 {
     protected $fillable = [
-        'fr_hash',
+        'hash',
         'template_id',
         'name',
         'description',
