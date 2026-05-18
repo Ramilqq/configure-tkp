@@ -15,7 +15,7 @@ class TkpDeliveryForm extends Form
     public int $update_user_id;
 
     public array $delivery_params = [
-        'delivery_time' => 60,
+        'delivery_time' => 90,
         'delivery_location' => '',
         'payment_scheme' => '',
         'offer_is_valid' => 30,
@@ -54,7 +54,6 @@ class TkpDeliveryForm extends Form
     public function editForm($id = null, $tkp_version = null)
     {
         $tkp = Tkp::find($id) ?: $this;
-        
         $this->fill($tkp);
     }
 }

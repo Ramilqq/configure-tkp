@@ -7,13 +7,20 @@
 
         <style>
             #canvas {
-                
                 width: 100%;
+                min-width: 600px;
                 height: 80vh;
                 background: #fff;
                 position: relative;
                 border: 1px solid #ccc;
-                overflow: auto;
+                overflow: visible; /* jsPlumb рисует линии за пределы блока */
+                touch-action: pan-x pan-y; /* разрешаем прокрутку пальцем */
+            }
+            @media (max-width: 767.98px) {
+                #canvas {
+                    height: 60vh;
+                    min-width: 500px;
+                }
             }
             .grid-page {
                 background-image:   linear-gradient(to right, #e0e0e0 1px, transparent 1px),
@@ -30,6 +37,35 @@
                 text-align: center;
                 padding-top: 5px;
                 cursor: move;
+                user-select: none;
+                -webkit-user-select: none;
+                touch-action: none; /* jsPlumb перехватывает touch-события для drag */
+            }
+            /* Подсказка при наведении (ПК) */
+            .node:hover {
+                border-color: #09a0a1;
+                box-shadow: 0 0 0 2px rgba(9,160,161,0.25);
+            }
+            /* Мобильная иконка-подсказка "тапни для редактирования" */
+            .node::after {
+                content: '';
+                display: none;
+            }
+            @media (hover: none) and (pointer: coarse) {
+                /* Только сенсорные экраны: показываем значок карандаша в углу */
+                .node {
+                    cursor: pointer;
+                }
+                .node::after {
+                    content: '✏️';
+                    display: block;
+                    position: absolute;
+                    top: 2px;
+                    right: 4px;
+                    font-size: 10px;
+                    line-height: 1;
+                    opacity: 0.6;
+                }
             }
             
             .node img {
@@ -93,42 +129,71 @@
         </style>
 
         <div wire:ignore class="container-fluid py-3">
-            <div class="row">
-                <div class="col-md-2">
-                    <div id="components" class="mb-3 text-center">
+            <div class="row g-2">
+                {{-- ===== Боковая панель компонентов ===== --}}
+                <div class="col-12 col-md-3 col-lg-2">
 
-                        <div class="accordion accordion-flush" id="accordionFlushNodes">
+                    {{-- Подсказка для мобильных --}}
+                    <div class="d-md-none alert alert-info py-2 px-3 mb-2 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Нажмите <strong>«Добавить»</strong> под иконкой, чтобы добавить узел на схему.
+                        Для редактирования узла — нажмите на него на схеме.
+                    </div>
+
+                    <div id="components" class="mb-2">
+                        <div class="accordion accordion-flush border rounded" id="accordionFlushNodes">
                             @forelse($groups as $group)
                             <div class="accordion-item" @key="group-{{$group['id']}}">
                                 <h2 class="accordion-header" id="flush-heading-{{$group['id']}}">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-{{$group['id']}}" aria-expanded="false" aria-controls="flush-collapse-{{$group['id']}}">
-                                        {{$group['name']}}
+                                    <button class="accordion-button collapsed py-2" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#flush-collapse-{{$group['id']}}"
+                                        aria-expanded="false"
+                                        aria-controls="flush-collapse-{{$group['id']}}">
+                                        <small class="fw-semibold">{{$group['name']}}</small>
                                     </button>
                                 </h2>
-                                <div id="flush-collapse-{{$group['id']}}" class="accordion-collapse collapse" aria-labelledby="flush-heading-{{$group['id']}}" data-bs-parent="#accordionFlushNodes">
-                                <!-- Список узлов -->
+                                <div id="flush-collapse-{{$group['id']}}"
+                                    class="accordion-collapse collapse"
+                                    aria-labelledby="flush-heading-{{$group['id']}}"
+                                    data-bs-parent="#accordionFlushNodes">
+                                    <div class="accordion-body p-2">
+                                    {{-- Узлы добавляются через JS renderComponents() --}}
+                                    </div>
                                 </div>
                             </div>
                             @empty
-                                <p>Нет узлов для конфигуратора</p>
+                                <p class="p-2 small text-muted mb-0">Нет узлов для конфигуратора</p>
                             @endforelse
                         </div>
-                        
                     </div>
-                    <!--button class="btn btn-secondary w-100 mb-2" onclick="saveAsImage()">Сохранить как изображение</button-->
-                    <button class="btn btn-secondary w-100 mb-2" onclick="saveData()">Сохранить схему</button>
-                    <button class="btn btn-secondary w-100 mb-2" onclick="loadDataBtn()">Вернуть последнее</br>сохранение</button>
-                    <!--button class="btn btn-secondary w-100 mb-2" onclick="chekData()">Проверить данные</button-->
-                    <button class="btn btn-success w-100 mb-2"   onclick="nextPage()">Далее</button>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="saveData()">
+                            <i class="bi bi-floppy me-1"></i>Сохранить схему
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="loadDataBtn()">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Вернуть сохранение
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="nextPage()">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Далее
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-10" id="canvas-wrapper" >
 
-                    <button class="btn btn-sm btn-moove-right" onclick="zoomRight()"><i class="bi bi-caret-right"></i></button>
-                    <button class="btn btn-sm btn-moove-left"  onclick="zoomLeft()"><i class="bi bi-caret-left"></i></button>
-                    <button class="btn btn-sm btn-moove-up"    onclick="zoomUp()"><i class="bi bi-caret-up"></i></button>
-                    <button class="btn btn-sm btn-moove-down"  onclick="zoomDown()"><i class="bi bi-caret-down"></i></button>
+                {{-- ===== Канвас схемы ===== --}}
+                <div class="col-12 col-md-9 col-lg-10" id="canvas-wrapper">
+                    {{-- Кнопки расширения канваса --}}
+                    <div class="d-flex gap-1 mb-2 flex-wrap">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="zoomLeft()"  title="Уменьшить ширину"><i class="bi bi-dash-square"></i> ←→</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="zoomRight()" title="Увеличить ширину"><i class="bi bi-plus-square"></i> ←→</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="zoomUp()"    title="Уменьшить высоту"><i class="bi bi-dash-square"></i> ↑↓</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="zoomDown()"  title="Увеличить высоту"><i class="bi bi-plus-square"></i> ↑↓</button>
+                    </div>
 
-                    <div id="canvas" class="grid-page"></div>
+                    <div style="overflow:auto;">
+                        <div id="canvas" class="grid-page"></div>
+                    </div>
                     <div id="canvas2"></div>
                 </div>
             </div>
@@ -137,206 +202,10 @@
         <!-- окно для данных ЧРП -->
         <livewire:blocks.form-edit-modal-fr />
         <livewire:blocks.form-edit-modal-upp />
+        <livewire:blocks.form-edit-modal-other />
 
-        <!-- окно для данных узлов -->
-        <div class="modal fade" id="editModal" tabindex="-1" wire:ignore.self>
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" wire:ignore>
-                        <h5 class="modal-title" id="modal-title-node"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    
-                    <div class="modal-body" wire:loading.class="opacity-50">
-                        
-                        
-
-                        <div class="row g-3 align-items-center pb-1">
-                            <div class="col-auto">
-                                Название
-                            </div>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input1" class="form-control mb-2" placeholder="Название или тип">
-                            </div>
-                        </div>
-
-                        <div class="row g-3 align-items-center pb-1">
-                            <div class="col-auto">
-                                Дополнительно
-                            </div>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input2" class="form-control mb-2" placeholder="Дополнительно">
-                            </div>
-                        </div>
-
-                        <hr />
-                        <div style="width: 100%; text-align: center;">Фильтр добавления продукта</div>
-
-                        <form wire:submit="searchProductForm">
-                            @forelse($product_filter_select as $p_filter_key => $p_filter_value)
-
-                            <div class="row g-3 align-items-center pb-1">
-                                <div class="col-auto">
-                                    <label for="inputPassword6" class="col-form-label">{{$p_filter_value['name']}}</label>
-                                </div>
-                                <div class="col-auto" style="margin-left:auto;">
-                                
-                                    <select class="form-select" id="product_filter_{{$p_filter_key}}"
-                                        name="{{$p_filter_key}}"
-                                        wire:model="getData.{{$p_filter_value['key']}}"
-                                    >
-                                        <option value="" wire:key="product_filter_field_null">---</option>
-                                        @forelse($p_filter_value['fields'] as $fields_key => $fields_val)
-                                        
-                                            <option value="{{$fields_val}}" wire:key="product_filter_field_{{$fields_key}}">{{$fields_val}}</option>
-                                        @empty
-                                            <option value="">Нет данных</option>
-                                        @endforelse
-                                    </select>
-
-                                </div>
-                            </div>
-                            @empty
-                                <p>Нет фильтров для выбора</p>
-                            @endforelse
-                        </form>
-
-                        <div style="width: 100%; text-align: center;">Правило цены</div>
-                        @if($product_rules_select)
-                        <form wire:submit="searchProductForm">
-                            <div class="mt-2 small">
-                                @foreach($product_rules_select as $p_rules_key => $p_rules_value)
-                                    <label class="form-check">
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="p_rules_value{{$p_rules_key}}"
-                                            wire:model="getRules.{{$p_rules_value['key']}}"
-                                        >
-                                        <span>{{ $p_rules_value['name'] }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </form>
-                        @else
-                            <p>Нет правил для выбора</p>
-                        @endif
-
-                    </div>
-                    
-
-
-
-                    <div class="modal-body" wire:loading>
-                        Загрузка фильтра ...
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal" wire:loading.attr="disabled">Удалить</button>
-                        <button type="submit" class="btn btn-primary" onclick="saveModal()" wire:loading.attr="disabled">Сохранить</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
         <!-- окно для данных кабеля -->
-        <div class="modal fade" id="editModalCable" tabindex="-1" wire:ignore.self>
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" wire:ignore>
-                        <h5 class="modal-title" id="modal-title-conn"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-
-
-                        <div class="row g-3 align-items-center pb-1">
-                            <div class="col-auto">
-                                Название
-                            </div>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input10" class="form-control mb-2" placeholder="Кабель">
-                            </div>
-                        </div>
-                        
-                        <div class="row g-3 align-items-center pb-1">
-                            <div class="col-auto">
-                                Длинна
-                            </div>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input11" class="form-control mb-2" placeholder="1 метр">
-                            </div>
-                        </div>
-
-                        <hr />
-                        <div style="width: 100%; text-align: center;">Фильтр добавления продукта</div>
-
-                        <form wire:submit="searchProductForm">
-                            @forelse($product_filter_select as $p_filter_key => $p_filter_value)
-
-                            <div class="row g-3 align-items-center pb-1">
-                                <div class="col-auto">
-                                    <label for="inputPassword6" class="col-form-label">{{$p_filter_value['name']}}</label>
-                                </div>
-                                <div class="col-auto" style="margin-left:auto;">
-                                
-                                    <select class="form-select" id="product_filter_{{$p_filter_key}}"
-                                        name="{{$p_filter_key}}"
-                                        wire:model="getData.{{$p_filter_value['key']}}"
-                                    >
-                                        <option value="" selected>---</option>
-                                        @forelse($p_filter_value['fields'] as $fields_key => $fields_val)
-                                            <option value="{{$fields_val}}" wire:key="product_filter_field_{{$fields_key}}">{{$fields_val}}</option>
-                                        @empty
-                                            <option value="">Нет данных</option>
-                                        @endforelse
-                                    </select>
-
-                                </div>
-                            </div>
-                            @empty
-                                <p>Нет фильтров для выбора</p>
-                            @endforelse
-                        </form>
-
-
-                        <hr />
-                        <div style="width: 100%; text-align: center;">Правило цены</div>
-                        @if($product_rules_select)
-                        <form wire:submit="searchProductForm">
-                            <div class="mt-2 small">
-                                @foreach($product_rules_select as $p_rules_key => $p_rules_value)
-                                    <label class="form-check">
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            wire:model="getRules.{{$p_rules_value['key']}}"
-                                        >
-                                        <span>{{ $p_rules_value['name'] }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </form>
-                        @else
-                            <p>Нет правил для выбора</p>
-                        @endif
-
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-success" role="alert" wire:show="message_success">
-                            {!! $message_success !!}
-                        </div>
-                        <div class="alert alert-danger" role="alert" wire:show="message_error">
-                            {!! $message_error !!}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal">Удалить</button>
-                        <button type="button" class="btn btn-primary" onclick="saveModal()">Сохранить</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <livewire:blocks.form-edit-modal-cable />
 
 
         <script>        
@@ -427,6 +296,36 @@
                 let modalType = null;
                 let modalId = null;
 
+                /**
+                 * Вспомогательная функция: определяет одиночный тап на сенсорном экране.
+                 * Срабатывает если палец не сдвинулся больше 10px и время касания < 400ms.
+                 * Используется как мобильный аналог dblclick на узлах схемы.
+                 */
+                function addTapHandler(el, callback) {
+                    let _tx = 0, _ty = 0, _tt = 0, _tapTimer = null;
+                    el.addEventListener('touchstart', e => {
+                        _tx = e.touches[0].clientX;
+                        _ty = e.touches[0].clientY;
+                        _tt = Date.now();
+                        // При первом тапе запускаем таймер ожидания второго
+                        if (_tapTimer) {
+                            clearTimeout(_tapTimer);
+                            _tapTimer = null;
+                        }
+                    }, { passive: true });
+                    el.addEventListener('touchend', e => {
+                        if (!e.changedTouches.length) return;
+                        const dx = Math.abs(e.changedTouches[0].clientX - _tx);
+                        const dy = Math.abs(e.changedTouches[0].clientY - _ty);
+                        const dt = Date.now() - _tt;
+                        // Считаем тапом: нет смещения И короткое нажатие
+                        if (dx < 10 && dy < 10 && dt < 400) {
+                            e.preventDefault();
+                            callback(e);
+                        }
+                    });
+                }
+
                 // Рендер списка компонентов слева
                 function renderComponents() {
 
@@ -438,17 +337,31 @@
                     nodeSettings.forEach(item => {
                         //console.log(item);
                         const el = document.createElement("div");
-                        el.className = "mb-2 border p-2 text-center";
+                        el.className = "mb-2 border rounded p-2 text-center";
                         el.setAttribute("draggable", "true");
                         el.setAttribute("data-type", item.type);
                         el.setAttribute("data-id", item.node_group.template.id);
-                        el.innerHTML = `<img src="${item.image}" alt=""><div>${item.name}</div>`;
+                        el.innerHTML = `
+                            <img src="${item.image}" alt="${item.name}" style="width:44px;height:44px;object-fit:contain;">
+                            <div class="small mt-1 fw-semibold">${item.name}</div>
+                            <button class="btn btn-outline-success btn-sm mt-1 w-100 node-add-btn" type="button"
+                                title="Добавить на схему (перетащите на ПК или нажмите на мобильном)">
+                                <i class="bi bi-plus-lg me-1"></i>Добавить
+                            </button>`;
+                        // ПК: drag-and-drop
                         el.addEventListener("dragstart", e => {
                             e.dataTransfer.setData("type", item.type);
                         });
-                        document.getElementById("flush-collapse-"+item.node_group.id).appendChild(el);
-
-                        //container.appendChild(el);
+                        // Мобильные и ПК: клик по кнопке «Добавить» → размещаем узел на координатах 0,0
+                        el.querySelector('.node-add-btn').addEventListener('click', e => {
+                            e.stopPropagation(); // не всплываем до accordion-кнопки
+                            createNode(item.type, 0, 0);
+                            positionUpdate();
+                        });
+                        // Добавляем внутрь .accordion-body (если есть), иначе прямо в collapse-div
+                        const collapseDiv = document.getElementById("flush-collapse-"+item.node_group.id);
+                        const bodyDiv = collapseDiv ? collapseDiv.querySelector('.accordion-body') : null;
+                        (bodyDiv || collapseDiv).appendChild(el);
                     });
                 }
                 // Обработка перетаскивания компонентов на канвас
@@ -486,49 +399,52 @@
                     
                     // для ЧРП отельное окно. 1 = группа ЧРП, остальные - для остальных продуктов. В дальнейшем можно будет расширить
                     if (node_group_id == 1) {
-                        node.addEventListener("dblclick", () => {
+                        // ПК: двойной клик / Мобильный: одиночный тап
+                        const openModalFR = () => {
                             modalTarget = node;
                             modalType = "node";
                             modalId = id;
                             document.getElementById("modal-input1").value = node.dataset.name;
                             document.getElementById("modal-input2").value = node.dataset.extra;
                             document.getElementById("modal-title-node").innerText = "Редактировать узел";
-
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
-
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
-                        });
+                        };
+                        node.addEventListener("dblclick", openModalFR);
+                        addTapHandler(node, openModalFR);
                     // окно для UPP
                     } else if (node_group_id == 4) {
-                        node.addEventListener("dblclick", () => {
+                        // ПК: двойной клик / Мобильный: одиночный тап
+                        const openModalUPP = () => {
                             modalTarget = node;
                             modalType = "node";
                             modalId = id;
                             document.getElementById("modal-input1").value = node.dataset.name;
                             document.getElementById("modal-input2").value = node.dataset.extra;
                             document.getElementById("modal-title-node").innerText = "Редактировать узел";
-
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
-
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
                             modal.show();
-                        });
+                        };
+                        node.addEventListener("dblclick", openModalUPP);
+                        addTapHandler(node, openModalUPP);
                     // окно для остальных продуктов
                     } else {
-                        node.addEventListener("dblclick", () => {
+                        // ПК: двойной клик / Мобильный: одиночный тап
+                        const openModalNode = () => {
                             modalTarget = node;
                             modalType = "node";
                             modalId = id;
                             document.getElementById("modal-input1").value = node.dataset.name;
                             document.getElementById("modal-input2").value = node.dataset.extra;
                             document.getElementById("modal-title-node").innerText = "Редактировать узел";
-
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
-
                             const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
                             modal.show();
-                        });
+                        };
+                        node.addEventListener("dblclick", openModalNode);
+                        addTapHandler(node, openModalNode);
                     }
 
                     canvas.appendChild(node);
@@ -579,7 +495,7 @@
                     const sourceUUID = conn.endpoints[0].getUuid();
                     const targetUUID = conn.endpoints[1].getUuid();
                     const conn_id = conn.sourceId + '-' + conn.targetId;
-                    const template_id = 3;
+                    const template_id = 0;
                     const exists = savedSchema.connections.some(c => c.sourceEndpoint === sourceUUID && c.targetEndpoint === targetUUID);
                     if (!exists) {
                         savedSchema.connections.push({
@@ -866,20 +782,24 @@
 
 
                 function zoomRight() {
-                    savedSchema.page.width = savedSchema.page.width + 100;
+                    if (!savedSchema.page.width) savedSchema.page.width = canvas.offsetWidth;
+                    savedSchema.page.width += 100;
                     canvas.style.width = savedSchema.page.width + 'px';
                 }
                 function zoomLeft() {
-                    savedSchema.page.width = savedSchema.page.width - 100;
+                    if (!savedSchema.page.width) savedSchema.page.width = canvas.offsetWidth;
+                    savedSchema.page.width = Math.max(300, savedSchema.page.width - 100);
                     canvas.style.width = savedSchema.page.width + 'px';
                 }
 
                 function zoomUp() {
-                    savedSchema.page.height = savedSchema.page.height - 100;
+                    if (!savedSchema.page.height) savedSchema.page.height = canvas.offsetHeight;
+                    savedSchema.page.height = Math.max(200, savedSchema.page.height - 100);
                     canvas.style.height = savedSchema.page.height + 'px';
                 }
                 function zoomDown() {
-                    savedSchema.page.height = savedSchema.page.height + 100;
+                    if (!savedSchema.page.height) savedSchema.page.height = canvas.offsetHeight;
+                    savedSchema.page.height += 100;
                     canvas.style.height = savedSchema.page.height + 'px';
                 }
 
@@ -893,8 +813,8 @@
                 function updateColor (){
                     savedSchema.nodes.forEach(c => {
                         if (c.product_id > 0){
-                            document.getElementById(c.id).classList.remove('bg-danger');
-                            document.getElementById(c.id).setAttribute('title', c.product_name);
+                            document.getElementById(c.id)?.classList.remove('bg-danger');
+                            document.getElementById(c.id)?.setAttribute('title', c.product_name);
                         }
                         
                     }); 

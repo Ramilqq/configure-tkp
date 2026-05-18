@@ -147,24 +147,25 @@ class Configuration extends Component
 
         // поиск подключения (кабеля) по свойствам фильтра
         foreach($this->saved_schema['connections'] as $key => $conn){
-
+            
             // если продукт уже найден по узлу, не ищем по подключению
             if (isset($productModel)) {break;}
 
             if($conn['params']['id'] === $conn_id){
 
-
                 $category = $this->resolveStrategy($conn['params']['template_id']);
-                $query = $category->buildQuery($query, $this->getData);
+                
+                $productModel = new Product;
 
-                $productModel = $query->first();
-
-                if (!$productModel) {
-                    // если продукт не найден, выполняем диагностику по шагам и формируем сообщение об ошибке с детализацией
-                    $steps = $category->diagnoseSearch($this->getData);
-                    $this->message_error = $this->formatFrSearchError($steps);
-                    return;
-                }
+                $productModel->id = 0;
+                $productModel->template_id = 0;
+                $productModel->name = $this->getData['name'];
+                $productModel->description = 'Длинна: '.$this->getData['length'] . 'м.';
+                $productModel->currency = 'RUB';
+                $productModel->price = $this->getData['price'];
+                $productModel->delivery = 0;
+                $productModel->engineering = $productModel->getEngineering();;
+                $productModel->drawing = '';
 
                 // --- применяем правила цены ---
                 $basePrice = $productModel->price;
@@ -175,12 +176,24 @@ class Configuration extends Component
                 // НЕ сохраняем, просто подменяем для вывода/схемы
                 $productModel->price = $calc['price'];
                 $productModel->delivery = $calc['delivery'];
+                $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
+                $option_applied = $this->getData;
+                
+                // создание хэша по опциям, для количества одинаковых продуктов
+                $productModel->hash = $this->makeFrHash(
+                    $option_applied + $applied_rules 
+                    + ['manufacturer' => $this->getData['manufacturer']]
+                    + ['length' => $this->getData['length']]
+                     ?? ''
+                );
+
 
                 $product = $productModel->toArray();
                 
                 $product['price_base'] = $basePrice;
                 $product['delivery_base'] = $baseDelivery;
                 $product['price_rules_applied'] = $calc['applied_rules'];
+                $product['option_applied'] = $option_applied;
                 $product['manufacturer'] = $this->getData['manufacturer'];
 
                 if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
@@ -210,6 +223,7 @@ class Configuration extends Component
         }  
 
         $this->dispatch('saved_schema-updated');
+        //dd($this->saved_schema);
     }
 
     public function deleteProduct($id)
@@ -226,18 +240,10 @@ class Configuration extends Component
         $this->dispatch($category->getEventMessage(), message_success: '', message_error: '')->to($category->getView());
 
         // при смене шаблона подгружаем новые опции и правила для фильтра
-        if ($template_id != 1) {
-            $this->product_filter_select = [];
-            $this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
-            
-            $this->product_rules_select = [];
-            $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
-        }
-
-        if ($template_id == 1) {
-            $this->product_filter_select = [];
-            $this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
-        }
+        $this->product_filter_select = [];
+        $this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
+        $this->product_rules_select = [];
+        $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
 
         // фильтр для узлов
         foreach($this->saved_schema['nodes'] as $key => $node)
@@ -345,7 +351,7 @@ class Configuration extends Component
         }
         else
         {
-            dd('Error TkpConfiguration not found');
+            TkpConfiguration::create($data);
         }
 
         return redirect(route('tkp.delivery.edit', ['tkp_version' => $this->tkp_version, 'id' => $this->id]));
@@ -471,6 +477,7 @@ class Configuration extends Component
         return match($template_id) {
             1             => new \App\Services\ProductSearch\FrProductSearchStrategy($template_id),
             4             => new \App\Services\ProductSearch\UppProductSearchStrategy($template_id),
+            0             => new \App\Services\ProductSearch\CableProductSearchStrategy($template_id),
             default       => new \App\Services\ProductSearch\GenericProductSearchStrategy($template_id),
         };
     }

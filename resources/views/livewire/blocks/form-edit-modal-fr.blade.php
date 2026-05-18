@@ -16,18 +16,17 @@
 
                         @php 
                             $form_data = [
-                                'interface'                     => 'select',
-                                'plc_syn'                       => 'select',
-                                'vfd_series'                    => 'select',
                                 'material_trans'                => 'select',
-                                'power_cell_bypass'             => 'select',
-                                'sync_to_grid'                  => 'select',
                                 'ip'                            => 'select',
+                                'sync_to_grid'                  => 'select',
+                                'power_cell_bypass'             => 'select',
+                                'interface'                     => 'select',
                                 'precharge'                     => 'select',
                                 'service_vfd'                   => 'select',
+                                'plc_syn'                       => 'select',
+                                'plc_pt_100'                    => 'select',
                                 'bypass_vfd'                    => 'select',
                                 'section_in_out'                => 'select',
-                                'plc_pt_100'                    => 'select',
                             ];
                         @endphp
 
@@ -130,6 +129,44 @@
                             </select>
                         </div>
 
+                        @php 
+                            $form_data = [
+                                'vfd_series'                    => 'select',
+                            ];
+                        @endphp
+
+                        @foreach ($form_data as $key => $value)
+                            @if ($value = 'select')
+                                @foreach ($product_filter_select as $product_filter) 
+                                    @if ($product_filter['key'] == $key)
+                                        <div class="mb-3" wire:key="getDataDiv-{{$key}}">
+                                        
+                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}.</label>
+                                            <select
+                                                wire:key="getData-{{$key}}"
+                                                wire:model.defer="getData.{{$key}}"
+                                                id="getData-{{$key}}"
+                                                class="form-select"
+                                                wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
+                                                style="font-size: 11px;"
+                                            >
+                                                @foreach ($product_filter['fields'] as $field)
+                                                    @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
+                                                    @else
+                                                    <option value="{{$field}}">{{$field}}</option>
+                                                    @endif
+                                                @endforeach
+                                
+                                            </select>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endforeach
+
+                        
+                        
+
                         <div style="width: 100%; text-align: center;"><b>Правило цены</b></div>
                         @php 
                             //dd($product_rules_select);
@@ -207,12 +244,8 @@
                                 class="form-select"
                                 wire:change.debounce.500ms="updateValueVoltage($event.target.value)"
                             >
-                                <option value="3000">3000</option>
-                                <option value="3300">3300</option>
                                 <option value="6000">6000</option>
-                                <option value="6600">6600</option>
                                 <option value="10000">10000</option>
-                                <option value="11000">11000</option>
                             </select>
                         </div>
 
@@ -275,23 +308,19 @@
                             
                     </div>
                 </div>
-                <hr />
-
-                
-
             </div>
             
-
-
-
             <div class="modal-body" wire:loading>
                 Загрузка фильтра ...
             </div>
-            <div class="modal-body">
-                <div class="alert alert-success" role="alert" wire:show="message_success">
+            <div class="modal-body" wire:show="message_success">
+                <div class="alert alert-success" role="alert">
                     {!! $message_success !!}
                 </div>
-                <div class="alert alert-danger" role="alert" wire:show="message_error">
+            </div>
+
+            <div class="modal-body" wire:show="message_error">
+                <div class="alert alert-danger" role="alert">
                     {!! $message_error !!}
                 </div>
             </div>

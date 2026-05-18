@@ -122,8 +122,11 @@
                 $products = array_merge($configuration['saved_schema']['nodes'], $configuration['saved_schema']['connections'], $configuration['saved_schema']['other']);
 
                 foreach($products as $key => $val) {
-                    $id = $val['product']['hash'] ?? $val['product']['id'];
                     if (isset($val['params'])) $val = $val['params'];
+                    if (!isset($val['product'])) continue;
+
+                    $id = $val['product']['hash'] ?? $val['product']['id'];
+                    
 
                     if (isset($product_data[$id]))
                     {

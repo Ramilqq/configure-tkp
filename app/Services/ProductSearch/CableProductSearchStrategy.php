@@ -10,15 +10,15 @@ use App\Models\TableSettings\TemplateOption;
 use App\Services\ProductSearch\SearchStrategyInterface;
 use App\Services\ProductSearch\SearchStrategyAbstract;
 
-class GenericProductSearchStrategy extends SearchStrategyAbstract implements SearchStrategyInterface
+class CableProductSearchStrategy extends SearchStrategyAbstract implements SearchStrategyInterface
 {
     public $templateOptions = [];
     public $templateId = 0;
 
-    public string $eventMessage = 'editModalOther.getMessage';
-    public string $eventUpdateFilter = 'editModalOther.updateFilter';
-    public string $eventSyncModalData = 'editModalOther.syncModalData';
-    public string $view = 'blocks.form-edit-modal-other';
+    public string $eventMessage = 'editModalCable.getMessage';
+    public string $eventUpdateFilter = 'editModalCable.updateFilter';
+    public string $eventSyncModalData = 'editModalCable.syncModalData';
+    public string $view = 'blocks.form-edit-modal-cable';
 
     public function __construct($templateId = 0)
     {
@@ -43,18 +43,18 @@ class GenericProductSearchStrategy extends SearchStrategyAbstract implements Sea
     }
 
     public function buildQuery(Builder $query, array $filterData): Builder
-    {
-        $query->where('template_id', $this->templateId);    // фильтруем только по шаблону
-
-        foreach ($filterData as $value) {
-            $query->whereHas('productOption', fn($q) => $q->where('value', $value));
-        }
+    {        
         return $query;
     }
 
     public function getDefaultFilterFields(array $savedFields): array
     {
-        $savedFields['manufacturer'] = $savedFields['manufacturer'] ?? 'ООО "Завод РУ-Драйв"';
+        $savedFields['manufacturer'] = $savedFields['manufacturer'] ?? '';
+        $savedFields['price'] = $savedFields['price'] ?? 0;
+        $savedFields['name'] = $savedFields['name'] ?? 'КВВ';
+        $savedFields['length'] = $savedFields['length'] ?? 0;
+        $savedFields['supplier'] = $savedFields['supplier'] ?? 'ООО "Завод РУ-Драйв"';
+        
         return $savedFields; // дефолты берём из saved_schema как есть
     }
 

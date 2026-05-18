@@ -50,7 +50,7 @@ class AddProductForm extends Form
     {
         $valideate = $this->validate();
         $this->new_product = $valideate['new_product'];
-        
+        //dd($this->product_id);
         $configuration = Configuration::where('tkp_version', $this->tkp_version)->first();
 
         $data = $configuration->toArray();
@@ -75,6 +75,7 @@ class AddProductForm extends Form
                     $item['product']['price'] = $this->new_product['product']['price'];
                     $item['product']['delivery'] = $this->new_product['product']['delivery'];
                     $item['product']['engineering'] = $this->new_product['product']['engineering'];
+                    break;
                 }
             }
             $data['saved_schema']['nodes'] = $nodes;
@@ -84,10 +85,29 @@ class AddProductForm extends Form
             foreach($other as &$item) {
                 if ($this->product_id == $item['id']) {
                     $item = $this->new_product;
+                    break;
                 }
             }
             $data['saved_schema']['other'] = $other;
-        
+
+            // для продуктов из схемы конфигруатора
+            $connections = $data['saved_schema']['connections'];
+            foreach($connections as &$item) {
+                if ($this->product_id == $item['params']['id']) {
+                    $item['params']['id'] = $this->new_product['id'];
+                    $item['params']['product']['id'] = $this->new_product['product']['id'];
+                    $item['params']['product']['name'] = $this->new_product['product']['name'];
+                    $item['params']['product']['description'] = $this->new_product['product']['description'];
+                    $item['params']['product']['manufacturer'] = $this->new_product['product']['manufacturer'];
+                    $item['params']['product']['currency_val'] = $this->new_product['product']['currency_val'];
+                    $item['params']['product']['currency'] = $this->new_product['product']['currency'];
+                    $item['params']['product']['price'] = $this->new_product['product']['price'];
+                    $item['params']['product']['delivery'] = $this->new_product['product']['delivery'];
+                    $item['params']['product']['engineering'] = $this->new_product['product']['engineering'];
+                    break;
+                }
+            }
+            $data['saved_schema']['connections'] = $connections;
         // добавление дополнительного продукта в ткп
         } else {
             $this->product_id = now()->timestamp;
@@ -119,11 +139,11 @@ class AddProductForm extends Form
         $filter['new_product'] = collect($configuration->saved_schema['nodes'])->first(function (array $item, int $key) {
             return $item['id'] == $this->product_id;
         }) ?: collect($configuration->saved_schema['connections'])->first(function (array $item, int $key) {
-            return $item['id'] == $this->product_id;
+            return $item['params']['id'] == $this->product_id;
         }) ?: collect($configuration->saved_schema['other'])->first(function (array $item, int $key) {
             return $item['id'] == $this->product_id;
         }) ?: $this->new_product ?: '';
-        
+        if (isset($filter['new_product']['params'])) $filter['new_product'] = $filter['new_product']['params'];
         $this->fill($filter);
     }
 

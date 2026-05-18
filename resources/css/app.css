@@ -1,35 +1,634 @@
 /*@import 'tailwindcss';*/
+
+/* --- Подключение шрифтов (должно быть ПЕРВЫМ @import) --- */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@900&display=swap');
+
 @import 'bootstrap';
 @import 'bootstrap-icons';
-
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* =============================================
+   КОРПОРАТИВНЫЙ СТИЛЬ RU-DRIVE
+   Бренд-бук: #09a0a1 (primary), #99d7d8, #c8c7c8
+   Шрифты: Open Sans + Raleway
+============================================= */
+
+/* --- Bootstrap CSS-переменные: замена primary на бренд-цвет --- */
+:root {
+    --bs-primary:            #09a0a1;
+    --bs-primary-rgb:        9, 160, 161;
+    --bs-link-color:         #09a0a1;
+    --bs-link-hover-color:   #077f80;
+
+    /* Дополнительные переменные бренда */
+    --rd-primary:            #09a0a1;
+    --rd-primary-light:      #99d7d8;
+    --rd-gray:               #c8c7c8;
+    --rd-dark:               #1a2332;
+
+    /* Шрифты */
+    --rd-font-body:          'Open Sans', ui-sans-serif, system-ui, sans-serif;
+    --rd-font-heading:       'Raleway', ui-sans-serif, system-ui, sans-serif;
 }
 
+/* --- Базовый шрифт --- */
+body {
+    font-family: var(--rd-font-body);
+    font-size: 14px;
+    background-color: #f0f2f5;
+    color: #2c3e50;
+}
 
+/* --- Заголовки — Raleway --- */
+h1, h2, h3, h4, h5, h6,
+.fw-semibold, .fw-bold,
+.navbar-brand {
+    font-family: var(--rd-font-heading);
+    letter-spacing: 0.01em;
+}
 
 small {
     font-style: italic;
 }
 
-
-.btn-groups{
-    display: flex;
+/* =============================================
+   NAVBAR
+============================================= */
+.navbar.navbar-brand-teal {
+    background-color: var(--rd-primary) !important;
 }
 
-.btn-groups div button{
-    margin: 1px;
+.navbar-brand-teal .navbar-brand {
+    color: #fff !important;
+    font-family: var(--rd-font-heading);
+    font-size: 1.2rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
+.navbar-brand-teal .nav-link {
+    color: rgba(255,255,255,0.88) !important;
+}
 
-.table-tr-th{
+.navbar-brand-teal .nav-link:hover,
+.navbar-brand-teal .nav-link.active {
+    color: #fff !important;
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+
+.navbar-brand-teal .navbar-toggler {
+    border-color: rgba(255,255,255,0.5);
+}
+
+.navbar-brand-teal .navbar-toggler-icon {
+    filter: brightness(0) invert(1);
+}
+
+/* dropdown под teal navbar */
+.navbar-brand-teal .dropdown-menu {
+    background-color: #077f80;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.navbar-brand-teal .dropdown-menu .dropdown-item {
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+}
+
+.navbar-brand-teal .dropdown-menu .dropdown-item:hover,
+.navbar-brand-teal .dropdown-menu .dropdown-item.active {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
+.navbar-brand-teal .dropdown-menu .dropdown-divider {
+    border-color: rgba(255,255,255,0.2);
+}
+
+/* --- Кнопка "Создать ТКП" в navbar --- */
+.navbar-brand-teal .btn-nav-create {
+    background-color: #fff;
+    color: var(--rd-primary);
+    border: 2px solid rgba(255,255,255,0.8);
+    font-family: var(--rd-font-heading);
     font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 4px;
+    padding: 5px 14px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.navbar-brand-teal .btn-nav-create:hover {
+    background-color: var(--rd-primary-light);
+    color: #fff;
+    border-color: var(--rd-primary-light);
+}
+
+/* --- Кнопка "Выйти" в navbar --- */
+.navbar-brand-teal .btn-nav-logout {
+    color: rgba(255,255,255,0.85) !important;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 4px 12px;
+}
+
+.navbar-brand-teal .btn-nav-logout:hover {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff !important;
+}
+
+/* =============================================
+   BOOTSTRAP PRIMARY OVERRIDE (кнопки, бейджи, ссылки)
+============================================= */
+.btn-primary {
+    background-color: var(--rd-primary);
+    border-color: var(--rd-primary);
+    color: #fff;
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #077f80;
+    border-color: #077f80;
+    color: #fff;
+}
+
+.btn-outline-primary {
+    color: var(--rd-primary);
+    border-color: var(--rd-primary);
+}
+.btn-outline-primary:hover {
+    background-color: var(--rd-primary);
+    border-color: var(--rd-primary);
+    color: #fff;
+}
+
+.btn-success {
+    background-color: var(--rd-primary);
+    border-color: var(--rd-primary);
+    color: #fff;
+}
+.btn-success:hover, .btn-success:focus {
+    background-color: #077f80;
+    border-color: #077f80;
+    color: #fff;
+}
+
+.btn-outline-success {
+    color: var(--rd-primary);
+    border-color: var(--rd-primary);
+}
+.btn-outline-success:hover {
+    background-color: var(--rd-primary);
+    border-color: var(--rd-primary);
+    color: #fff;
+}
+
+/* badge/text primary */
+.badge.bg-primary, .badge.bg-success {
+    background-color: var(--rd-primary) !important;
+}
+
+.text-success, .text-primary {
+    color: var(--rd-primary) !important;
+}
+
+/* --- form-control focus --- */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--rd-primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(9, 160, 161, 0.2);
+}
+
+/* --- table-dark override (navbar + thead) --- */
+.table-dark {
+    background-color: var(--rd-dark) !important;
+}
+
+/* --- active page nav link --- */
+.nav-link.active {
+    font-weight: 600;
+}
+
+/* =============================================
+   LAYOUT
+============================================= */
+.container-fluid > .bg-white {
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+
+/* =============================================
+   PAGE-NAV BAR (навигация по страницам ТКП)
+============================================= */
+.page-nav-bar {
+    background: linear-gradient(135deg, rgba(9,160,161,0.08) 0%, rgba(153,215,216,0.12) 100%);
+    border: 1px solid rgba(9,160,161,0.25);
+    border-radius: 6px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* =============================================
+   CARDS (calc sidebar, import panels)
+============================================= */
+.card {
+    border-radius: 8px;
+}
+
+.card-header.bg-brand {
+    background-color: var(--rd-dark) !important;
+    color: #fff;
+    border-radius: 8px 8px 0 0 !important;
+    border-bottom: 2px solid var(--rd-primary);
+}
+
+/* --- Лёгкий акцент на card-header таблиц --- */
+.card-header.bg-dark {
+    background-color: var(--rd-dark) !important;
+    border-bottom: 2px solid var(--rd-primary);
+}
+
+/* =============================================
+   ТАБЛИЦА РАСЧЁТА
+============================================= */
+.calc-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.calc-table-wrap table {
+    min-width: 1800px;
+    font-size: 11px;
+    white-space: nowrap;
+    font-family: var(--rd-font-body);
+}
+
+.calc-table-wrap thead th {
+    font-size: 10px;
+    font-weight: 600;
+    background-color: var(--rd-dark);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    vertical-align: bottom;
+    padding: 6px 4px;
+    min-width: 80px;
+    border-bottom: 2px solid var(--rd-primary);
+}
+
+.calc-table-wrap td {
+    padding: 4px 6px;
+    vertical-align: top;
+}
+
+/* итоговые строки */
+.calc-table-wrap .table-success {
+    background-color: rgba(9,160,161,0.12) !important;
+    color: #055a5a;
+    font-weight: 700;
+}
+
+/* =============================================
+   ТАБЛИЦА ПРОДУКТОВ
+============================================= */
+.product-table {
+    font-size: 13px;
+}
+
+/* =============================================
+   SIDEBAR CALC
+============================================= */
+.calc-sidebar .card {
+    border: none;
+}
+
+/* =============================================
+   DISABLE TABLE (product-list loading)
+============================================= */
+.disable-table {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* =============================================
+   BTN-GROUPS (legacy)
+============================================= */
+.btn-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* =============================================
+   ПАГИНАЦИЯ
+============================================= */
+.page-link {
+    color: var(--rd-primary);
+}
+.page-item.active .page-link {
+    background-color: var(--rd-primary);
+    border-color: var(--rd-primary);
+    color: #fff;
+}
+.page-link:hover {
+    color: #077f80;
+}
+
+/* =============================================
+   AUTH LAYOUT
+============================================= */
+.auth-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: #f0f2f5;
+    font-family: var(--rd-font-body);
+}
+
+.auth-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.auth-brand-side {
+    width: 380px;
+    min-width: 320px;
+    background: linear-gradient(160deg, var(--rd-primary) 0%, #077f80 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    flex-shrink: 0;
+}
+
+.auth-brand-content {
+    color: #fff;
+    width: 100%;
+}
+
+.auth-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.auth-brand-name {
+    font-family: var(--rd-font-heading);
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #fff;
+}
+
+.auth-brand-tagline {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.auth-brand-divider {
+    width: 48px;
+    height: 3px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 2px;
+    margin-bottom: 24px;
+}
+
+.auth-brand-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.auth-brand-features li {
+    color: rgba(255,255,255,0.9);
+    font-size: 14px;
+    padding: 5px 0;
+}
+
+.auth-form-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    overflow-y: auto;
+}
+
+.auth-form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-form-title {
+    font-family: var(--rd-font-heading);
+    font-weight: 900;
+    color: var(--rd-dark);
+    margin-bottom: 4px;
+}
+
+.auth-form-subtitle {
+    margin-bottom: 24px;
+}
+
+.btn-auth {
+    padding: 10px 20px;
+    font-family: var(--rd-font-heading);
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    font-size: 14px;
+}
+
+/* Мобильная адаптация auth */
+@media (max-width: 767px) {
+    .auth-wrapper {
+        flex-direction: column;
+    }
+    .auth-brand-side {
+        width: 100%;
+        min-width: unset;
+        padding: 28px 24px;
+        min-height: unset;
+    }
+    .auth-brand-features {
+        display: none;
+    }
+    .auth-brand-tagline {
+        display: none;
+    }
+    .auth-brand-divider {
+        display: none;
+    }
+    .auth-brand-logo {
+        justify-content: center;
+        margin-bottom: 0;
+    }
+    .auth-form-side {
+        padding: 28px 16px;
+        align-items: flex-start;
+    }
+}
+
+/* =============================================
+   MODAL HEADER BRAND
+============================================= */
+.modal-header-brand {
+    background-color: var(--rd-dark);
+    border-bottom: 2px solid var(--rd-primary);
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header-brand .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+/* =============================================
+   WIRE:LOADING ИНДИКАТОР (полоска сверху)
+============================================= */
+.rd-loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 9999;
+    pointer-events: none;
+    display: none;
+}
+
+[wire\:loading] .rd-loading-bar,
+.rd-loading-bar[wire\:loading] {
+    display: block;
+}
+
+.rd-loading-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rd-primary), var(--rd-primary-light), var(--rd-primary));
+    background-size: 200% 100%;
+    animation: rd-shimmer 1.2s ease-in-out infinite;
+    width: 100%;
+}
+
+@keyframes rd-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Полупрозрачный оверлей контента при загрузке */
+.rd-content-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.55);
+    border-radius: 8px;
+    z-index: 10;
+    backdrop-filter: blur(1px);
+}
+
+/* =============================================
+   КОЛОНКА 3 «НАИМЕНОВАНИЕ» В ТАБЛИЦЕ РАСЧЁТА
+============================================= */
+.calc-table-wrap .col-name-th {
+    min-width: 160px;
+    max-width: 200px;
+}
+
+/* Свёрнутое состояние — текст обрезан */
+.calc-table-wrap .col-name-cell {
+    max-width: 200px;
+    min-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.calc-table-wrap .col-name-cell:hover {
+    background: rgba(9, 160, 161, 0.06) !important;
+}
+
+/* Развёрнутое состояние — полный текст */
+.calc-table-wrap .col-name-cell.col-name-expanded {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    max-width: 320px;
+    background: rgba(9, 160, 161, 0.08) !important;
+    vertical-align: top;
+}
+
+/* Иконка chevron */
+.col-name-icon {
+    font-size: 9px;
+    color: var(--rd-primary);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* =============================================
+   АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ
+============================================= */
+@media (max-width: 576px) {
+    .calc-table-wrap table {
+        font-size: 10px;
+    }
+
+    .container-fluid > .bg-white {
+        padding: 12px !important;
+        border-radius: 6px;
+    }
+
+    .calc-sidebar {
+        margin-bottom: 16px;
+    }
+
+    h5.fw-semibold {
+        font-size: 1rem;
+    }
+}
+
+#editModalFR, #editModalUPP, #editModal, #editModalCable, #addProductForm, #editIndicatorsReliability {
+    font-size: 11px;
+}
+
+#editModalFR .form-select, #editModalFR .form-control {
+    font-size: 11px;
+}
+
+#editModalUPP .form-select, #editModalUPP .form-control {
+    font-size: 11px;
+}
+
+#editModal .form-select, #editModal .form-control {
+    font-size: 11px;
+}
+
+#editModalCable .form-select, #editModalCable .form-control {
+    font-size: 11px;
+}
+
+#addProductForm .form-select, #addProductForm .form-control {
+    font-size: 11px;
+}
+
+#editIndicatorsReliability .form-select, #editIndicatorsReliability .form-control {
+    font-size: 11px;
 }
 

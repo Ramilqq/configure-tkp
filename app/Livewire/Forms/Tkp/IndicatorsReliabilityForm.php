@@ -33,7 +33,7 @@ class IndicatorsReliabilityForm extends Form
 
         foreach ($saved_schema['nodes'] as &$node) {
             
-            if ($node['product']['fr_hash'] == $this->hash) {
+            if ($node['product']['hash'] == $this->hash) {
                 $node['product']['indicators_reliability'] = $validatedData['indicators_reliability'];
                 break;
             }
@@ -56,7 +56,7 @@ class IndicatorsReliabilityForm extends Form
 
         foreach ($configuration->saved_schema['nodes'] as $node) {
             
-            if ($node['product']['fr_hash'] == $this->hash) {
+            if ($node['product']['hash'] == $this->hash) {
                 $this->indicators_reliability = $node['product']['indicators_reliability'] ?? [];
                 break;
             }

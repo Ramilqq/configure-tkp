@@ -1,15 +1,14 @@
-<div class="table-responsive">
+<div>
 
-    <style>
-        .disable-table{
-            opacity: 0.6;
-            pointer-events: none;
-        }
-    </style>
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h5 class="mb-0 fw-semibold"><i class="bi bi-box-seam me-2 text-success"></i>Товары</h5>
+    </div>
+
     <x-blocks.error-message />
 
-    <table class="table">
-        <thead>
+    <div class="table-responsive">
+    <table class="table table-hover table-bordered align-middle mb-0" style="font-size:13px;">
+        <thead class="table-dark">
         <tr>
             <th style="width:50px;">ID</th>
             <th style="width:100px;">Шаблон</th>
@@ -207,12 +206,14 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="100">Нет записей</td></tr>
+            <tr><td colspan="100" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Нет записей</td></tr>
         @endforelse
         </tbody>
     </table>
+    </div>{{-- /.table-responsive --}}
 
     <div class="mt-3">
         {{ $products->onEachSide(1)->links('components.blocks.pagination') }}
     </div>
+
 </div>

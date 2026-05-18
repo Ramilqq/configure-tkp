@@ -27,10 +27,10 @@ class Tkp extends Model
     ];
 
     public $delivery_params_defaults  = [
-        'delivery_time' => '',
-        'delivery_location' => '',
-        'payment_scheme' => '',
-        'offer_is_valid' => '',
+        'delivery_time' => '90',
+        'delivery_location' => 'Самовывоз г. Набережные Челны',
+        'payment_scheme' => 'Аванс 30%, 70% по факту готовности',
+        'offer_is_valid' => '30',
     ];
 
     protected $fillable = [
