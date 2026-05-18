@@ -25,6 +25,7 @@
                                 'motor_reverse'                 => 'select',
                                 'cascade'                       => 'select',
                                 'line_switch'                   => 'select',
+                                'wsk'                           => 'select',
                             ];
                         @endphp
 

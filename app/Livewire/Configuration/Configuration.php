@@ -11,7 +11,7 @@ use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
 use App\Models\Tkp\Tkp;
 use App\Services\BankRequest;
-use App\Services\FrReplace;
+use App\Services\ReplaceProduct;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Services\TableSettings\TemplatePriceRuleService;
@@ -70,7 +70,7 @@ class Configuration extends Component
         $banks = new BankRequest();
 
         $priceRules = app(TemplatePriceRuleService::class);
-        $frReplace = app(FrReplace::class);
+        $frReplace = app(ReplaceProduct::class);
         
         // поиск узла по свойствам фильтра
         foreach($this->saved_schema['nodes'] as $key => $node){

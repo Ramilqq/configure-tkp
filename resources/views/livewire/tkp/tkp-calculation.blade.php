@@ -514,10 +514,10 @@
                                 @if(isset($prod_col[$key]))
                                     @if($key == '3')
                                     @php $fullText = strip_tags($prod_col[$key]); @endphp
-                                    <td x-data="{ open: false }"
+                                    <td x-data="{ open: false, tooltip: {{ json_encode($fullText) }} }"
                                         @click="open = !open"
                                         :class="open ? 'col-name-cell col-name-expanded' : 'col-name-cell'"
-                                        :title="open ? '' : '{{ addslashes($fullText) }}'">
+                                        :title="open ? '' : tooltip">
                                         <span class="col-name-text">{!! $prod_col[$key] !!}</span>
                                         <i class="bi col-name-icon ms-1"
                                            :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>

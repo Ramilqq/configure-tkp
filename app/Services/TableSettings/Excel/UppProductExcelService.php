@@ -218,6 +218,20 @@ class UppProductExcelService
                 'rename_title'     => '[SMV_Series_Start]',
             ]
         ],
+
+        '[wsk]' => [
+            'template_name' => 'Контроллер температуры и влажности',
+            'template_key'  => 'wsk',
+            'variants' => [
+                [
+                    'value'     => 'Нет',
+                ],
+                [
+                    'value'     => 'Да',
+                    'price'     => '[Price_WSK]',
+                ],
+            ],
+        ],
     ];
 
     /**
@@ -226,7 +240,7 @@ class UppProductExcelService
      */
     private const FR_SCALAR_OPTION_MAP = [
         '[V_input]'                => ['name' => 'Входное напряжение, В', 'key' => 'v_input'],
-        '[I_output]'               => ['name' => 'Номинальный ток, А', 'key' => 'i_output'],
+        '[I_rated]'                => ['name' => 'Номинальный ток, А', 'key' => 'i_rated'],
         '[P_Output]'               => ['name' => 'Мощность подключаемого электродвигателя, кВт', 'key' => 'p_output'],
         '[Count_power_thyristors]' => ['name' => 'Кол-во силовых тиристоров УПП', 'key' => 'count_power_thyristors'],
         '[Bypass]'                 => ['name' => 'Тип байпаса', 'key' => 'bypass'],
@@ -286,7 +300,7 @@ class UppProductExcelService
                 'price'       => $this->toDecimal($rowByTech['[Price_SMV]'] ?? null),
                 'P_Output'    => $rowByTech['[P_Output]'] ?? null,
                 'V_input'     => $rowByTech['[V_input]'] ?? null,
-                'I_output'    => $rowByTech['[I_output]'] ?? null,
+                'I_rated'    => $rowByTech['[I_rated]'] ?? null,
             ];
 
             $shown++;
@@ -773,7 +787,7 @@ class UppProductExcelService
     {
         $signature = [
             'v_input'               => (string)($rowByTech['[V_input]'] ?? ''),
-            'i_output'              => (string)($rowByTech['[I_output]'] ?? ''),
+            'i_rated'               => (string)($rowByTech['[I_rated]'] ?? ''),
             'p_output'              => (string)($rowByTech['[P_Output]'] ?? ''),
             'v_control'             => (string)($rowByTech['[V_Control]'] ?? ''),
             'count_power_thyristors'=> (string)($rowByTech['[Count_power_thyristors]'] ?? ''),
@@ -842,7 +856,7 @@ class UppProductExcelService
     private function enrichFrDerivedValues(array $rowByTech): array
     {
         $vInput = (string)($rowByTech['[V_input]'] ?? '');
-        $vOutput = (string)($rowByTech['[I_output]'] ?? '');
+        $vOutput = (string)($rowByTech['[I_rated]'] ?? '');
 
         $rowByTech['[V_input_name]'] = match ($vInput) {
             '6000'  => '60',
@@ -850,7 +864,7 @@ class UppProductExcelService
             default => $vInput,
         };
 
-        $rowByTech['[I_output_name]'] = match ($vOutput) {
+        $rowByTech['[I_rated_name]'] = match ($vOutput) {
             '6000'  => '60',
             '10000' => '10',
             default => $vOutput,
@@ -1052,6 +1066,7 @@ class UppProductExcelService
             51 => 'Опция 7: Реверс двигателя',
             56 => 'Опция 8: Каскадный пуск',
             61 => 'Опция 9: Линейный выключатель',
+            67 => 'Опция 10: Контроллер температуры и влажности',
         ];
     }
 
@@ -1061,7 +1076,7 @@ class UppProductExcelService
             5  => 'Наименование формируется исходя из выбранного ВПЧ',
             6  => 'Описание формируется исходя из выбранного ВПЧ',
             7  => '[V_input]',
-            8  => '[I_output]',
+            8  => '[I_rated]',
             9  => '[P_Output]',
             10 => '[Motor_type_full]',
             11 => '[V_Control]',
@@ -1120,6 +1135,7 @@ class UppProductExcelService
             64 => '[Service_Line_CB]',
             65 => '[Dimension_Line_CB]',
             66 => '[Weight_Line_CB]',
+            67 => '[Price_WSK]',
         ];
     }
 

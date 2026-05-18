@@ -9,24 +9,50 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Numeric;
 
-class FrReplace
+class ReplaceProduct
 {
     private $name = '';
     private $description = '';
-    private $product = null;
-
-    public function __construct()
-    {
-        $this->description();  
-    }
+    private $product = '';
+    private $option_price_applied = [];
 
     public function apply(Product $product, $option_applied = []): array
     {
+        if ($product->template_id == 1) {
+            $this->fr($product, $option_applied);
+        }
+        elseif ($product->template_id == 4) {
+            $this->upp($product, $option_applied);
+        }
+        else {
+            $this->product = $product;
+            $this->name = $product->name;
+            $this->description = $product->description;
+        }
+
+        return [$this->name, $this->description, $this->product->price, $this->option_price_applied ?? []];
+    }
+
+    public function fr(Product $product, $option_applied = []): void
+    {
         $this->product = $product;
         $this->name = $product->name;
-        $this->description = $product->description;
+        $this->description = 'Высоковольтный преобразователь частоты. Серия: [VFD_Series]. Технология: Мультиуровневая ШИМ [PWM_level] уровней. 
+Полная мощность трансформатора напряжения: [S_trans] кВА. 
+Входное напряжение: [V_input] В +/-10% 50Гц +/-5%.
+Выходное напряжение: 0- [V_output] В. Выходная частота: 0- [Freq_output] Гц. Выходной ток: [I_output] А.
+Тип двигателя: [Motor_type_full]. 
+Перегрузочная способность: 120% - 60 секунд, 150% - моментально. Количество квадрантов управления: 2.
+Материал обмоток трансформатора: [Material_trans]
+Количество силовые ячеек на фазу: [Count_power_cell]. Пульсность:  [Count_power_cell_pulse]. Тип охлаждения: Воздушное.
+Степень защиты: IP [IP]. Способ обслуживания: [Service_VFD]. Температура окружающей среды: 0-40 градусов по Цельсию.
+Отображение: Сенсорная панель. Интерфейс связи с АСУ ТП: [Interface]. Производительность вентиляторов ВПЧ: [Airflow_rate]. 
+Габаритные размеры ВПЧ: [Dimension_VFD_standart] мм. Масса ВПЧ: [VFD_Weight] кг.
+Функция предзаряда по умолчанию: [PrechargeFunction].
+[PrechargeFunctionExec]
+Опции:
+[Power_cell_bypass][Sync_to_grid][Precharge][Plc_syn][Bypass_vfd][Section_in_out][Plc_pt_100]';
 
-        $option_price_applied = [];
         $newPrice = 0;
 
         // собираем в массив ключи для замены из описания
@@ -36,6 +62,7 @@ class FrReplace
         preg_match_all('/\[[^\]]+\]/', $this->product->name, $matches);
         $this->name = $this->product->name;
         $title_keys = $matches[0];
+        //dd($description_keys, $option_applied);
         // замена ключей в описании на данные продукта
         foreach ($description_keys as $description_key) {
             $this->description = str_replace(
@@ -59,37 +86,76 @@ class FrReplace
         foreach ($option_applied as $option) {
             if ((float)$option['price'] > 0 && $option['key'] == 'material_trans') {
                 $this->product->price = (float)$option['price'];
-                $option_price_applied[$option['key']] = (float)$option['price'];
+                $this->option_price_applied[$option['key']] = (float)$option['price'];
             }elseif ((float)$option['price'] > 0) {
                 $newPrice = $newPrice + (float)$option['price'];
-                $option_price_applied[$option['key']] = (float)$option['price'];
+                $this->option_price_applied[$option['key']] = (float)$option['price'];
             }
         }
 
         $this->product->price = $this->product->price + $newPrice;
-
-        return [$this->name, $this->description, $this->product->price, $option_price_applied ?? []];
     }
 
-
-
-    public function description(): void
+    public function upp(Product $product, $option_applied = []): void
     {
-        $this->description = 'Высоковольтный преобразователь частоты. Серия: [VFD_Series]. Технология: Мультиуровневая ШИМ [PWM_level] уровней. 
-Полная мощность трансформатора напряжения: [S_trans] кВА. 
-Входное напряжение: [V_input] В +/-10% 50Гц +/-5%.
-Выходное напряжение: 0- [V_output] В. Выходная частота: 0- [Freq_output] Гц. Выходной ток: [I_output] А.
-Тип двигателя: [Motor_type_full]. 
-Перегрузочная способность: 120% - 60 секунд, 150% - моментально. Количество квадрантов управления: 2.
-Материал обмоток трансформатора: [Material_trans]
-Количество силовые ячеек на фазу: [Count_power_cell]. Пульсность:  [Count_power_cell_pulse]. Тип охлаждения: Воздушное.
-Степень защиты: IP [IP]. Способ обслуживания: [Service_VFD]. Температура окружающей среды: 0-40 градусов по Цельсию.
-Отображение: Сенсорная панель. Интерфейс связи с АСУ ТП: [Interface]. Производительность вентиляторов ВПЧ: [Airflow_rate]. 
-Габаритные размеры ВПЧ: [Dimension_VFD_standart] мм. Масса ВПЧ: [VFD_Weight] кг.
-Функция предзаряда по умолчанию: [PrechargeFunction].
-[PrechargeFunctionExec]
+        $this->product = $product;
+        $this->name = $product->name;
+        $this->description = 'Устройство плавного пуска высокого напряжения.
+Технология: Силовые тиристоры с управлением по оптоволокну. 
+Входное напряжение: [V_input] В +/-10% 50Гц +/-2%.
+Номинальный ток: [I_rated] А.
+Мощность подключаемого электродвигателя: [P_Output] кВт. 
+Тип двигателя: [Motor_type_full].
+Напряжение оперативного питания: [V_Control].
+Силовой контур: Силовые тиристоры [Count_power_thyristors] шт,  Байпасный [Bypass].
+Степень защиты: IP[IP]. Тип охлаждения: Воздушное естественное охлаждение. Температура окружающей среды: 0-40°С.
+Габаритные размеры УПП (ДхГхВ): [Dimension_SMV]мм. Вес:[Weight_SMV]кг. Способ обслуживания: [Service_SMV].
+Интерфейс связи с АСУ ТП: [Interface].
+
 Опции:
-[Power_cell_bypass][Sync_to_grid][Precharge][Plc_syn][Bypass_vfd][Section_in_out][Plc_pt_100]';
+[Reverse][WSK]';
+
+        $newPrice = 0;
+
+        // собираем в массив ключи для замены из описания
+        preg_match_all('/\[[^\]]+\]/', $this->description, $matches);
+        $description_keys = $matches[0];
+        // собираем в массив ключи для замены из наименования
+        preg_match_all('/\[[^\]]+\]/', $this->product->name, $matches);
+        $this->name = $this->product->name;
+        $title_keys = $matches[0];
+        //dd($description_keys, $option_applied);
+        // замена ключей в описании на данные продукта
+        foreach ($description_keys as $description_key) {
+            $this->description = str_replace(
+                $description_key, 
+                $this->descriptionRules($description_key)($option_applied), 
+                $this->description
+            );
+        }
+
+        foreach ($title_keys as $title_key) {
+            if ($title_key == '[VFD_Series_Start]') $title_key = '[VFD_Series_Start]-';
+            if ($title_key == '[VFD_Series_End]') $title_key = '-[VFD_Series_End]';
+            $this->name = str_replace(
+                $title_key, 
+                $this->titleRules($title_key)($option_applied), 
+                $this->name
+            );
+        }
+
+        // перерасчет цены
+        foreach ($option_applied as $option) {
+            if ((float)$option['price'] > 0 && $option['key'] == 'material_trans') {
+                $this->product->price = (float)$option['price'];
+                $this->option_price_applied[$option['key']] = (float)$option['price'];
+            }elseif ((float)$option['price'] > 0) {
+                $newPrice = $newPrice + (float)$option['price'];
+                $this->option_price_applied[$option['key']] = (float)$option['price'];
+            }
+        }
+
+        $this->product->price = $this->product->price + $newPrice;
     }
 
     // правила для замены в описании
@@ -198,7 +264,44 @@ class FrReplace
                 }
                 return null;
             },
-            
+
+            //upp
+            '[I_rated]' => function ($value = []) {
+                return (int)$value['i_rated']['value'];
+            },
+            '[P_Output]' => function ($value = []) {
+                return (int)$value['p_output']['value'];
+            },
+            '[V_Control]' => function ($value = []) {
+                return (int)$value['v_control']['value'];
+            },
+            '[Count_power_thyristors]' => function ($value = []) {
+                return (int)$value['count_power_thyristors']['value'];
+            },
+            '[Bypass]' => function ($value = []) {
+                return (string)$value['bypass']['value'];
+            },
+            '[Dimension_SMV]' => function ($value = []) {
+                return (string)$value['dimension_smv_standard']['value'];
+            },
+            '[Weight_SMV]' => function ($value = []) {
+                return (string)$value['smv_weight']['value'];
+            },
+            '[Service_SMV]' => function ($value = []) {
+                return (string)$value['smv_series']['value'];
+            },
+            '[Reverse]' => function ($value = []) {
+                if ($value['motor_reverse']['value'] == 'Да') {
+                    return PHP_EOL .'Реверс двигателя (Секция реверса)= '.$value['motor_reverse']['value'].'. Добавляется секция реверса (СР) стандартно слева от УПП. Габаритные размеры СР: '.$value['motor_reverse']['dimension'].'мм. Способ обслуживания СР: '.$value['motor_reverse']['service'].'. Вес СР: '.$value['motor_reverse']['weight'].'кг.';
+                }
+                return null;
+            },
+            '[WSK]' => function ($value = []) {
+                if ($value['wsk']['value'] == 'Да') {
+                    return PHP_EOL .'Контроллер температуры и влажности= '.$value['wsk']['value'].'.';
+                }
+                return null;
+            },
         ];
 
         if (isset($description_name[$key])) {

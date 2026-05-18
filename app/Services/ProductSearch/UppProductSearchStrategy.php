@@ -94,9 +94,9 @@ class UppProductSearchStrategy implements SearchStrategyInterface
             [
                 'label' => 'Номинальный ток',
                 'relation' => 'productOption',
-                'template_option_id' => $this->templateOptions['i_output']->id,
+                'template_option_id' => $this->templateOptions['i_rated']->id,
                 'operator' => '>=',
-                //'value' => (int)($getData['i_output'] ?? 0),
+                //'value' => (int)($getData['i_rated'] ?? 0),
                 'value' => (int)($getData['nominalnyi_tok_ed_a'] ?? 0),
             ],
             [
