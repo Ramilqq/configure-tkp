@@ -49,6 +49,7 @@ h1, h2, h3, h4, h5, h6,
 .navbar-brand {
     font-family: var(--rd-font-heading);
     letter-spacing: 0.01em;
+    font-feature-settings: "lnum" 1;
 }
 
 small {
@@ -287,6 +288,7 @@ small {
     padding: 6px 4px;
     min-width: 80px;
     border-bottom: 2px solid var(--rd-primary);
+    white-space: normal;
 }
 
 .calc-table-wrap td {
@@ -553,8 +555,10 @@ small {
     max-width: 200px;
     min-width: 130px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+    white-space: normal;
     cursor: pointer;
     user-select: none;
     transition: background 0.15s;
@@ -566,6 +570,8 @@ small {
 
 /* Развёрнутое состояние — полный текст */
 .calc-table-wrap .col-name-cell.col-name-expanded {
+    display: table-cell;
+    -webkit-line-clamp: unset;
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
@@ -632,3 +638,10 @@ small {
     font-size: 11px;
 }
 
+.modal-dialog {
+  --bs-modal-width: 800px; 
+}
+
+textarea.form-control {
+    min-height: 200px;
+}

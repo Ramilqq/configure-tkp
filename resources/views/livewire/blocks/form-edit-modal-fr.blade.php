@@ -305,6 +305,11 @@
                             >
                         </div>
 
+                        <div class="alert alert-info" role="alert" style="font-size: 11px;">
+                            <span>
+                                Для ручного ввода тока и мощности должно быть КПД = 0, Cos φ = 0
+                            </span>
+                        </div>
                             
                     </div>
                 </div>

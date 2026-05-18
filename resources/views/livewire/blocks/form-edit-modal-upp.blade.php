@@ -16,7 +16,6 @@
 
                         @php 
                             $form_data = [
-                                'smv_series'                    => 'select',
                                 'v_control'                     => 'select',
                                 'ip'                            => 'select',
                                 'bypass_breaker'                => 'select',
@@ -43,31 +42,7 @@
                                                 class="form-select"
                                                 wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
                                                 style="font-size: 11px;"
-                                                <?php 
-                                                    // отключать "Сервисный интерфейс" серии "Стандарт" и "Минпромторг"
-                                                    if ($key == 'service_vfd') {
-                                                        if ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') {
-                                                            echo 'disabled';
-                                                        }
-                                                    }
-                                                    //
-                                                    if ($key == 'plc_syn') {
-                                                        if ($getData['motor_type'] == 'A') {
-                                                            echo 'disabled';
-                                                        }
-                                                    }
-                                                ?>
-
                                             >
-                                
-                                                <?php
-                                                    // 
-                                                    if ($key == 'service_vfd') {
-                                                        ($getData['vfd_series'] == 'Стандарт' || $getData['vfd_series'] == 'Стандарт (Минпромторг)') ? $disabled = '' : $disabled = 'disabled';
-                                                        echo '<option value="" ' . $disabled . '>---</option>';
-                                                    }
-                                                ?>
-
                                                 @foreach ($product_filter['fields'] as $field)
                                                     @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
                                                     @else
@@ -76,12 +51,6 @@
                                                 @endforeach
                                 
                                             </select>
-                                            
-                                            @if ($product_filter['key'] == 'power_cell_bypass')
-                                            <div class="alert alert-warning" role="alert" wire:show="getData.power_cell_bypass == 'Механический'" style="font-size: 11px;">
-                                                Опция байпас неисправной силовой ячейки (электронный) предоставляется по запросу. Обратитесь в техническую поддержку продукта.
-                                            </div>
-                                            @endif
                                         </div>
                                     @endif
                                 @endforeach
@@ -128,6 +97,40 @@
                             </select>
                         </div>
 
+                        @php 
+                            $form_data = [
+                                'smv_series'                    => 'select',
+                            ];
+                        @endphp
+
+                        @foreach ($form_data as $key => $value)
+                            @if ($value = 'select')
+                                @foreach ($product_filter_select as $product_filter) 
+                                    @if ($product_filter['key'] == $key)
+                                        <div class="mb-3" wire:key="getDataDiv-{{$key}}">
+                                        
+                                            <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}.</label>
+                                            <select
+                                                wire:key="getData-{{$key}}"
+                                                wire:model.defer="getData.{{$key}}"
+                                                id="getData-{{$key}}"
+                                                class="form-select"
+                                                wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
+                                                style="font-size: 11px;"
+                                            >
+                                                @foreach ($product_filter['fields'] as $field)
+                                                    @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
+                                                    @else
+                                                    <option value="{{$field}}">{{$field}}</option>
+                                                    @endif
+                                                @endforeach
+                                
+                                            </select>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endforeach
 
 
                         <div style="width: 100%; text-align: center;"><b>Правило цены</b></div>

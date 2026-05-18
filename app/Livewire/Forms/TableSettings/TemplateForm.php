@@ -16,8 +16,8 @@ class TemplateForm extends Form
     protected function rules()
     {
         return [
-            'name' => 'required|min:3|max:100|unique:templates,name,'.$this->id,
-            'description' => 'required|min:3|max:200',
+            'name' => 'required|min:2|max:100|unique:templates,name,'.$this->id,
+            'description' => 'required|min:2|max:200',
         ];
     }
 

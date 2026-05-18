@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         // автоматическое создание стандартных групп для узлов в конфигураторе
-        NodeGroup::create(['name' => 'ЧРП', 'template_id' => 1]);
+        NodeGroup::create(['name' => 'ПЧ', 'template_id' => 1]);
         NodeGroup::create(['name' => 'КСО', 'template_id' => 2]);
         NodeGroup::create(['name' => 'Блок-Бокс', 'template_id' => 3]);
         NodeGroup::create(['name' => 'УПП', 'template_id' => 4]);
