@@ -38,7 +38,7 @@
                                         </div>
                                     @endforeach
                                 </div>
-
+                                <hr>
                                 <div class="row mb-3">
                                     <div class="col-4">
                                         <label for="new_product.product.price_product.price" class="form-label">Цена продукта</label>
@@ -62,11 +62,17 @@
                                         <input type="text" wire:model="form.new_product.product.currency_val" class="form-control" placeholder="Курс" id="new_product.product.currency_val" />
                                     </div>
                                 </div>
-                                <hr>
                                 <div class=" row mb-3">
                                     <div class="col-12">
                                         <label for="new_product.product.delivery" class="form-label">Доставка <span class="small">(RUB)</span></label>
                                         <input type="text" wire:model="form.new_product.product.delivery" class="form-control" placeholder="0.0" id="new_product.product.delivery" />
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class=" row mb-3">
+                                    <div class="col-12">
+                                        <label for="new_product.product.delivery" class="form-label">Количество <span class="small">(шт)</span></label>
+                                        <input type="text" wire:model="form.new_product.product.count" class="form-control" placeholder="1" id="new_product.product.count" />
                                     </div>
                                 </div>
                             </div>

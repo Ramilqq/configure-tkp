@@ -150,7 +150,7 @@
                                         data-bs-target="#flush-collapse-{{$group['id']}}"
                                         aria-expanded="false"
                                         aria-controls="flush-collapse-{{$group['id']}}">
-                                        <small class="fw-semibold">{{$group['name']}}</small>
+                                        <span class="fw-semibold">{{$group['name']}}</span>
                                     </button>
                                 </h2>
                                 <div id="flush-collapse-{{$group['id']}}"

@@ -23,7 +23,6 @@
         /*background-color: #DDDDFF;
         border-bottom: solid 1mm #AAAADD;*/
         padding: 20px; 
-        padding-top: 12mm;
         font-size: 12px;
         left:80px;
         font-family: dejavusans;
@@ -51,6 +50,11 @@
         border: 1px solid black;
         pading:2px;
     }
+    th {
+        text-align: center;
+        align-content: center;
+        vertical-align: middle;
+    }
     
 </style>
 <page orientation="L" backtop="20mm" backbottom="10mm" backleft="0mm" backright="0mm">
@@ -59,7 +63,7 @@
             <span><strong><b>ПРОЕКТ:</b> </strong><?php echo $tkp['project_name'];?></span><br>
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
-            <div style="position: absolute; right: 10mm;top:30px;">
+            <div style="position: absolute; right: 10mm;top:15px;">
                 <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
             </div>
         </div>
@@ -82,21 +86,10 @@
                 <td colspan="9" style="border: none;text-align: center;">ТЕХНИКО-КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ- СПЕЦИФИКАЦИЯ ОБОРУДОВАНИЯ И РАБОТ №1</td>
             </tr>
             
-            <tr style="text-align: center;">
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-                <th style="border-top: none;border-right: none;border-left: none;text-align: left;"> </th>
-            </tr>
             <tr style="text-align: center;" class="table_header">
-                <th>№ пп</th>
+                <th style="text-align: center; align-content: center;">№ пп</th>
                 <th>Тип, марка изделия</th>
-                <th>Наименование</th>
+                <th style="text-align: center; align-content: center;">Наименование</th>
                 <th>Кол-во</th>
                 <th>Стоимость единицы, в валюте. без НДС</th>
                 <th>Стоимость единицы, руб. без НДС</th>

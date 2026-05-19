@@ -105,6 +105,7 @@ class PdfController extends Controller
         $node_repeat = [];
         
         foreach ($configuration['saved_schema']['nodes'] ?? [] as $node) {
+            if (!isset($node['product']['hash'])) continue;
             //пропускаем повторяющиеся продукты (по фр хэшу) - чтобы не дублировать страницы для одинаковых продуктов
             $pid = $node['product']['hash'] ?? null;
             if(array_search($pid, $node_repeat) !== false) {

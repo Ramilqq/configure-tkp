@@ -52,6 +52,11 @@ h1, h2, h3, h4, h5, h6,
     font-feature-settings: "lnum" 1;
 }
 
+th {
+    align-content: center;
+    text-align: center;
+}
+
 small {
     font-style: italic;
 }
@@ -546,14 +551,14 @@ small {
    КОЛОНКА 3 «НАИМЕНОВАНИЕ» В ТАБЛИЦЕ РАСЧЁТА
 ============================================= */
 .calc-table-wrap .col-name-th {
-    min-width: 160px;
-    max-width: 200px;
+    min-width: 300px;
+    max-width: 400px;
 }
 
 /* Свёрнутое состояние — текст обрезан */
 .calc-table-wrap .col-name-cell {
-    max-width: 200px;
-    min-width: 130px;
+    max-width: 400px;
+    min-width: 300px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 10;
