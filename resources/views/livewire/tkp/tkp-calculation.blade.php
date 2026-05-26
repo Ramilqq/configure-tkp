@@ -50,6 +50,11 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label small mb-1">Коэффициент расходов на продвижение</label>
+                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.marketing_coef" wire:loading.attr="disabled">
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label small mb-1">НДС</label>
                         <select class="form-select form-select-sm" wire:model.lazy="form.pay_params.nds" wire:loading.attr="disabled">
                             <option value="0">0%</option>
@@ -125,6 +130,7 @@
                                 <tr>
                                     <th class="text-center" style="width:50px;">#</th>
                                     <th>Наименование</th>
+                                    <th>Количество</th>
                                     <th>Цена</th>
                                     <th>Валюта</th>
                                     <th>Курс</th>
@@ -138,6 +144,7 @@
                                     <tr>
                                         <td class="text-center text-muted">{{ $nodes['product']['id'] }}</td>
                                         <td>{{ $nodes['product']['name'] }}</td>
+                                        <td>{{ $nodes['product']['count'] ?? 1}}</td>
                                         <td>{{ $nodes['product']['price'] }}</td>
                                         <td><span class="badge bg-secondary">{{ $nodes['product']['currency'] }}</span></td>
                                         <td>{{ $nodes['product']['currency_val'] }}</td>
@@ -161,6 +168,7 @@
                                         <tr>
                                             <td class="text-center text-muted">{{ $nodes['params']['product']['id'] }}</td>
                                             <td>{{ $nodes['params']['product']['name'] }}</td>
+                                            <td>{{ $nodes['params']['product']['count'] ?? 1}}</td>
                                             <td>{{ $nodes['params']['product']['price'] }}</td>
                                             <td><span class="badge bg-secondary">{{ $nodes['params']['product']['currency'] }}</span></td>
                                             <td>{{ $nodes['params']['product']['currency_val'] }}</td>
@@ -332,13 +340,14 @@
         $description = isset($p['description']) ? $p['description'] : '';
         $manufacturer = isset($p['manufacturer']) ? $p['manufacturer'] : '';
         if($manufacturer == 'Заказчик') continue;
+        $count       = isset($p['count']) ? intval($p['count']) : 1;
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
         $kd = isset($p['engineering']['КД']) ? floatval($p['engineering']['КД']) : 0.0;
         $kd = $kd * $saved_schema['engineering']['КД'];
 
         $po = isset($p['engineering']['ПО']) ? floatval($p['engineering']['ПО']) : 0.0;
-        $po = $kd * $saved_schema['engineering']['ПО'];
+        $po = $po * $saved_schema['engineering']['ПО'];
 
         $smr_shmr = isset($p['engineering']['СМР/ШМР']) ? floatval($p['engineering']['СМР/ШМР']) : 0.0;
         $smr_shmr = $smr_shmr * $saved_schema['engineering']['СМР/ШМР'];
@@ -370,7 +379,7 @@
         $oprionString = $makeOptionsStr($item);
 
         if (isset($table['product_col'][$pid])) {
-            $table['product_col'][$pid][4] += 1;
+            $table['product_col'][$pid][4] += $count;
 
             $qty = $table['product_col'][$pid][4];
             $table['product_col'][$pid][6] = $qty * $table['product_col'][$pid][5];
@@ -390,7 +399,7 @@
         $table['product_col'][$pid][1] = $manufacturer;
         $table['product_col'][$pid][2] = $name;
         $table['product_col'][$pid][3] = $description;
-        $table['product_col'][$pid][4] = 1;
+        $table['product_col'][$pid][4] = $count;
         $table['product_col'][$pid][10] = 1;
 
         $table['product_col'][$pid][18] = ($price * $currency_val) + $delivery;
@@ -482,7 +491,7 @@
         $table['product_col'][$pid][8] = $table['product_col'][$pid][6] - ($table['product_col'][$pid][6] * ($table['product_col'][$pid][7] / 100));
 
         $table['product_col'][$pid][43] = $table['product_col'][$pid][8] - $table['product_col'][$pid][17];
-        $table['product_col'][$pid][44] = $table['product_col'][$pid][33] - $table['product_col'][$pid][43];
+        $table['product_col'][$pid][44] = $table['product_col'][$pid][33] + $table['product_col'][$pid][43];
         $table['product_col'][$pid][45] = ($table['product_col'][$pid][8] == 0) ? 0 : ($table['product_col'][$pid][43] / $table['product_col'][$pid][8]);
     }
 

@@ -16,13 +16,14 @@ class AddProductForm extends Form
         'product' => [
             'id' => 0,
             'template_id' => 0,
-            'name',
-            'description',
+            'name' => '',
+            'count' => 1,
+            'description' => '',
             'manufacturer' => '',
             'currency_val' => 1,
             'currency' => 'RUB',
-            'price',
-            'delivery',
+            'price' => 0,
+            'delivery' => 0,
             'engineering' => [],
             'product_option' => [],
         ],
@@ -35,12 +36,13 @@ class AddProductForm extends Form
             'new_product.product_name' => 'nullable',
             'new_product.product.id' => 'nullable',
             'new_product.product.name' => 'required|min:1|max:100',
+            'new_product.product.count' => 'required|min:1|max:100|numeric',
             'new_product.product.description' => 'required|min:1|max:2250',
             'new_product.product.manufacturer' => 'nullable',
             'new_product.product.currency_val' => 'nullable',
             'new_product.product.currency' => 'nullable',
-            'new_product.product.price' => 'required',
-            'new_product.product.delivery' => 'nullable',
+            'new_product.product.price' => 'required|numeric|min:0',
+            'new_product.product.delivery' => 'nullable|numeric|min:0',
             'new_product.product.engineering.*' => 'nullable',
             'new_product.product.product_option' => 'nullable',
         ];
@@ -68,6 +70,7 @@ class AddProductForm extends Form
                     $item['product_name'] = $this->new_product['product_name'];
                     $item['product']['id'] = $this->new_product['product']['id'];
                     $item['product']['name'] = $this->new_product['product']['name'];
+                    $item['product']['count'] = $this->new_product['product']['count'];
                     $item['product']['description'] = $this->new_product['product']['description'];
                     $item['product']['manufacturer'] = $this->new_product['product']['manufacturer'];
                     $item['product']['currency_val'] = $this->new_product['product']['currency_val'];
@@ -97,6 +100,7 @@ class AddProductForm extends Form
                     $item['params']['id'] = $this->new_product['id'];
                     $item['params']['product']['id'] = $this->new_product['product']['id'];
                     $item['params']['product']['name'] = $this->new_product['product']['name'];
+                    $item['params']['product']['count'] = $this->new_product['product']['count'];
                     $item['params']['product']['description'] = $this->new_product['product']['description'];
                     $item['params']['product']['manufacturer'] = $this->new_product['product']['manufacturer'];
                     $item['params']['product']['currency_val'] = $this->new_product['product']['currency_val'];
@@ -120,12 +124,16 @@ class AddProductForm extends Form
 
             $data['saved_schema']['other'] = $other->toArray();
         }
-        //dd($data);
-        // обновляем данные
-        $configuration->update($data);
-        //$configuration->save();
         
-        $this->resetExcept(['tkp_version', 'product_id']);
+        // очистка формы после сохранения
+        //$this->resetExcept(['tkp_version', 'product_id']);
+
+        // обновляем данные
+        if ($configuration->update($data)) {
+            return true;
+        }
+        
+        return false;
     }
 
     public function openForm($tkp_version, $product_id)

@@ -25,6 +25,7 @@
                                 'cascade'                       => 'select',
                                 'line_switch'                   => 'select',
                                 'wsk'                           => 'select',
+                                'count_power_thyristors'        => 'select',
                             ];
                         @endphp
 
@@ -216,20 +217,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="getData.count_power_thyristors" class="form-label">Кол-во силовых тиристоров</label>
-                            <select
-                                wire:key="getData.count_power_thyristors"
-                                wire:model.defer="getData.count_power_thyristors"
-                                id="getData.count_power_thyristors"
-                                class="form-select"
-                                wire:change.debounce.500ms="updateValueVoltage($event.target.value)"
-                            >
-                                <option value="6000">18</option>
-                                <option value="10000">30</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
                             <label for="getData.p_output" class="form-label">Мощность,кВт</label>
                             <input
                                 type="number"
@@ -256,7 +243,7 @@
                         </div>
                         
 
-                        <!--div class="mb-3">
+                        <div class="mb-3">
                             <label for="getData.kpd" class="form-label">КПД,%</label>
                             <small class="text-muted">Значение должно быть от 0 до 100</small>
                             <input
@@ -283,20 +270,13 @@
                                 wire:change.debounce.500ms="updateValueCosPhi($event.target.value)"
                                 step="0.1"
                             >
-                        </div-->
+                        </div>
 
                             
                     </div>
                 </div>
-                <hr />
-
-                
-
             </div>
             
-
-
-
             <div class="modal-body" wire:loading>
                 Загрузка фильтра ...
             </div>
@@ -312,7 +292,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal" wire:loading.attr="disabled">Удалить</button>
                 <button type="submit" class="btn btn-primary" onclick="saveModal()" wire:loading.attr="disabled">Сохранить</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>

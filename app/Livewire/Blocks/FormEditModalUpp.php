@@ -46,30 +46,72 @@ class FormEditModalUpp extends Component
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueKpd($value)
     {
+        if ($value === '' || $value === null) {
+            $value = 0;
+        }
+        if ($value < 0)   $this->getData['kpd'] = 0;
+        if ($value > 100) $this->getData['kpd'] = 100;
+        
+        $this->getData['kpd'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueCosPhi($value)
     {
+        if ($value === '' || $value === null) {
+            $value = 0;
+        }
+        if ($value < 0) $this->getData['cos_phi'] = 0;
+        if ($value > 1) $this->getData['cos_phi'] = 1;
+        
+        $this->getData['cos_phi'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValuePower($value)
     {
+        if ($value < 0) $this->getData['p_output'] = 0;
+        if ($value > 100000) $this->getData['p_output'] = 100000;
+        
+        $this->getData['p_output'] = $value;
         $this->updateValueCurent();
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток
     public function updateValueVoltage($value)
     {
+        if ($value < 0) $this->getData['v_output'] = 0;
+        if ($value > 11000) $this->getData['v_output'] = 11000;
+        
+        $this->getData['v_output'] = $value;
         $this->updateValueCurent();
     }
 
     // функция для пересчета номинального тока при изменении характеристик электродвигателя
     public function updateValueCurent($value = null)
     {
+        $p = $this->getData['p_output'] ?? 0;
+        $u = $this->getData['v_input'] ?? 0;
+        $cos_phi = $this->getData['cos_phi'] ?? 0;
+        $kpd = ($this->getData['kpd'] ?? 0) / 100;
+
+        if ($value !== null) {
+            if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
+                $p = ( sqrt(3) * $u * $cos_phi * $kpd * $value) / 1000;
+                $p = round($p, 2);
+            }
+            $this->getData['p_output'] = $p;
+            
+        } else {
+            if ($u != 0 && $cos_phi != 0 && $kpd != 0) {
+                $i = ($p * 1000) / ( sqrt(3) * $u * $cos_phi * $kpd);
+                $i = round($i, 2);
+                $this->getData['nominalnyi_tok_ed_a'] = $i;
+            }
+        }
+
         // обновляем данные в конфигурации
         $this->save();
     }

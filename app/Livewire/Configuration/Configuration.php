@@ -6,7 +6,6 @@ use App\Models\Configuration\Configuration as TkpConfiguration;
 use App\Models\Configuration\Node;
 use App\Models\Configuration\NodeGroup;
 use App\Models\TableSettings\Product;
-use App\Models\TableSettings\ProductOptionPrice;
 use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
 use App\Models\Tkp\Tkp;
@@ -15,9 +14,6 @@ use App\Services\ReplaceProduct;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Services\TableSettings\TemplatePriceRuleService;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\TableSettings\ProductOption;
 use App\Services\FrService\FrOptionsAppliedService;
 
 class Configuration extends Component
@@ -125,6 +121,7 @@ class Configuration extends Component
                 // сохраняем данные
                 $product = $productModel->toArray();
                 $product['price_base'] = $basePrice;
+                $product['count'] = 1;
                 $product['manufacturer'] = $this->getData['manufacturer'] ?? '';
                 $product['delivery_base'] = $baseDelivery;
                 $product['option_price_applied'] = $option_price_applied;
@@ -191,6 +188,7 @@ class Configuration extends Component
                 $product = $productModel->toArray();
                 
                 $product['price_base'] = $basePrice;
+                $product['count'] = 1;
                 $product['delivery_base'] = $baseDelivery;
                 $product['price_rules_applied'] = $calc['applied_rules'];
                 $product['option_applied'] = $option_applied;
@@ -223,7 +221,7 @@ class Configuration extends Component
         }  
 
         $this->dispatch('saved_schema-updated');
-        //dd($this->saved_schema);
+        dd($this->saved_schema);
     }
 
     public function deleteProduct($id)

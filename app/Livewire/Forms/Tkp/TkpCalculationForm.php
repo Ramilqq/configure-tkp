@@ -27,6 +27,7 @@ class TkpCalculationForm extends Form
     
     public array $pay_params = [
         'marketing' => 0,
+        'marketing_coef' => 0,
         'nds' => 0,
         'reserve' => 0,
         'resault_total' => 0,
@@ -47,6 +48,7 @@ class TkpCalculationForm extends Form
             'comments' => 'nullable',
 
             'pay_params.marketing' => 'numeric',
+            'pay_params.marketing_coef' => 'numeric',
             'pay_params.nds' => 'nullable',
             'pay_params.reserve' => 'nullable',
             'pay_params.resault_total' => 'nullable',

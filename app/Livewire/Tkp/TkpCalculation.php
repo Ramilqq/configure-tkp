@@ -25,6 +25,12 @@ class TkpCalculation extends Component
     public array $banks;
     public string $dublicate_comments = '';
 
+    public function updated($key, $value)
+    {
+        $this->saveParams();
+        $this->mount();
+    }
+
     public function saveParams()
     {
         $tkp = Tkp::findOrFail($this->id);

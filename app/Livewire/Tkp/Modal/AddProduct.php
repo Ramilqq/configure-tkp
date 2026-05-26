@@ -24,9 +24,12 @@ class AddProduct extends Component
         $tkp = Tkp::where('tkp_version', $this->tkp_version)->firstOrFail();
         $this->authorize('update', $tkp);
 
-        $this->form->saveForm($this->tkp_version);
+        $resault = $this->form->saveForm($this->tkp_version);
+        
         $this->dispatch('addProductUpdateList');
-
+        if ($resault) {
+            session()->flash('status', 'Данные успешно сохранены.');
+        }
     }
 
     public function addProductOpenForm($product_id)

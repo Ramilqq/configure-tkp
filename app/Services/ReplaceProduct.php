@@ -273,7 +273,7 @@ class ReplaceProduct
                 return (int)$value['p_output']['value'];
             },
             '[V_Control]' => function ($value = []) {
-                return (int)$value['v_control']['value'];
+                return (string)$value['v_control']['value'];
             },
             '[Count_power_thyristors]' => function ($value = []) {
                 return (int)$value['count_power_thyristors']['value'];
@@ -288,7 +288,7 @@ class ReplaceProduct
                 return (string)$value['smv_weight']['value'];
             },
             '[Service_SMV]' => function ($value = []) {
-                return (string)$value['smv_series']['value'];
+                return (string)$value['service_smv']['value'];
             },
             '[Reverse]' => function ($value = []) {
                 if ($value['motor_reverse']['value'] == 'Да') {
@@ -345,6 +345,14 @@ class ReplaceProduct
                 if ((string)$value['vfd_series']['rename_title_end'] == 'Empty') return null;
                 if ((string)$value['vfd_series']['rename_title_end'] == '') return null;
                 return '-'.(string)$value['vfd_series']['rename_title_end'];
+            },
+            '[SMV_Series_Start]' => function ($value = []) {
+                if ((string)$value['smv_series']['rename_title'] == 'Empty') return null;
+                if ((string)$value['smv_series']['rename_title'] == '') return null;
+                return (string)$value['smv_series']['rename_title'];
+            },
+            '[I_rated]' => function ($value = []) {
+                return (int)$value['i_rated']['value'];
             },
             
         ];
