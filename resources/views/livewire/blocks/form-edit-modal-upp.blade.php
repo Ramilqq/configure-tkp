@@ -52,6 +52,16 @@
                                                 @endforeach
                                 
                                             </select>
+
+                                            <?php
+                                                if ($key == 'ip') {
+                                            ?>
+                                                <div class="alert alert-info" role="alert" style="font-size: 11px;" wire:show="getData.ip == '42'">
+                                                    Без учета цены воздуховода
+                                                </div>
+                                            <?php
+                                                }
+                                            ?>
                                         </div>
                                     @endif
                                 @endforeach
@@ -200,6 +210,12 @@
                                 <option value="A">Асинхронный</option>
                                 <option value="S">Синхронный</option>
                             </select>
+                            <div class="alert alert-info" role="alert" style="font-size: 11px;" wire:show="getData.motor_type == 'S'">
+                                <span>
+                                    УПП для синхронного двигателя по запросу
+                                </span>
+                            </div>
+                            
                         </div>
 
                         <div class="mb-3">

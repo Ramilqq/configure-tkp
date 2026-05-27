@@ -112,7 +112,7 @@ class TkpCalculation extends Component
         });
 
         if ($engineering && !isset($configuration['saved_schema']['engineering'])) {
-            $this->saved_schema['engineering'] = $engineering->pluck('price', 'name')->toArray();
+            $this->saved_schema['engineering'] = $engineering->pluck('price', 'key')->toArray();
 
             $this->saveConfiguration();
         }
@@ -122,7 +122,6 @@ class TkpCalculation extends Component
         $this->banks = $banks->get()['Valute'] ?? [];
         
         $this->form->saveForm($this->id, $this->tkp_version);
-        //dd($this->saved_schema);
     }
 
     // записываем обновление цен по всем продуктам

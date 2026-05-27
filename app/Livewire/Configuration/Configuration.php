@@ -8,6 +8,7 @@ use App\Models\Configuration\NodeGroup;
 use App\Models\TableSettings\Product;
 use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
+use App\Models\Tkp\Engineering;
 use App\Models\Tkp\Tkp;
 use App\Services\BankRequest;
 use App\Services\ReplaceProduct;
@@ -117,6 +118,20 @@ class Configuration extends Component
                 
                 // создание хэша по опциям, для количества одинаковых продуктов
                 $productModel->hash = $this->makeFrHash($option_applied + $applied_rules + ['manufacturer' => $this->getData['manufacturer'] ?? '']);
+                
+                // доп данные для ТКП
+                $productModel->discount = 0;
+                $productModel->text = '';
+                $productModel->sel_price_coef = 1;
+                $productModel->gen_contract_service = 0;
+                $productModel->costs_credit = 0;
+                $productModel->risk_reserve = 0;
+                $productModel->tzr_sel = 0;
+                $productModel->sub_work = 0;
+                $productModel->sub_item_price = 0;
+                $productModel->tzr_delivery = 0;
+                $productModel->biz_trips = 0;
+                $productModel->connection = 0;
 
                 // сохраняем данные
                 $product = $productModel->toArray();
@@ -163,6 +178,20 @@ class Configuration extends Component
                 $productModel->delivery = 0;
                 $productModel->engineering = $productModel->getEngineering();;
                 $productModel->drawing = '';
+
+                // доп данные для ТКП
+                $productModel->discount = 0;
+                $productModel->text = '';
+                $productModel->sel_price_coef = 1;
+                $productModel->gen_contract_service = 0;
+                $productModel->costs_credit = 0;
+                $productModel->risk_reserve = 0;
+                $productModel->tzr_sel = 0;
+                $productModel->sub_work = 0;
+                $productModel->sub_item_price = 0;
+                $productModel->tzr_delivery = 0;
+                $productModel->biz_trips = 0;
+                $productModel->connection = 0;
 
                 // --- применяем правила цены ---
                 $basePrice = $productModel->price;
@@ -221,7 +250,7 @@ class Configuration extends Component
         }  
 
         $this->dispatch('saved_schema-updated');
-        dd($this->saved_schema);
+        //dd($this->saved_schema);
     }
 
     public function deleteProduct($id)
@@ -394,7 +423,7 @@ class Configuration extends Component
             }
         }
         $node = json_encode($node, JSON_UNESCAPED_UNICODE);
-
+        
         // формирование груп для узлов
         $groups = NodeGroup::get()->toArray();
         //dd($node, $groups);

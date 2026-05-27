@@ -89,12 +89,21 @@ class Product extends Model
     {
         static::$engDefaultsCache = Cache::remember('engineering_defaults', now()->addHours(12), function () {
             return Engineering::query()
-                    ->pluck('name')
+                    ->pluck('key')
                     ->mapWithKeys(fn ($n) => [$n => 0])
                     ->all();
         });
-
+        
         return static::$engDefaultsCache;
+    }
+
+    public function getEngineeringList()
+    {
+        return Cache::remember('engineering_params', now()->addHours(12), function () {
+             return Engineering::query()
+                    ->pluck('name', 'key')
+                    ->all();
+        });
     }
     
     public function getManufacturers()

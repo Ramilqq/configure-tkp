@@ -332,7 +332,7 @@
         if (!isset($item['product']) || !isset($item['product']['id'])) {
             continue;
         }
-
+        
         $p = $item['product'];
         $pid = $p['hash'] ?? $p['id'];
     
@@ -343,35 +343,39 @@
         $count       = isset($p['count']) ? intval($p['count']) : 1;
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
-        $kd = isset($p['engineering']['КД']) ? floatval($p['engineering']['КД']) : 0.0;
-        $kd = $kd * $saved_schema['engineering']['КД'];
+        $kd = isset($p['engineering']['КД (н.ч*х)']) ? floatval($p['engineering']['КД (н.ч*х)']) : 0.0;
+        $kd = $kd * $saved_schema['engineering']['kd'];
 
-        $po = isset($p['engineering']['ПО']) ? floatval($p['engineering']['ПО']) : 0.0;
-        $po = $po * $saved_schema['engineering']['ПО'];
+        $po = isset($p['engineering']['ПО (н.ч*х)']) ? floatval($p['engineering']['ПО (н.ч*х)']) : 0.0;
+        $po = $po * $saved_schema['engineering']['po'];
 
-        $smr_shmr = isset($p['engineering']['СМР/ШМР']) ? floatval($p['engineering']['СМР/ШМР']) : 0.0;
-        $smr_shmr = $smr_shmr * $saved_schema['engineering']['СМР/ШМР'];
+        $smr_shmr = isset($p['engineering']['smr_shmr']) ? floatval($p['engineering']['smr_shmr']) : 0.0;
+        $smr_shmr = $smr_shmr * $saved_schema['engineering']['smr_shmr'];
 
-        $pnr_po = isset($p['engineering']['ПНР ПО']) ? floatval($p['engineering']['ПНР ПО']) : 0.0;
-        $pnr_po = $pnr_po * $saved_schema['engineering']['ПНР ПО'];
+        $pnr_po = isset($p['engineering']['pnr_po']) ? floatval($p['engineering']['pnr_po']) : 0.0;
+        $pnr_po = $pnr_po * $saved_schema['engineering']['pnr_po'];
 
-        $pir = isset($p['engineering']['ПИР']) ? floatval($p['engineering']['ПИР']) : 0.0;
-        $pir = $pir * $saved_schema['engineering']['ПИР'];
+        $assembly = isset($p['engineering']['assembly']) ? floatval($p['engineering']['assembly']) : 0.0;
+        $assembly = $assembly * $saved_schema['engineering']['assembly'];
 
-        $assembly = isset($p['engineering']['Сборка']) ? floatval($p['engineering']['Сборка']) : 0.0;
-        $assembly = $assembly * $saved_schema['engineering']['Сборка'];
+        $psd = isset($p['engineering']['psd']) ? floatval($p['engineering']['psd']) : 0.0;
+        $psd = $psd * $saved_schema['engineering']['psd'];
 
-        $mounting = isset($p['engineering']['Монтаж']) ? floatval($p['engineering']['Монтаж']) : 0.0;
-        $mounting = $mounting * $saved_schema['engineering']['Монтаж'];
+        $pnr = isset($p['engineering']['pnr']) ? floatval($p['engineering']['pnr']) : 0.0;
+        $pnr = $pnr * $saved_schema['engineering']['pnr'];
 
-        $tkp_eng = isset($p['engineering']['ТКП']) ? floatval($p['engineering']['ТКП']) : 0.0;
-        $tkp_eng = $tkp_eng * $saved_schema['engineering']['ТКП'];
+        $test = isset($p['engineering']['test']) ? floatval($p['engineering']['test']) : 0.0;
+        $test = $test * $saved_schema['engineering']['test'];
+        
+        $to = isset($p['engineering']['to']) ? floatval($p['engineering']['to']) : 0.0;
+        $to = $to * $saved_schema['engineering']['to'];
 
-        $psd = isset($p['engineering']['ПСД']) ? floatval($p['engineering']['ПСД']) : 0.0;
-        $psd = $psd * $saved_schema['engineering']['ПСД'];
+        $costs_works = isset($p['engineering']['costs_works']) ? floatval($p['engineering']['costs_works']) : 0.0;
+        $costs_works = $costs_works * $saved_schema['engineering']['costs_works'];
 
-        $pnr = isset($p['engineering']['ПНР']) ? floatval($p['engineering']['ПНР']) : 0.0;
-        $pnr = $pnr * $saved_schema['engineering']['ПНР'];
+        $tkp_eng = isset($p['engineering']['cost_tkp']) ? floatval($p['engineering']['cost_tkp']) : 0.0;
+
+        $bonuse_manager_eng = isset($p['engineering']['bonuse_manager']) ? floatval($p['engineering']['bonuse_manager']) : 0.0;
 
         $currency_val = isset($p['currency_val']) ? floatval($p['currency_val']) : 0.0;
         $delivery = isset($p['delivery']) ? floatval($p['delivery']) : 0.0;
@@ -394,30 +398,31 @@
         $rowIndex++;
 
         $table['product_col'][$pid] = [];
+        $table['product_col'][$pid][9] = isset($p['text']) ? floatval($p['text']) : '';
 
         $table['product_col'][$pid][0] = $rowIndex;
         $table['product_col'][$pid][1] = $manufacturer;
         $table['product_col'][$pid][2] = $name;
         $table['product_col'][$pid][3] = $description;
         $table['product_col'][$pid][4] = $count;
-        $table['product_col'][$pid][10] = 1;
+        $table['product_col'][$pid][10] = isset($p['sel_price_coef']) ? floatval($p['sel_price_coef']) : 1;
 
         $table['product_col'][$pid][18] = ($price * $currency_val) + $delivery;
         $table['product_col'][$pid][19] = $table['product_col'][$pid][18] * ($reserve / 100);
-        $table['product_col'][$pid][20] = 0;
+        $table['product_col'][$pid][20] = isset($p['tzr_sel']) ? floatval($p['tzr_sel']) : 0;
         $table['product_col'][$pid][21] = (
             $table['product_col'][$pid][18] +
             $table['product_col'][$pid][19] +
             $table['product_col'][$pid][20]
         );
 
-        $table['product_col'][$pid][12] = 0;
-        $table['product_col'][$pid][13] = 0;
-        $table['product_col'][$pid][14] = 0;
-        $table['product_col'][$pid][16] = 0;
-        $table['product_col'][$pid][38] = 0;
-        $table['product_col'][$pid][39] = 0;
-        $table['product_col'][$pid][40] = 0;
+        $table['product_col'][$pid][12] = isset($p['gen_contract_service']) ? floatval($p['gen_contract_service']) : 0;
+        $table['product_col'][$pid][13] = isset($p['costs_credit']) ? floatval($p['costs_credit']) : 0;
+        $table['product_col'][$pid][14] = $tkp_eng;
+        $table['product_col'][$pid][16] = isset($p['risk_reserve']) ? floatval($p['risk_reserve']) : 0;
+        $table['product_col'][$pid][38] = isset($p['tzr_delivery']) ? floatval($p['tzr_delivery']) : 0;
+        $table['product_col'][$pid][39] = isset($p['biz_trips']) ? floatval($p['biz_trips']) : 0;
+        $table['product_col'][$pid][40] = isset($p['connection']) ? floatval($p['connection']) : 0;
         $table['product_col'][$pid][41] = 0;
         $table['product_col'][$pid][42] = (
             $table['product_col'][$pid][38] +
@@ -426,17 +431,17 @@
             $table['product_col'][$pid][41]
         );
 
-        $table['product_col'][$pid][22] = 0;
+        $table['product_col'][$pid][22] = $bonuse_manager_eng;
         $table['product_col'][$pid][23] = $psd;
         $table['product_col'][$pid][24] = $kd;
         $table['product_col'][$pid][25] = $po;
         $table['product_col'][$pid][26] = $assembly;
-        $table['product_col'][$pid][27] = 0;
+        $table['product_col'][$pid][27] = $test;
         $table['product_col'][$pid][28] = $smr_shmr;
         $table['product_col'][$pid][29] = $pnr;
         $table['product_col'][$pid][30] = $pnr_po;
-        $table['product_col'][$pid][31] = 0;
-        $table['product_col'][$pid][32] = 0;
+        $table['product_col'][$pid][31] = $to;
+        $table['product_col'][$pid][32] = $costs_works;
 
         $table['product_col'][$pid][33] = (
             $table['product_col'][$pid][22] +
@@ -452,8 +457,8 @@
             $table['product_col'][$pid][32]
         );
 
-        $table['product_col'][$pid][34] = 0;
-        $table['product_col'][$pid][35] = 0;
+        $table['product_col'][$pid][34] = isset($p['sub_work']) ? floatval($p['sub_work']) : 0;
+        $table['product_col'][$pid][35] = isset($p['sub_item_price']) ? floatval($p['sub_item_price']) : 0;
         $table['product_col'][$pid][36] = 0;
         $table['product_col'][$pid][37] = (
             $table['product_col'][$pid][34] +
@@ -487,7 +492,7 @@
 
         $table['product_col'][$pid][5] = $price * $currency_val;
         $table['product_col'][$pid][6] = $table['product_col'][$pid][4] * $table['product_col'][$pid][5];
-        $table['product_col'][$pid][7] = 0.0;
+        $table['product_col'][$pid][7] = isset($p['discount']) ? floatval($p['discount']) : 0;
         $table['product_col'][$pid][8] = $table['product_col'][$pid][6] - ($table['product_col'][$pid][6] * ($table['product_col'][$pid][7] / 100));
 
         $table['product_col'][$pid][43] = $table['product_col'][$pid][8] - $table['product_col'][$pid][17];
@@ -517,7 +522,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($table['product_col'] as $prod_col)
+                        @foreach ($table['product_col'] as $prod_id => $prod_col)
                         <tr>
                             @foreach($table['col'] as $key => $table_col)
                                 @if(isset($prod_col[$key]))
@@ -531,6 +536,8 @@
                                         <i class="bi col-name-icon ms-1"
                                            :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                                     </td>
+                                    @elseif($key == '9')
+                                    <td data-id="{{$prod_id}}" data-col="{{$key}}">{!! $prod_col[$key] !!}</td>
                                     @else
                                     <td>{!! $prod_col[$key] !!}</td>
                                     @endif

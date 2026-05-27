@@ -29,11 +29,11 @@
                                 @php
                                     $product = new \App\Models\TableSettings\Product;
                                 @endphp
-
+                                <b>Работы:</b>
                                 <div class="row mb-3 align-items-end">
-                                    @foreach(($product->getEngineering() ?? ['Нет данных' => 0]) as $k => $v)
+                                    @foreach(($product->getEngineeringList() ?? ['Нет данных' => 'non']) as $k => $v)
                                         <div class="col-3">
-                                            <label for="{{ $k }}" class="form-label">{{ $k }}<span class="small">(Час)</span></label>
+                                            <label for="{{ $k }}" class="form-label">{{ $v }}</label>
                                             <input id="{{ $k }}" type="number" class="form-control" placeholder="0" wire:model="form.new_product.product.engineering.{{ $k }}">
                                         </div>
                                     @endforeach
