@@ -62,7 +62,7 @@ class UppProductSearchStrategy implements SearchStrategyInterface
             'v_input' => $savedFields['v_input'] ?? '6000',
             'nominalnyi_tok_ed_a' => $savedFields['nominalnyi_tok_ed_a'] ?? '50',
             'p_output' => $savedFields['p_output'] ?? '420',
-            'count_power_thyristors' => $savedFields['count_power_thyristors'] ?? '18',
+            //'count_power_thyristors' => $savedFields['count_power_thyristors'] ?? '18',
             'bypass' => $savedFields['bypass'] ?? 'Контактор',
 
             // Дополнительные опции
@@ -70,11 +70,11 @@ class UppProductSearchStrategy implements SearchStrategyInterface
             'v_control' => $savedFields['v_control'] ?? '220В AC',
             'ip' => $savedFields['ip'] ?? '40',
             'bypass_breaker' => $savedFields['bypass_breaker'] ?? 'Нет',
-            'service_smv' => $savedFields['service_smv'] ?? 'Двухсторонний',
+            //'service_smv' => $savedFields['service_smv'] ?? 'Двухсторонний',
             'interface' => $savedFields['interface'] ?? 'RS-485, Modbus RTU',
             'motor_type' => $savedFields['motor_type'] ?? 'A',
-            'motor_reverse' => $savedFields['bypass_breaker'] ?? 'Нет',
-            'cascade' => $savedFields['cascade'] ?? 'Нет',
+            //'motor_reverse' => $savedFields['bypass_breaker'] ?? 'Нет',
+            //'cascade' => $savedFields['cascade'] ?? 'Нет',
             'line_switch' => $savedFields['line_switch'] ?? 'Нет',
             'smv_series' => $savedFields['smv_series'] ?? 'Стандарт',
             
@@ -99,13 +99,13 @@ class UppProductSearchStrategy implements SearchStrategyInterface
                 //'value' => (int)($getData['i_rated'] ?? 0),
                 'value' => (int)($getData['nominalnyi_tok_ed_a'] ?? 0),
             ],
-            [
+            /*[
                 'label' => 'Кол-во силовых тиристоров УПП',
                 'relation' => 'productOption',
                 'template_option_id' => $this->templateOptions['count_power_thyristors']->id,
                 'operator' => '=',
                 'value' => (string)($getData['count_power_thyristors'] ?? ''),
-            ],
+            ],*/
             [
                 'label' => 'Тип байпаса',
                 'relation' => 'productOption',
@@ -134,13 +134,13 @@ class UppProductSearchStrategy implements SearchStrategyInterface
                 'operator' => '=',
                 'value' => (string)($getData['bypass_breaker'] ?? ''),
             ],
-            [
+            /*[
                 'label' => 'Способ обслуживания',
                 'relation' => 'productOptionPrice',
                 'template_option_id' => $this->templateOptions['service_smv']->id,
                 'operator' => '=',
                 'value' => (string)($getData['service_smv'] ?? ''),
-            ],
+            ],*/
             [
                 'label' => 'Интерфейс',
                 'relation' => 'productOptionPrice',
@@ -155,20 +155,20 @@ class UppProductSearchStrategy implements SearchStrategyInterface
                 'operator' => '=',
                 'value' => (string)($getData['motor_type'] ?? ''),
             ],
-            [
+            /*[
                 'label' => 'Реверс двигателя (Секция реверса)',
                 'relation' => 'productOptionPrice',
                 'template_option_id' => $this->templateOptions['motor_reverse']->id,
                 'operator' => '=',
                 'value' => (string)($getData['motor_reverse'] ?? ''),
-            ],
-            [
+            ],*/
+            /*[
                 'label' => 'Каскадный пуск',
                 'relation' => 'productOptionPrice',
                 'template_option_id' => $this->templateOptions['cascade']->id,
                 'operator' => '=',
                 'value' => (string)($getData['cascade'] ?? ''),
-            ],
+            ],*/
             [
                 'label' => 'Линейный выключатель',
                 'relation' => 'productOptionPrice',

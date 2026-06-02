@@ -9,7 +9,7 @@
         border-collapse: collapse;
         width:100%;
         border-spacing:0;
-        padding: 50px;
+        padding: 10px;
         font-family: dejavusans;
     }
     .vfd_info_table td {
@@ -30,12 +30,15 @@
 
 
             
-            <page orientation="portrait" backimg="<?= public_path('assets/image/pdf/bg6.png') ?>" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
+            <page orientation="portrait" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
                 <page_header>
                     <div class="pdf_page_header">
                         <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
                         <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
                         <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
+                        <div style="position: absolute; right: 10mm;top:30px;">
+                            <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
+                        </div>
                     </div>
                 </page_header>
                     <h4 style="text-align: center;">10. Технические данные</h4>
@@ -125,12 +128,15 @@
                 if (file_exists($img)) {
 
                     ?>
-                        <page orientation="L" backimg="<?= public_path('assets/image/pdf/bg6.png') ?>" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
+                        <page orientation="L" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
                             <page_header>
                                 <div class="pdf_page_header">
                                     <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
                                     <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
                                     <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
+                                    <div style="position: absolute; right: 10mm;top:30px;">
+                                        <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
+                                    </div>
                                 </div>
                             </page_header>
                             
@@ -158,12 +164,15 @@
                     if (!file_exists($img)) continue;
 
                     ?>
-                        <page orientation="L" backimg="<?= public_path('assets/image/pdf/bg6.png') ?>" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
+                        <page orientation="L" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">
                             <page_header>
                                 <div class="pdf_page_header">
                                     <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
                                     <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
                                     <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
+                                    <div style="position: absolute; right: 10mm;top:30px;">
+                                        <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
+                                    </div>
                                 </div>
                             </page_header>
                             

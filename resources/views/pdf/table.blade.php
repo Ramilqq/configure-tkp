@@ -144,7 +144,7 @@
                 <td style="text-align: center;"><?php echo number_format(ceil((float)$val['product']['price'] * (float)$val['product']['currency_val']),0,',',' ');?>р.</td>
                 <td style="text-align: center;"><?php echo $val['product']['currency_val'];?></td>
                 <td style="text-align: center;"><?php echo number_format(ceil((($val['product']['price'] * (float)$val['product']['currency_val']) * (int)$val['product']['count'])),0,',',' ');?>р.</td>
-                <td><?php echo 'Comment';?></td>
+                <td><?php echo $val['product']['text'];?></td>
             </tr>
             
 

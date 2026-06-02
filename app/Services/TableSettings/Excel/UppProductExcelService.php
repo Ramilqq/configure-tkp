@@ -199,7 +199,7 @@ class UppProductExcelService
                     'value'     => 'Нет',
                 ],
                 [
-                    'value'     => '[Line_CB_Full]',
+                    'value'     => 'Да',
                     'price'     => '[Price_Line_CB]',
                     'drawing'   => '[Drawing_Line_CB]',
                     'dimension' => '[Dimension_Line_CB]',

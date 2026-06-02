@@ -70,19 +70,22 @@
             <tr>
                <!-- <td style="width: 5%; text-align: left;border: none;"></td>-->
                 <td style="width: 100%; text-align: center;border: none;">
-                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch3.jpg') ?>" style="width:700px;height:300px;">
+                    <img src="<?= public_path('assets/image/pdf/pdf_static_ch3.jpg') ?>" style="width:500px;">
                 </td>
                <!--  <td style="width: 5%; text-align: right;border: none;"></td>-->
             </tr>
         </tbody>
     </table>
 </page>
-<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="<?= public_path('assets/image/pdf/bg6.png') ?>">
+<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm">
     <page_header>
         <div class="pdf_page_header">
             <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
+            <div style="position: absolute; right: 10mm;top:30px;">
+                <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
+            </div>
         </div>
     </page_header>
     <h4 style="text-align: center;">4. Влияние на питающую сеть</h4>
@@ -131,12 +134,15 @@
         </tbody>
     </table>
 </page>
-<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm"  backimg="<?= public_path('assets/image/pdf/bg6.png') ?>">
+<page orientation="portrait" backtop="25mm" backbottom="0mm" backleft="10mm" backright="10mm">
     <page_header>
         <div class="pdf_page_header">
             <span><strong>ПРОЕКТ: </strong><?php echo $tkp['project_name'];?></span><br>
             <span><strong>ЗАКАЗЧИК: </strong><?php echo $tkp['client_name'];?></span><br>
             <span><strong>ОБЪЕКТ: </strong><?php echo $tkp['implementation_object'];?></span><br>
+            <div style="position: absolute; right: 10mm;top:30px;">
+                <img src="<?= public_path('assets/image/pdf/logo.png') ?>" style="width:100px; height:50px;">
+            </div>
         </div>
     </page_header>
     <h4 style="text-align: center;">6. Конструкция преобразователя частоты</h4>

@@ -88,7 +88,8 @@
                         <button wire:click="saveParams()" wire:loading.attr="disabled" type="button" class="btn btn-primary btn-sm">
                             <i class="bi bi-floppy me-1"></i>Сохранить изменения
                         </button>
-                        <a target="_blank" href="{{ route('tkp.pdf.show', ['id' => $id, 'tkp_version' => $tkp_version]) }}" class="btn btn-success btn-sm">
+                        <!--a target="_blank" href="{{ route('tkp.pdf.show', ['id' => $id, 'tkp_version' => $tkp_version]) }}" class="btn btn-success btn-sm"-->
+                        <a target="_blank" wire:click="openPdf()" class="btn btn-success btn-sm">
                             <i class="bi bi-file-earmark-pdf me-1"></i>Открыть PDF
                         </a>
                     </div>
@@ -344,10 +345,10 @@
         $count       = isset($p['count']) ? intval($p['count']) : 1;
         $price       = isset($p['price']) ? floatval($p['price']) : 0.0;
 
-        $kd = isset($p['engineering']['КД (н.ч*х)']) ? floatval($p['engineering']['КД (н.ч*х)']) : 0.0;
+        $kd = isset($p['engineering']['kd']) ? floatval($p['engineering']['kd']) : 0.0;
         $kd = $kd * $saved_schema['engineering']['kd'];
 
-        $po = isset($p['engineering']['ПО (н.ч*х)']) ? floatval($p['engineering']['ПО (н.ч*х)']) : 0.0;
+        $po = isset($p['engineering']['po']) ? floatval($p['engineering']['po']) : 0.0;
         $po = $po * $saved_schema['engineering']['po'];
 
         $smr_shmr = isset($p['engineering']['smr_shmr']) ? floatval($p['engineering']['smr_shmr']) : 0.0;

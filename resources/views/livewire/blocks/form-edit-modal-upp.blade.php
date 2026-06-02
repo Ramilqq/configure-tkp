@@ -19,13 +19,13 @@
                                 'v_control'                     => 'select',
                                 'ip'                            => 'select',
                                 'bypass_breaker'                => 'select',
-                                'service_smv'                   => 'select',
+                                //'service_smv'                   => 'select',
                                 'interface'                     => 'select',
-                                'motor_reverse'                 => 'select',
-                                'cascade'                       => 'select',
+                                //'motor_reverse'                 => 'select',
+                                //'cascade'                       => 'select',
                                 'line_switch'                   => 'select',
                                 'wsk'                           => 'select',
-                                'count_power_thyristors'        => 'select',
+                                //'count_power_thyristors'        => 'select',
                             ];
                         @endphp
 

@@ -160,9 +160,14 @@ class PdfController extends Controller
         foreach ($dimension_arr as $dimension){
             $dimension_all[0] = $dimension_all[0] + (int)$dimension[0] ?? 0;
             $dimension_all[1] = $dimension_all[1] + (int)$dimension[1] ?? 0;
-            $dimension_all[2] = $dimension_all[2] + (int)$dimension[2] ?? 0;
+            if((int)$dimension[2] > $dimension_all[2]) {
+                $dimension_all[2] = (int)$dimension[2] ?? 0;
+            }
+            
         }
+        //dd($option_applied);
         //dd($dimension_all);
+        
         return [
             'Входные параметры ПЧ' => [
                 'Полная мощность' => $option_applied['s_trans']['value'] . 'кВА' ?? 0 . 'кВА',
@@ -190,7 +195,7 @@ class PdfController extends Controller
                 'Время разгона/торможения' => '1 - 3600с',
                 'Пульсация момента, не более' => '0,01%',
                 'Производительность вентиляторов охлаждения ВПЧ' => $option_applied['airflow_rate']['value'] . 'м3/ч' ?? 0 . 'м3/ч',
-                'Общая производительность вентиляторов охлаждения' => (int)$option_applied['airflow_rate']['value'] ?? 0 + (int)$option_applied['sync_to_grid_airflow']['value'] ?? 0 . 'м3/ч' ?? 0 . 'м3/ч',
+                'Общая производительность вентиляторов охлаждения' => (((int)$option_applied['airflow_rate']['value'] ?? 0) + ((int)$option_applied['sync_to_grid']['airflow'] ?? 0)) . 'м3/ч',
                 'Количество ячеек на фазу (всего)' => '5 (15 всего)',
                 'Сейсмостойкость' => '9 баллов',
                 'Температура эксплуатации без снижения характеристик' => '+0…+40°С',
@@ -220,12 +225,12 @@ class PdfController extends Controller
                 'Габаритные размеры ВПЧ (ДхГхВ)' => $option_applied['dimension_vfd_standard']['value'] . 'мм' ?? 0 . 'мм',
                 'Масса ВПЧ' => $option_applied['vfd_weight']['value'] . 'кг' ?? 0 . 'кг',
                 'Общий габаритный размер (ДхГхВ)' => $dimension_all[0] . 'x' . $dimension_all[1] . 'x' . $dimension_all[2] . 'мм' ?? 0 . 'мм',
-                'Общая масса' => (int)$option_applied['vfd_weight']['value'] ?? 0
-                    + (int)$option_applied['sync_to_grid']['weight'] ?? 0 
-                    + (int)$option_applied['power_cell_bypass']['weight'] ?? 0 
-                    + (int)$option_applied['precharge']['weight'] ?? 0
-                    + (int)$option_applied['bypass_vfd']['weight'] ?? 0
-                    + (int)$option_applied['section_in_out']['weight'] ?? 0 . 'кг' ?? 0 . 'кг',
+                'Общая масса' => ((int)$option_applied['vfd_weight']['value'] ?? 0)
+                    + ((int)$option_applied['sync_to_grid']['weight'] ?? 0) 
+                    + ((int)$option_applied['power_cell_bypass']['weight'] ?? 0 )
+                    + ((int)$option_applied['precharge']['weight'] ?? 0)
+                    + ((int)$option_applied['bypass_vfd']['weight'] ?? 0)
+                    + ((int)$option_applied['section_in_out']['weight'] ?? 0) . 'кг' ?? 0 . 'кг',
                 'Ввод/вывод кабеля' => 'Снизу',
                 'Тип охлаждения' => 'Воздушное',
                 'Степень защиты' => 'IP' . $option_applied['ip']['value'] ?? 'Нет',

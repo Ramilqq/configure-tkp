@@ -163,6 +163,7 @@ class TkpCalculation extends Component
         $this->form->saveForm($this->id, $this->tkp_version);
     }
 
+
     // записываем обновление цен по всем продуктам
     public function currency()
     {
@@ -180,9 +181,18 @@ class TkpCalculation extends Component
                 }
             }
         }
-        
-
         $this->saveConfiguration();
+    }
+
+    public function openPdf()
+    {
+        if($tkp = Tkp::where('id', $this->id)->first()) {
+            if($tkp->pay_params['resault_total'] == 0) {
+                $this->saveParams();
+            }
+        }
+
+        redirect(route('tkp.pdf.show', ['id' => $this->id, 'tkp_version' => $this->tkp_version]));
     }
 
     public function render()
