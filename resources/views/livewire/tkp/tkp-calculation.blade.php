@@ -189,6 +189,7 @@
                                         <tr>
                                             <td class="text-center text-muted">{{ $nodes['product']['id'] }}</td>
                                             <td>{{ $nodes['product']['name'] }}</td>
+                                            <td>{{ $nodes['product']['count'] ?? 1}}</td>
                                             <td>{{ $nodes['product']['price'] }}</td>
                                             <td><span class="badge bg-secondary">{{ $nodes['product']['currency'] }}</span></td>
                                             <td>{{ $nodes['product']['currency_val'] }}</td>
@@ -398,7 +399,7 @@
         $rowIndex++;
 
         $table['product_col'][$pid] = [];
-        $table['product_col'][$pid][9] = isset($p['text']) ? floatval($p['text']) : '';
+        $table['product_col'][$pid][9] = isset($p['text']) ? $p['text'] : '';
 
         $table['product_col'][$pid][0] = $rowIndex;
         $table['product_col'][$pid][1] = $manufacturer;
@@ -536,8 +537,19 @@
                                         <i class="bi col-name-icon ms-1"
                                            :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                                     </td>
-                                    @elseif($key == '9')
-                                    <td data-id="{{$prod_id}}" data-col="{{$key}}">{!! $prod_col[$key] !!}</td>
+                                    @elseif(array_key_exists ($key, $table_fields))
+                                    <td
+                                        style="background-color: #f3f7e3;"
+                                        data-id="{{$prod_id}}"
+                                        data-col="{{$key}}"
+                                    >
+                                    <input
+                                        style="border: 0;"
+                                        type="text"
+                                        wire:change.debounce.500ms="tableUpdate($event.target.value, '{{$prod_id}}', '{{$key}}')"
+                                        value="{!! $prod_col[$key] !!}"
+                                    />
+                                    </td>
                                     @else
                                     <td>{!! $prod_col[$key] !!}</td>
                                     @endif

@@ -24,11 +24,50 @@ class TkpCalculation extends Component
     public array $pay_params = [];
     public array $banks;
     public string $dublicate_comments = '';
+    public array $table_fields = [
+        '9' => 'text',
+        '7' => 'discount',
+        '10' => 'sel_price_coef',
+        '12' => 'gen_contract_service',
+        '13' => 'costs_credit',
+        '16' => 'risk_reserve',
+        '20' => 'tzr_sel',
+        '34' => 'sub_work',
+        '35' => 'sub_item_price',
+        '38' => 'tzr_delivery',
+        '39' => 'biz_trips',
+        '40' => 'connection',
+    ];
 
-    public function updated($key, $value)
+    public function tableUpdate($value, $hash, $col_id)
     {
-        $this->saveParams();
-        $this->mount();
+        $change = false;
+        foreach($this->saved_schema as $key => &$products){
+            if ($key == 'nodes' || $key == 'other'){
+                foreach($products as &$product){
+                    if($product['product']['hash'] == $hash){
+                        $change = true;
+                        $product['product'][$this->table_fields[$col_id]] = $value;
+                    }
+                }
+            }
+            if ($key == 'connections'){
+                foreach($products as &$product){
+                    if($product['params']['product']['hash'] == $hash){
+                        $change = true;
+                        $product['params']['product'][$this->table_fields[$col_id]] = $value;
+                    }
+                }
+            }
+        }
+        //dd($this->saved_schema);
+        if ($change)  $this->saveSheam();
+    }
+
+    public function saveSheam()
+    {
+        $configurationModal = Configuration::where('tkp_version', $this->tkp_version)->first();
+        $configurationModal->update(['saved_schema' => $this->saved_schema]);
     }
 
     public function saveParams()

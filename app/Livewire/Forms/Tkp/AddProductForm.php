@@ -16,6 +16,7 @@ class AddProductForm extends Form
         'product' => [
             'id' => 0,
             'template_id' => 0,
+            'hash' => '',
             'name' => '',
             'count' => 1,
             'description' => '',
@@ -35,6 +36,7 @@ class AddProductForm extends Form
             'new_product.id' => 'nullable',
             'new_product.product_name' => 'nullable',
             'new_product.product.id' => 'nullable',
+            'new_product.product.hash' => 'nullable',
             'new_product.product.name' => 'required|min:1|max:100',
             'new_product.product.count' => 'required|min:1|max:100|numeric',
             'new_product.product.description' => 'required|min:1|max:2250',
@@ -118,6 +120,7 @@ class AddProductForm extends Form
 
             $this->new_product['id']  = 'other' . $this->product_id;
             $this->new_product['product']['id']  = $this->product_id;
+            $this->new_product['product']['hash']  = $this->makeFrHash($this->new_product['product']);
             
             $other = collect($data['saved_schema']['other']);
             $other->push($this->new_product);
@@ -171,5 +174,10 @@ class AddProductForm extends Form
 
         $configuration->update($data);
         $configuration->save();
+    }
+
+    private function makeFrHash(array $options): string
+    {
+        return md5(json_encode($options, JSON_UNESCAPED_UNICODE));
     }
 }
