@@ -50,8 +50,7 @@ class ReplaceProduct
 Габаритные размеры ВПЧ: [Dimension_VFD_standart] мм. Масса ВПЧ: [VFD_Weight] кг.
 Функция предзаряда по умолчанию: [PrechargeFunction].
 [PrechargeFunctionExec]
-Опции:
-[Power_cell_bypass][Sync_to_grid][Precharge][Plc_syn][Bypass_vfd][Section_in_out][Plc_pt_100]';
+Опции:[Power_cell_bypass][Sync_to_grid][Precharge][Plc_syn][Bypass_vfd][Section_in_out][Plc_pt_100]';
 
         $newPrice = 0;
 
@@ -112,8 +111,7 @@ class ReplaceProduct
 Габаритные размеры УПП (ДхГхВ): [Dimension_SMV]мм. Вес:[Weight_SMV]кг. Способ обслуживания: [Service_SMV].
 Интерфейс связи с АСУ ТП: [Interface].
 
-Опции:
-[Reverse][WSK]';
+Опции:[Reverse][WSK]';
 
         $newPrice = 0;
 
@@ -218,49 +216,49 @@ class ReplaceProduct
             },
             '[PrechargeFunctionExec]' => function ($value = []) {
                 if ($value['precharge_function']['value'] == 'Да') {
-                    return PHP_EOL .'Исполнение функции предзаряда: ' . (string)$value['precharge_function_exec']['value'];
+                    return PHP_EOL .'Исполнение функции предзаряда.';
                 }
                 return null;
             },
             '[Power_cell_bypass]' => function ($value = []) {
                 if ($value['power_cell_bypass']['value'] == 'Механический') {
-                    return PHP_EOL .'Байпас неисправной силовой ячейки: ' . (string)$value['power_cell_bypass']['value'];
+                    return PHP_EOL .'Байпас неисправной силовой ячейки.';
                 }
                 return null;
             },
             '[Sync_to_grid]' => function ($value = []) {
                 if ($value['sync_to_grid']['value'] == 'Да') {
-                    return PHP_EOL .'Синхронизация на Сеть='.(string)$value['sync_to_grid']['value'].'. Добавляется секция реактора (СР) стандартно справа от ВПЧ. Габаритные размеры СР: '.$value['sync_to_grid']['dimension'].' мм. Производительность вентиляторов СР: '.$value['sync_to_grid']['airflow'].' м3/ч. Способ обслуживания СР: '.$value['sync_to_grid']['service'].'. Вес СР: '.$value['sync_to_grid']['weight'].'кг.';   
+                    return PHP_EOL .'Синхронизация на Сеть. Добавляется секция реактора (СР) стандартно справа от ВПЧ. Габаритные размеры СР: '.$value['sync_to_grid']['dimension'].' мм. Производительность вентиляторов СР: '.$value['sync_to_grid']['airflow'].' м3/ч. Способ обслуживания СР: '.$value['sync_to_grid']['service'].'. Вес СР: '.$value['sync_to_grid']['weight'].'кг.';   
                 }
                 return null;
             },
             '[Precharge]' => function ($value = []) {
                 if ($value['precharge']['value'] == 'Да') {
-                    return PHP_EOL .'Предзаряд силовых ячеек='.(string)$value['precharge']['value'].'. Добавляется секция предзаряда (СП) стандартно слева от ВПЧ. Габаритные размеры СП: '.$value['precharge']['dimension'].' мм. Способ обслуживания СП: '.$value['precharge']['service'].'. Вес СП: '.$value['precharge']['weight'].'кг';
+                    return PHP_EOL .'Предзаряд силовых ячеек. Добавляется секция предзаряда (СП) стандартно слева от ВПЧ. Габаритные размеры СП: '.$value['precharge']['dimension'].' мм. Способ обслуживания СП: '.$value['precharge']['service'].'. Вес СП: '.$value['precharge']['weight'].'кг';
                 }
                 return null;
             },
             '[Plc_syn]' => function ($value = []) {
                 if ($value['plc_syn']['value'] == 'Да') {
-                    return PHP_EOL .'ПЛК управления системой возбуждения='.(string)$value['plc_syn']['value'];
+                    return PHP_EOL .'ПЛК управления системой возбуждения.';
                 }
                 return null;
             },
             '[Bypass_vfd]' => function ($value = []) {
                 if ($value['bypass_vfd']['value'] == 'Да') {
-                    return PHP_EOL .'Байпас ВПЧ='.(string)$value['bypass_vfd']['value']. ' Добавляется секция коммутации (СК) стандартно слева от ВПЧ. Габаритные размеры СК: '.$value['bypass_vfd']['dimension'].' мм. Способ обслуживания СК: '.$value['bypass_vfd']['service'].'. Вес СК: '.$value['bypass_vfd']['weight'].'кг.';
+                    return PHP_EOL .'Байпас ВПЧ. Добавляется секция коммутации (СК) стандартно слева от ВПЧ. Габаритные размеры СК: '.$value['bypass_vfd']['dimension'].' мм. Способ обслуживания СК: '.$value['bypass_vfd']['service'].'. Вес СК: '.$value['bypass_vfd']['weight'].'кг.';
                 }
                 return null;
             },
             '[Section_in_out]' => function ($value = []) {
                 if ($value['section_in_out']['value'] == 'Да') {
-                    return PHP_EOL .'Секция ввода/вывода сверху='.(string)$value['section_in_out']['value']. ' Добавляется секция ввода/вывода (СВ) стандартно слева от ВПЧ. Габаритные размеры СВ: '.$value['section_in_out']['dimension'].' мм. Способ обслуживания СВ: '.$value['section_in_out']['service'].'. Вес СВ: '.$value['section_in_out']['weight'].'кг.';
+                    return PHP_EOL .'Секция ввода/вывода сверху. Добавляется секция ввода/вывода (СВ) стандартно слева от ВПЧ. Габаритные размеры СВ: '.$value['section_in_out']['dimension'].' мм. Способ обслуживания СВ: '.$value['section_in_out']['service'].'. Вес СВ: '.$value['section_in_out']['weight'].'кг.';
                 }
                 return null;
             },
             '[Plc_pt_100]' => function ($value = []) {
                 if ($value['plc_pt_100']['value'] == 'Да') {
-                    return PHP_EOL .'ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100='.(string)$value['plc_pt_100']['value'];
+                    return PHP_EOL .'ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100.';
                 }
                 return null;
             },
@@ -292,13 +290,13 @@ class ReplaceProduct
             },
             '[Reverse]' => function ($value = []) {
                 if ($value['motor_reverse']['value'] == 'Да') {
-                    return PHP_EOL .'Реверс двигателя (Секция реверса)= '.$value['motor_reverse']['value'].'. Добавляется секция реверса (СР) стандартно слева от УПП. Габаритные размеры СР: '.$value['motor_reverse']['dimension'].'мм. Способ обслуживания СР: '.$value['motor_reverse']['service'].'. Вес СР: '.$value['motor_reverse']['weight'].'кг.';
+                    return PHP_EOL .'Реверс двигателя (Секция реверса). Добавляется секция реверса (СР) стандартно слева от УПП. Габаритные размеры СР: '.$value['motor_reverse']['dimension'].'мм. Способ обслуживания СР: '.$value['motor_reverse']['service'].'. Вес СР: '.$value['motor_reverse']['weight'].'кг.';
                 }
                 return null;
             },
             '[WSK]' => function ($value = []) {
                 if ($value['wsk']['value'] == 'Да') {
-                    return PHP_EOL .'Контроллер температуры и влажности= '.$value['wsk']['value'].'.';
+                    return PHP_EOL .'Контроллер температуры и влажности.';
                 }
                 return null;
             },

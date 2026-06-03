@@ -18,7 +18,13 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="new_product.product.description" class="form-label">Описание</label>
-                                    <textarea name="new_product.product.description" id="new_product.product.description" class="form-control" placeholder="Описание" wire:model="form.new_product.product.description"></textarea>
+                                    <textarea
+                                        name="new_product.product.description"
+                                        id="new_product.product.description"
+                                        class="form-control" placeholder="Описание"
+                                        wire:model="form.new_product.product.description"
+                                        style="height: 328px;"
+                                    ></textarea>
                                 </div>
                                 <div class="mb-3">
                                     <label for="new_product.product.manufacturer" class="form-label">Производитель</label>

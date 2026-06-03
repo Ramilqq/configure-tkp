@@ -83,6 +83,12 @@
                                                 Опция байпас неисправной силовой ячейки (электронный) предоставляется по запросу. Обратитесь в техническую поддержку продукта.
                                             </div>
                                             @endif
+
+                                            @if ($product_filter['key'] == 'ip')
+                                            <div class="alert alert-info" role="alert" wire:show="getData.ip == '42'" style="font-size: 11px;">
+                                                Без учета цены воздуховода.
+                                            </div>
+                                            @endif
                                         </div>
                                     @endif
                                 @endforeach

@@ -64,6 +64,8 @@ class UppProductSearchStrategy implements SearchStrategyInterface
             'p_output' => $savedFields['p_output'] ?? '420',
             //'count_power_thyristors' => $savedFields['count_power_thyristors'] ?? '18',
             'bypass' => $savedFields['bypass'] ?? 'Контактор',
+            'kpd' => $savedFields['kpd'] ?? '0',
+            'cos_phi' => $savedFields['cos_phi'] ?? '0',
 
             // Дополнительные опции
             'manufacturer' => $savedFields['manufacturer'] ?? 'ООО "Завод РУ-Драйв"',
@@ -98,6 +100,14 @@ class UppProductSearchStrategy implements SearchStrategyInterface
                 'operator' => '>=',
                 //'value' => (int)($getData['i_rated'] ?? 0),
                 'value' => (int)($getData['nominalnyi_tok_ed_a'] ?? 0),
+            ],
+            [
+                'label' => 'Мощность',
+                'relation' => 'productOption',
+                'template_option_id' => $this->templateOptions['p_output']->id,
+                'operator' => '>=',
+                //'value' => (int)($getData['i_rated'] ?? 0),
+                'value' => (int)($getData['p_output'] ?? 0),
             ],
             /*[
                 'label' => 'Кол-во силовых тиристоров УПП',

@@ -83,7 +83,7 @@ class FrProductExcelService
         ],
 
         'ip' => [
-            'template_name' => 'IP',
+            'template_name' => 'Степень защиты IP',
             'template_key'  => 'ip',
             'base' => [
                 'value' => '[IP]',

@@ -54,7 +54,7 @@ class UppProductExcelService
         ],
 
         'ip' => [
-            'template_name' => 'IP',
+            'template_name' => 'Степень защиты IP',
             'template_key'  => 'ip',
             'base' => [
                 'value' => '[IP]',
@@ -90,7 +90,7 @@ class UppProductExcelService
                     'value'  => 'Нет',
                 ],
                 [
-                    'value'     => '[Bypass_Breaker]',
+                    'value'     => 'Да',
                     'price'     => '[Price_Bypass_Breaker]',
                 ],
             ],

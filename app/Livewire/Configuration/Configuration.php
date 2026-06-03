@@ -101,7 +101,7 @@ class Configuration extends Component
                 // поиск выбранных опций
                 $optionsAppliedService = new (FrOptionsAppliedService::class);
                 $option_applied = $optionsAppliedService->apply($this->getData, $productModel->productOption, $productModel->productOptionPrice);
-
+                
                 // изменение цены от опции товара, наименования и описания
                 [$productModel->name,
                 $productModel->description,
