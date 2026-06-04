@@ -2,8 +2,6 @@
 
 namespace App\Livewire\Blocks;
 
-use App\Models\TableSettings\TemplatePriceRule;
-use App\Models\TableSettings\TemplateOption;
 use App\Models\Tkp\Manufacturer;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -11,29 +9,23 @@ use Livewire\Component;
 class FormEditModalUpp extends Component
 {
     public array $product_filter_select = [];
-    public array $product_rules_select = [];
     public array $product_manufacturer_select = [];
     public array $getData = [];
-    public array $getRules = [];
 
     public string $message_success = '';
     public string $message_error = '';
 
-    // обновляем список правил цены при выборе шаблона в модальном окне
     #[On('editModalUpp.updateFilterUPP')]
     public function updateFilterUPP($template_id, $node_id = null, $conn_id = null, $product_filter_select)
     {
         $this->product_manufacturer_select = Manufacturer::get()->toArray();
-        $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
         $this->product_filter_select = $product_filter_select;
     }
 
-    // обновляем данные в модальном окне при открытии, получая их из конфигурации
     #[On('editModalUpp.syncModalData')]
-    public function syncModalData($getData, $getRules)
+    public function syncModalData($getData)
     {
         $this->getData = $getData;
-        $this->getRules = $getRules;
     }
 
     #[On('editModalUpp.getMessage')]
@@ -137,7 +129,7 @@ class FormEditModalUpp extends Component
     // сохраняем данные в конфигурации
     public function save()
     {
-        $this->dispatch('syncModalDataBack',$this->getData, $this->getRules)->to('configuration.configuration');
+        $this->dispatch('syncModalDataBack', $this->getData)->to('configuration.configuration');
     }
 
     public function mount()

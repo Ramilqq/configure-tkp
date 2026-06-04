@@ -3,6 +3,7 @@
 namespace App\Livewire\TableSettings;
 
 use App\Livewire\Forms\TableSettings\TemplatePriceRuleForm;
+use App\Models\TableSettings\Currency;
 use App\Models\TableSettings\TemplateOption;
 use App\Models\TableSettings\TemplatePriceRule;
 use Livewire\Component;
@@ -11,53 +12,37 @@ class TemplatePriceRuleModal extends Component
 {
     public TemplatePriceRuleForm $form;
 
-    public array $options = []; // для выбора driver_option_id
+    /** Опции шаблона для выбора в условиях */
+    public array $options   = [];
+    /** Доступные валюты */
+    public array $currencies = [];
 
     protected $listeners = [
-        'templatePriceRuleInit' => 'templatePriceRuleInit',
-        'templatePriceRuleEditOpenForm' => 'templatePriceRuleEditOpenForm',
-        'templatePriceRuleDelete' => 'templatePriceRuleDelete',
+        'templatePriceRuleInit'         => 'templatePriceRuleInit',
+        'templatePriceRuleEditOpenForm'  => 'templatePriceRuleEditOpenForm',
+        'templatePriceRuleDelete'        => 'templatePriceRuleDelete',
     ];
-
-    public function mount(): void
-    {
-        if (empty($this->form->mapping)) {
-            $this->form->mapping = [['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => '']];
-        }
-    }
 
     public function templatePriceRuleInit(int $template_id): void
     {
         $this->form->reset();
-        $this->form->template_id = $template_id;
-        $this->form->meta = [];
-        $this->form->enabled = true;
-        $this->form->sort = 100;
+        $this->form->template_id  = $template_id;
+        $this->form->enabled      = true;
+        $this->form->sort         = 100;
         $this->form->target_field = 'price';
-        $this->form->mode = 'add';
-        $this->form->generation_name_status = false;
-        $this->form->generation_name_text = null;
-
-        // условие по драйверу
-        $this->form->condition_operator = 'equals';
-        $this->form->condition_value = null;
-
-        $this->form->mapping = [['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => '']];
+        $this->form->mode         = 'add';
+        $this->form->currency     = 'RUB';
+        $this->form->option_conditions       = [];
+        $this->form->option_price_conditions = [];
 
         $this->loadOptions($template_id);
     }
 
     public function templatePriceRuleEditOpenForm(int $id): void
     {
-        $rule = TemplatePriceRule::query()->findOrFail($id);
-
-        // 1) сначала наполняем список опций
+        $rule = TemplatePriceRule::findOrFail($id);
         $this->loadOptions((int)$rule->template_id);
-
-        // 2) потом заполняем форму (driver_option_id уже попадёт в готовый <select>)
         $this->form->editForm($id);
-
-        //dd($this->form);
     }
 
     public function templatePriceRuleDelete(int $id): void
@@ -66,22 +51,32 @@ class TemplatePriceRuleModal extends Component
         $this->dispatch('templateUpdateList');
     }
 
-    public function addMappingRow(): void
+    public function addOptionCondition(): void
     {
-        $this->form->addMappingRow();
+        $this->form->addOptionCondition();
     }
 
-    public function removeMappingRow(int $index): void
+    public function removeOptionCondition(int $index): void
     {
-        $this->form->removeMappingRow($index);
+        $this->form->removeOptionCondition($index);
+    }
+
+    public function addOptionPriceCondition(): void
+    {
+        $this->form->addOptionPriceCondition();
+    }
+
+    public function removeOptionPriceCondition(int $index): void
+    {
+        $this->form->removeOptionPriceCondition($index);
     }
 
     public function saveForm(): void
     {
-        $rule = $this->form->saveForm();              // сохранили
-        $this->loadOptions($this->form->template_id); // на всякий случай обновили список опций
-        $this->form->editForm($rule->id);             // перечитали из БД -> driver_option_id точно будет
-        $this->dispatch('templateUpdateList');        // обновили список шаблонов
+        $rule = $this->form->saveForm();
+        $this->loadOptions($this->form->template_id);
+        $this->form->editForm($rule->id);
+        $this->dispatch('templateUpdateList');
     }
 
     private function loadOptions(int $template_id): void
@@ -91,6 +86,8 @@ class TemplatePriceRuleModal extends Component
             ->orderBy('id')
             ->get(['id', 'name', 'key'])
             ->toArray();
+
+        $this->currencies = Currency::VALUE;
     }
 
     public function render()

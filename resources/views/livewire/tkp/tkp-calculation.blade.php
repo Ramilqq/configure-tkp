@@ -384,6 +384,11 @@
 
         $oprionString = $makeOptionsStr($item);
 
+        $priceRule = 0.0;
+        foreach ($p['price_rules_applied'] ?? [] as $rule) {
+            $priceRule = $priceRule + (intval($rule['value']) * intval($rule['currency_val']));
+        }
+        
         if (isset($table['product_col'][$pid])) {
             $table['product_col'][$pid][4] += $count;
 
@@ -492,7 +497,7 @@
             $table['product_col'][$pid][16]
         ) - $table['product_col'][$pid][13];
 
-        $table['product_col'][$pid][5] = $price * $currency_val;
+        $table['product_col'][$pid][5] = ($price * $currency_val) + $priceRule;
         $table['product_col'][$pid][6] = $table['product_col'][$pid][4] * $table['product_col'][$pid][5];
         $table['product_col'][$pid][7] = isset($p['discount']) ? floatval($p['discount']) : 0;
         $table['product_col'][$pid][8] = $table['product_col'][$pid][6] - ($table['product_col'][$pid][6] * ($table['product_col'][$pid][7] / 100));

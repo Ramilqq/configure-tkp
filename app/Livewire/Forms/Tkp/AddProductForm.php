@@ -27,6 +27,7 @@ class AddProductForm extends Form
             'delivery' => 0,
             'engineering' => [],
             'product_option' => [],
+            'price_rules_applied' => [],
         ],
     ];
 
@@ -47,6 +48,17 @@ class AddProductForm extends Form
             'new_product.product.delivery' => 'nullable|numeric|min:0',
             'new_product.product.engineering.*' => 'nullable',
             'new_product.product.product_option' => 'nullable',
+
+            'new_product.product.price_rules_applied.*.value' => 'nullable|numeric|min:0',
+            'new_product.product.price_rules_applied.*.rule_name' => 'nullable|string',
+            'new_product.product.price_rules_applied.*.currency' => 'nullable|string',
+            'new_product.product.price_rules_applied.*.rule_id' => 'nullable|numeric',
+            'new_product.product.price_rules_applied.*.target' => 'nullable|string',
+            'new_product.product.price_rules_applied.*.mode' => 'nullable|string',
+            'new_product.product.price_rules_applied.*.currency_val' => 'nullable|numeric|min:0',
+            'new_product.product.price_rules_applied.*.before' => 'nullable|numeric|min:0',
+            'new_product.product.price_rules_applied.*.after' => 'nullable|numeric|min:0',
+
         ];
     }
 
@@ -80,6 +92,7 @@ class AddProductForm extends Form
                     $item['product']['price'] = $this->new_product['product']['price'];
                     $item['product']['delivery'] = $this->new_product['product']['delivery'];
                     $item['product']['engineering'] = $this->new_product['product']['engineering'];
+                    $item['product']['price_rules_applied'] = $this->new_product['product']['price_rules_applied'];
                     break;
                 }
             }
@@ -110,6 +123,7 @@ class AddProductForm extends Form
                     $item['params']['product']['price'] = $this->new_product['product']['price'];
                     $item['params']['product']['delivery'] = $this->new_product['product']['delivery'];
                     $item['params']['product']['engineering'] = $this->new_product['product']['engineering'];
+                    $item['params']['product']['price_rules_applied'] = $this->new_product['product']['price_rules_applied'];
                     break;
                 }
             }

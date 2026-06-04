@@ -7,7 +7,6 @@ use App\Models\Configuration\Node;
 use App\Models\Configuration\NodeGroup;
 use App\Models\TableSettings\Product;
 use App\Models\TableSettings\TemplateOption;
-use App\Models\TableSettings\TemplatePriceRule;
 use App\Models\Tkp\Engineering;
 use App\Models\Tkp\Tkp;
 use App\Services\BankRequest;
@@ -43,10 +42,8 @@ class Configuration extends Component
     
     // сохранение схемы
     public array $product_filter_select = [];   // значения в поле селект для каждой опции
-    public array $product_rules_select = [];   // значения в поле селект для каждого правила
 
     public array $getData = [];
-    public array $getRules = [];
     public int $tkp_version = 0;
     public int $id = 0;
     public string $image_name;
@@ -108,14 +105,14 @@ class Configuration extends Component
                 $productModel->price,
                 $option_price_applied] = $frReplace->apply($productModel, $option_applied);
                 
-                // применение правило цены, если есть
-                $calc = $priceRules->apply($productModel, $this->getRules);
+                // применение правила цены (автоматически по опциям продукта)
+                $calc = $priceRules->apply($productModel, $option_applied);
                 
                 // НЕ сохраняем модель, просто подменяем для вывода/схемы
-                $productModel->price = $calc['price'];
-                $productModel->delivery = $calc['delivery'];
+                //$productModel->price = $calc['price'];
+                //$productModel->delivery = $calc['delivery'];
                 $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
-                
+                //dd($applied_rules);
                 // создание хэша по опциям, для количества одинаковых продуктов
                 $productModel->hash = $this->makeFrHash($option_applied + $applied_rules + ['manufacturer' => $this->getData['manufacturer'] ?? '']);
                 
@@ -150,7 +147,6 @@ class Configuration extends Component
                 $this->saved_schema['nodes'][$key]['product_id'] = $product['id'];
                 $this->saved_schema['nodes'][$key]['product_name'] = $product['name'];
                 $this->saved_schema['nodes'][$key]['filter_fields'] = $this->getData;
-                $this->saved_schema['nodes'][$key]['rules_fields'] = $this->getRules;
                 $this->saved_schema['nodes'][$key]['product'] = $product;
 
                 break;
@@ -193,11 +189,11 @@ class Configuration extends Component
                 $productModel->biz_trips = 0;
                 $productModel->connection = 0;
 
-                // --- применяем правила цены ---
+                // --- применяем правила цены (автоматически по опциям продукта) ---
                 $basePrice = $productModel->price;
                 $baseDelivery = $productModel->delivery;
 
-                $calc = $priceRules->apply($productModel, $this->getRules);
+                $calc = $priceRules->apply($productModel);
 
                 // НЕ сохраняем, просто подменяем для вывода/схемы
                 $productModel->price = $calc['price'];
@@ -228,13 +224,12 @@ class Configuration extends Component
                 
                 $this->saved_schema['connections'][$key]['params']['product_id'] = $product['id'];
                 $this->saved_schema['connections'][$key]['params']['filter_fields'] = $this->getData;
-                $this->saved_schema['connections'][$key]['params']['rules_fields'] = $this->getRules;
                 $this->saved_schema['connections'][$key]['params']['product'] = $product;
 
                 break;
             }
         }
-        //dd($this->saved_schema, $this->getData, $this->getRules, $node_id, $conn_id, $type);
+        //dd($this->saved_schema, $this->getData, $node_id, $conn_id, $type);
         unset($query);
         if(!isset($product)) return;
 
@@ -266,20 +261,16 @@ class Configuration extends Component
         $this->message_error = '';
         $this->dispatch($category->getEventMessage(), message_success: '', message_error: '')->to($category->getView());
 
-        // при смене шаблона подгружаем новые опции и правила для фильтра
+        // при смене шаблона подгружаем новые опции для фильтра
         $this->product_filter_select = [];
         $this->product_filter_select = TemplateOption::where('template_id', $template_id)->get()->toArray();
-        $this->product_rules_select = [];
-        $this->product_rules_select = TemplatePriceRule::where('template_id', $template_id)->get()->toArray();
 
         // фильтр для узлов
         foreach($this->saved_schema['nodes'] as $key => $node)
         {
             if ($node['id'] == $node_id)
             {
-                $this->getData = $category->getDefaultFilterFields($this->saved_schema['nodes'][$key]['filter_fields']);;
-                $this->getRules = $this->saved_schema['nodes'][$key]['rules_fields'];
-                
+                $this->getData = $category->getDefaultFilterFields($this->saved_schema['nodes'][$key]['filter_fields']);
                 break;
             }
         }
@@ -289,9 +280,7 @@ class Configuration extends Component
         {
             if ($conn['params']['id'] == $conn_id)
             {
-                $this->getData = $category->getDefaultFilterFields($this->saved_schema['connections'][$key]['params']['filter_fields']);;
-                $this->getRules = $this->saved_schema['connections'][$key]['params']['rules_fields'];
-
+                $this->getData = $category->getDefaultFilterFields($this->saved_schema['connections'][$key]['params']['filter_fields']);
                 break;
             }
         }
@@ -306,8 +295,7 @@ class Configuration extends Component
 
         $this->dispatch(
             $category->getEventSyncModalData(),
-            getData: $this->getData,
-            getRules: $this->getRules
+            getData: $this->getData
         )->to($category->getView());
     }
     
@@ -316,11 +304,9 @@ class Configuration extends Component
         return md5(json_encode($options, JSON_UNESCAPED_UNICODE));
     }
 
-    public function syncModalDataBack($getData, $getRules)
+    public function syncModalDataBack($getData)
     {
-        // Получаем данные из модального компонента ЧРП
         $this->getData = $getData;
-        $this->getRules = $getRules;
     }
 
     public function saveBtn()

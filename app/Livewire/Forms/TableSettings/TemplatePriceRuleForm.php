@@ -2,121 +2,106 @@
 
 namespace App\Livewire\Forms\TableSettings;
 
+use App\Models\TableSettings\Currency;
 use App\Models\TableSettings\TemplatePriceRule;
-use App\Services\StringTranslit;
 use Livewire\Form;
 
 class TemplatePriceRuleForm extends Form
 {
-    public int $id = 0;
-    public int $template_id = 0;
+    public int    $id          = 0;
+    public int    $template_id = 0;
 
-    public string $name = '';
-    public string $key = '';
-    public ?string $description = '';
+    public string  $name        = '';
+    public ?string $description = null;
 
     public bool $enabled = true;
-    public int $sort = 100;
+    public int  $sort    = 100;
 
     public string $target_field = 'price'; // price|delivery
-    public string $mode = 'add';       // replace|add|multiply
+    public string $mode         = 'add';   // replace|add|multiply
 
-    public bool $generation_name_status = false; // false|true - нужно ли генерировать название правила 
-    public ?string $generation_name_text = null; // текст для генерации названия правила
+    public ?float  $value    = null;
+    public string  $currency = 'RUB';
 
-    // условие (проверяем значение драйвера)
-    public string $condition_operator = 'equals'; // exists|filled|equals|not_equals
-    public ?string $condition_value = null;
+    /** @var array<int, array{template_option_id: int|string, operator: string, value: string}> */
+    public array $option_conditions = [];
 
-    public ?string $condition_field = 'checkbox'; // checkbox|select|input
+    /** @var array<int, array{template_option_id: int|string, operator: string, value: string}> */
+    public array $option_price_conditions = [];
 
-    public ?int $driver_option_id = null;
-    public ?int $text_option_id = null;
+    // -------------------------------------------------------------------------
 
-    /** @var array<int, array{from: mixed, to: mixed, value: mixed}> */
-    public array $mapping = [
-        ['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => ''],
-    ];
-
-    public array $meta = [
-        'field_type' => ['input' => 'Строка', 'select' => 'Выпадающий список', 'checkbox' => 'Чекбокс']
-    ];
-
-    public string $text_operator = 'equals'; // exists|filled|equals|not_equals
-    public ?string $text_value = null;
-    public ?string $text_field = 'checkbox'; // checkbox|select|input
-
-    public ?int $fixed_value = null;
-
-    protected function rules()
+    protected function rules(): array
     {
         return [
             'template_id' => 'required|integer|exists:templates,id',
-
-            'name' => 'required|min:2|max:150',
-            'key'  => 'required|min:2|max:200|unique:template_price_rules,key,' . $this->id . ',id,template_id,' . $this->template_id,
-            'description' => 'required|min:1|max:250',
-
-            'enabled' => 'boolean',
-            'sort' => 'required|integer|min:0|max:100000',
-
+            'name'        => 'required|min:2|max:150',
+            'description' => 'nullable|max:250',
+            'enabled'     => 'boolean',
+            'sort'        => 'required|integer|min:0|max:100000',
             'target_field' => 'required|in:price,delivery',
-            'mode' => 'required|in:replace,add,multiply',
+            'mode'         => 'required|in:replace,add,multiply',
+            'value'        => 'nullable|numeric',
+            'currency'     => 'required|in:' . implode(',', Currency::VALUE),
 
-            'generation_name_status' => 'nullable',
-            'generation_name_text' => 'nullable|min:0|max:250',
+            'option_conditions'               => 'nullable|array',
+            'option_conditions.*.template_option_id' => 'required|integer|exists:template_options,id',
+            'option_conditions.*.operator'    => 'required|in:>,>=,=,<,<=',
+            'option_conditions.*.value'       => 'nullable|string|max:255',
 
-            'condition_operator' => 'required|in:exists,filled,equals,not_equals',
-            'condition_value' => 'nullable|max:255',
-            'condition_field' => 'required|in:input,select,checkbox',
-
-            'text_option_id' =>  'nullable|integer|exists:template_options,id',
-            'driver_option_id' => 'nullable|integer|exists:template_options,id',
-
-            'mapping' => 'nullable|array',
-            'mapping.*.from' => 'nullable',
-            'mapping.*.to' => 'nullable',
-            'mapping.*.condition' => 'nullable',
-            'mapping.*.text' => 'nullable',
-            'mapping.*.value' => 'nullable',
-
-            'text_operator' => 'required|in:exists,filled,equals,not_equals',
-            'text_value' => 'nullable|max:255',
-            'text_field' => 'required|in:input,select,checkbox',
-            'fixed_value' => 'nullable|min:0|max:900000',
+            'option_price_conditions'               => 'nullable|array',
+            'option_price_conditions.*.template_option_id' => 'required|integer|exists:template_options,id',
+            'option_price_conditions.*.operator'    => 'required|in:>,>=,=,<,<=',
+            'option_price_conditions.*.value'       => 'nullable|numeric',
         ];
     }
 
-    public function addMappingRow(): void
+    // -------------------------------------------------------------------------
+
+    public function addOptionCondition(): void
     {
-        $this->mapping[] = ['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => ''];
+        $this->option_conditions[] = [
+            'template_option_id' => '',
+            'operator'           => '=',
+            'value'              => '',
+        ];
     }
 
-    public function removeMappingRow(int $index): void
+    public function removeOptionCondition(int $index): void
     {
-        unset($this->mapping[$index]);
-        $this->mapping = array_values($this->mapping);
-        if (count($this->mapping) === 0) {
-            $this->mapping[] = ['from' => '', 'to' => '', 'condition' => '', 'text' => '', 'value' => ''];
-        }
+        unset($this->option_conditions[$index]);
+        $this->option_conditions = array_values($this->option_conditions);
     }
+
+    public function addOptionPriceCondition(): void
+    {
+        $this->option_price_conditions[] = [
+            'template_option_id' => '',
+            'operator'           => '>=',
+            'value'              => '',
+        ];
+    }
+
+    public function removeOptionPriceCondition(int $index): void
+    {
+        unset($this->option_price_conditions[$index]);
+        $this->option_price_conditions = array_values($this->option_price_conditions);
+    }
+
+    // -------------------------------------------------------------------------
 
     public function saveForm(): TemplatePriceRule
     {
-        $this->key = StringTranslit::transliterate($this->name);
-
-        // подчистим mapping
-        $this->mapping = array_values(array_filter($this->mapping, function ($row) {
-            $from = trim((string)($row['from'] ?? ''));
-            $to   = trim((string)($row['to'] ?? ''));
-            $val  = trim((string)($row['value'] ?? ''));
-            return ($from !== '' || $to !== '' || $val !== '');
-        }));
-
         $validated = $this->validate();
 
+        $validated['conditions'] = [
+            'option_conditions'       => $this->option_conditions,
+            'option_price_conditions' => $this->option_price_conditions,
+        ];
 
-        //dd($validated, $this->mapping);
+        // убираем временные поля — в БД их нет
+        unset($validated['option_conditions'], $validated['option_price_conditions']);
+
         $rule = TemplatePriceRule::find($this->id);
         if ($rule) {
             $rule->update($validated);
@@ -131,19 +116,19 @@ class TemplatePriceRuleForm extends Form
     {
         $rule = TemplatePriceRule::findOrFail($id);
 
-        $data = $rule->toArray();
+        $this->id          = $rule->id;
+        $this->template_id = (int)$rule->template_id;
+        $this->name        = (string)$rule->name;
+        $this->description = $rule->description;
+        $this->enabled     = (bool)$rule->enabled;
+        $this->sort        = (int)$rule->sort;
+        $this->target_field = (string)$rule->target_field;
+        $this->mode        = (string)$rule->mode;
+        $this->value       = $rule->value !== null ? (float)$rule->value : null;
+        $this->currency    = (string)($rule->currency ?? 'RUB');
 
-        
-
-        // важное: json-cast вернёт null, если в БД NULL
-        $data['meta'] = $data['meta'] ?? [];
-        $data['mapping'] = $data['mapping'] ?? [];
-
-        $this->fill($data);
-
-        //dd($data, $this);
-        if (empty($this->mapping)) {
-            $this->mapping = [['from' => '', 'to' => '', 'value' => '']];
-        }
+        $conditions = $rule->conditions ?? [];
+        $this->option_conditions       = $conditions['option_conditions']       ?? [];
+        $this->option_price_conditions = $conditions['option_price_conditions'] ?? [];
     }
 }

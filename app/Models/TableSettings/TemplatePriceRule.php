@@ -10,61 +10,28 @@ class TemplatePriceRule extends Model
     protected $fillable = [
         'template_id',
         'name',
-        'key',
         'description',
         'enabled',
         'sort',
-        'target_field',
-        'mode',
-
-        'generation_name_status',   // статус генерации названия
-        'generation_name_text',     // текст для генерации названия
-
-        // условие по значению из rulesForm[$rule->key]
-        'condition_operator',
-        'condition_value',
-        'condition_field',
-
-        // драйвер (диапазоны)
-        'driver_option_id',
-        'mapping',
-
-        // текстовый триггер по опции товара
-        'text_option_id',
-        'text_operator',
-        'text_value',
-        'text_field',
-
-        // фикс значение для правила
-        'fixed_value',
-
-        'meta',
+        'target_field',  // price|delivery
+        'mode',          // replace|add|multiply
+        'value',         // числовое значение применяемое к цене
+        'currency',      // RUB|USD|CNY
+        'conditions',    // JSON: {option_conditions: [...], option_price_conditions: [...]}
     ];
 
     protected $casts = [
-        'enabled' => 'boolean',
-        'mapping' => 'array',
-        'meta' => 'array',
-        'fixed_value' => 'float',
+        'enabled'    => 'boolean',
+        'value'      => 'float',
+        'conditions' => 'array',
     ];
 
     protected $attributes = [
-        'meta' => '[]',
-        'mapping' => '[]',
+        'conditions' => '{"option_conditions":[],"option_price_conditions":[]}',
     ];
 
     public function template(): BelongsTo
     {
         return $this->belongsTo(Template::class, 'template_id');
-    }
-
-    public function driverOption(): BelongsTo
-    {
-        return $this->belongsTo(TemplateOption::class, 'driver_option_id');
-    }
-
-    public function textOption(): BelongsTo
-    {
-        return $this->belongsTo(TemplateOption::class, 'text_option_id');
     }
 }

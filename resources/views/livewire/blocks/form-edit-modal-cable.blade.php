@@ -115,25 +115,7 @@
                 </form>
 
 
-                <hr />
-                <div style="width: 100%; text-align: center;">Правило цены</div>
-                @if($product_rules_select)
-                <form wire:submit="searchProductForm">
-                    <div class="mt-2 small">
-                        @foreach($product_rules_select as $p_rules_key => $p_rules_value)
-                            <label class="form-check">
-                                <input class="form-check-input"
-                                    type="checkbox"
-                                    wire:model="getRules.{{$p_rules_value['key']}}"
-                                >
-                                <span>{{ $p_rules_value['name'] }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </form>
-                @else
-                    <p>Нет правил для выбора</p>
-                @endif
+                {{-- Правила цены применяются автоматически по опциям продукта --}}
 
             </div>
             <div class="modal-body">

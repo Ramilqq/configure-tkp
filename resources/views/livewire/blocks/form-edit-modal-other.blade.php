@@ -79,54 +79,7 @@
 
 
 
-                        <div style="width: 100%; text-align: center;"><b>Правило цены</b></div>
-                        @php 
-                            //dd($product_rules_select);
-                        @endphp
-
-                        @if($product_rules_select)
-                        <form wire:submit="searchProductForm">
-                            
-                                @foreach($product_rules_select as $p_rules_key => $p_rules_value)
-                                <div class="mt-2 small">
-
-                                    @if($p_rules_value['condition_field'] === 'select')
-                                        <label class="form-label" for="p_rules_value{{$p_rules_key}}">{{ $p_rules_value['name'] }}</label>
-                                        @php
-                                            $condition_value = explode(',', $p_rules_value['condition_value']);
-                                        @endphp
-                                        <select
-                                            class="form-select form-select-sm mb-2"
-                                            wire:key="p_rules_value{{$p_rules_key}}"
-                                            wire:model.defer="getRules.{{$p_rules_value['key']}}"
-                                            id="p_rules_value{{$p_rules_key}}"
-                                            wire:change.debounce.500ms="save()"
-                                        >
-                                            <option value="">---</option>
-                                            @foreach($condition_value as $option)
-                                                <option value="{{ $option }}">{{ $option }}</option>
-                                            @endforeach
-                                        </select>
-                                    @elseif($p_rules_value['condition_field'] === 'checkbox')
-                                        
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="p_rules_value{{$p_rules_key}}"
-                                            wire:model.defer="getRules.{{$p_rules_value['key']}}"
-                                            wire:key="p_rules_value{{$p_rules_key}}"
-                                            wire:change.debounce.500ms="save()"
-                                        />
-                                        <label class="form-label" for="p_rules_value{{$p_rules_key}}">{{ $p_rules_value['name'] }}</label>
-                                    @endif
-
-                                </div>
-                                @endforeach
-                            
-                        </form>
-                        @else
-                            <p>Нет правил для выбора</p>
-                        @endif
+                        {{-- Правила цены применяются автоматически по опциям продукта --}}
                     </div>
                 </div>
             </div>

@@ -14,43 +14,35 @@ return new class extends Migration {
                 ->constrained('templates')
                 ->cascadeOnDelete();
 
-            $table->string('name'); // RU
-            $table->string('key');  // EN snake_case
+            $table->string('name');
+            $table->string('description')->nullable();
 
             $table->boolean('enabled')->default(true);
             $table->unsignedInteger('sort')->default(100);
 
             $table->string('target_field')->default('price'); // price|delivery
-            $table->string('mode')->default('replace');       // replace|add|multiply
+            $table->string('mode')->default('add');           // replace|add|multiply
 
-            // условие (БЕЗ выбора опции): проверяем значение драйвера
-            $table->string('condition_operator')->default('exists'); // exists|filled|equals|not_equals
-            $table->string('condition_value')->nullable();
-
-            // драйвер-опция: по ней берём ProductOption.value и делаем lookup/mapping
-            $table->foreignId('driver_option_id')
-                ->nullable()
-                ->constrained('template_options')
-                ->nullOnDelete();
+            $table->decimal('value', 18, 4)->nullable();
+            $table->string('currency', 10)->default('RUB');  // RUB|USD|CNY
 
             /**
-             * mapping: массив правил диапазонов:
-             * [
-             *   {"from": 0, "to": 100, "value": 120000},
-             *   {"from": 100, "to": 200, "value": 140000}
-             * ]
-             * value трактуется по mode:
-             * - replace: поставить target_field = value
-             * - add:     target_field = base + value
-             * - multiply:target_field = base * value
+             * conditions: объект с двумя массивами условий (все AND):
+             * {
+             *   "option_conditions": [
+             *     {"template_option_id": 1, "operator": "=", "value": "да"}
+             *   ],
+             *   "option_price_conditions": [
+             *     {"template_option_id": 2, "operator": ">=", "value": "500"}
+             *   ]
+             * }
+             * option_conditions      — проверяем ProductOption.value
+             * option_price_conditions — проверяем ProductOptionPrice.price
              */
-
-            $table->json('mapping')->nullable();
-            $table->json('meta')->nullable();
+            $table->json('conditions')->nullable();
 
             $table->timestamps();
 
-            $table->unique(['template_id', 'key']);
             $table->index(['template_id', 'enabled', 'sort']);
         });
     }
