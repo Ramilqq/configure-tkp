@@ -35,7 +35,6 @@
                 border: 1px solid #333;
                 background: #e3f2fd;
                 text-align: center;
-                padding-top: 5px;
                 cursor: move;
                 user-select: none;
                 -webkit-user-select: none;
@@ -51,6 +50,19 @@
                 content: '';
                 display: none;
             }
+
+            .node-name {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+
+            .node-lable {
+                position: absolute;
+                top: 0px;
+                left: 65px;
+            }
+
             @media (hover: none) and (pointer: coarse) {
                 /* Только сенсорные экраны: показываем значок карандаша в углу */
                 .node {
@@ -69,14 +81,14 @@
             }
             
             .node img {
-                width: 50px;
-                height: 50px;
+                width: 118px;
+                height: 118px;
             }
             
             .node .label {
                 font-size: 12px;
             }
-            
+
             .connection-label {
                 background: #fff;
                 padding: 2px 4px;
@@ -386,13 +398,15 @@
                     node.style.top = y + "px";
                     const img = document.createElement("img");
                     img.src = settings.image;
-                    node.appendChild(img);
+                    
                     const labelName = savedName || settings.defaultName;
                     const labelExtra = savedExtra || settings.defaultExtra;
-                    node.innerHTML += `<div>${settings.name}</div><div class="label">${labelName}${labelExtra ? ` (${
+                    node.innerHTML += `<div class="node-name">${settings.name}</div><div class="label node-lable">${labelName}${labelExtra ? ` (${
                         labelExtra
                     })
                     ` : ''}</div>`;
+                    node.appendChild(img);
+
                     node.dataset.name = labelName;
                     node.dataset.extra = labelExtra;                
                     node.dataset.group_id = node_group_id;
