@@ -61,6 +61,7 @@
                 position: absolute;
                 top: 0px;
                 left: 65px;
+                font-weight:bold;
             }
 
             @media (hover: none) and (pointer: coarse) {
@@ -401,10 +402,7 @@
                     
                     const labelName = savedName || settings.defaultName;
                     const labelExtra = savedExtra || settings.defaultExtra;
-                    node.innerHTML += `<div class="node-name">${settings.name}</div><div class="label node-lable">${labelName}${labelExtra ? ` (${
-                        labelExtra
-                    })
-                    ` : ''}</div>`;
+                    node.innerHTML += `<!--div class="node-name">${settings.name}</div--><div class="label node-lable">${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div>`;
                     node.appendChild(img);
 
                     node.dataset.name = labelName;
@@ -567,7 +565,7 @@
                         modalTarget.dataset.name = val1;
                         modalTarget.dataset.extra = val2;
                         const label = modalTarget.querySelector(".label");
-                        if (label) label.innerText = val1 + (val2 ? ` (${val2})` : "");
+                        if (label) label.innerHTML = val1 + (val2 ? '<br/>' + `${val2}` : "");
                         const nodeInSchema = savedSchema.nodes.find(n => n.id === modalTarget.id);
                         if (nodeInSchema) {
                             nodeInSchema.name = val1;
