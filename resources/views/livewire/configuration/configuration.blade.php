@@ -31,7 +31,6 @@
             .node {
                 position: absolute;
                 width: 120px;
-                height: 120px;
                 border: 1px solid #333;
                 background: #e3f2fd;
                 text-align: center;
@@ -82,8 +81,7 @@
             }
             
             .node img {
-                width: 118px;
-                height: 118px;
+                width: 100%;
             }
             
             .node .label {
