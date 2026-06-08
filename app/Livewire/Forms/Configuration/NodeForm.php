@@ -40,7 +40,7 @@ class NodeForm extends Form
             'node_group_id' => 'required|exists:node_groups,id',
             'type' => 'required|min:2|max:20|unique:nodes,name,'.$this->id,
             'name' => 'required|min:2|max:20|unique:nodes,name,'.$this->id,
-            'image_upload' => 'nullable|image|mimes:jpg,png,jpeg,svg|max:10480000|dimensions:max_height=120',
+            'image_upload' => 'nullable|image|mimes:jpg,png,jpeg,svg|max:10480000|dimensions:max_height=500',
             'image' => 'required|max:10480000',
             'endpoints_arr' => 'required',
             'endpoints' => 'required',
