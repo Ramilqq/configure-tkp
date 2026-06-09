@@ -30,9 +30,9 @@
             }
             .node {
                 position: absolute;
-                width: 120px;
+                height: 120px;
                 border: 1px solid #333;
-                background: #e3f2fd;
+                background: #ffffff;
                 text-align: center;
                 cursor: move;
                 user-select: none;
@@ -81,7 +81,7 @@
             }
             
             .node img {
-                width: 100%;
+                height: 100%;
             }
             
             .node .label {
@@ -390,6 +390,7 @@
                     const node = document.createElement("div");
                     const id = savedId || "node" + Date.now(); //nodeIdCounter++;
                     const node_group_id = settings.node_group.id;
+                    const template_id = settings.node_group.template_id;
                     node.className = n?.product?.id ? "node" : "node bg-danger";
                     node.title = "Нет привязки к продукту";
                     node.id = id;
@@ -406,6 +407,7 @@
                     node.dataset.name = labelName;
                     node.dataset.extra = labelExtra;                
                     node.dataset.group_id = node_group_id;
+                    node.dataset.template_id = template_id;
                     
                     // для ЧРП отельное окно. 1 = группа ЧРП, остальные - для остальных продуктов. В дальнейшем можно будет расширить
                     if (node_group_id == 1) {
@@ -414,9 +416,9 @@
                             modalTarget = node;
                             modalType = "node";
                             modalId = id;
-                            document.getElementById("modal-input1").value = node.dataset.name;
-                            document.getElementById("modal-input2").value = node.dataset.extra;
-                            document.getElementById("modal-title-node").innerText = "Редактировать узел";
+                            document.getElementById("modal-input1-fr").value = node.dataset.name;
+                            document.getElementById("modal-input2-fr").value = node.dataset.extra;
+                            document.getElementById("modal-title-node-fr").innerText = "Редактировать узел ПЧ";
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
@@ -430,9 +432,9 @@
                             modalTarget = node;
                             modalType = "node";
                             modalId = id;
-                            document.getElementById("modal-input1").value = node.dataset.name;
-                            document.getElementById("modal-input2").value = node.dataset.extra;
-                            document.getElementById("modal-title-node").innerText = "Редактировать узел";
+                            document.getElementById("modal-input1-upp").value = node.dataset.name;
+                            document.getElementById("modal-input2-upp").value = node.dataset.extra;
+                            document.getElementById("modal-title-node-upp").innerText = "Редактировать узел УПП";
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
                             modal.show();
@@ -448,7 +450,7 @@
                             modalId = id;
                             document.getElementById("modal-input1").value = node.dataset.name;
                             document.getElementById("modal-input2").value = node.dataset.extra;
-                            document.getElementById("modal-title-node").innerText = "Редактировать узел";
+                            document.getElementById("modal-title-node").innerText = "Редактировать узел общее";
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
                             modal.show();
@@ -557,8 +559,25 @@
                 function saveModal() {
                     
                     if (modalType === "node" && modalTarget) {
-                        const val1 = document.getElementById("modal-input1").value;
-                        const val2 = document.getElementById("modal-input2").value;
+                        const group_id = modalTarget.dataset.group_id;
+                        let val1 = "";
+                        let val2 = "";
+
+                        // для чрп получаем значение доп полей
+                        if (group_id == 1) {
+                            val1 = document.getElementById("modal-input1-fr").value;
+                            val2 = document.getElementById("modal-input2-fr").value;
+                        }
+                        // для упп получаем значение доп полей
+                        else if (group_id == 4) {
+                            val1 = document.getElementById("modal-input1-upp").value;
+                            val2 = document.getElementById("modal-input2-upp").value;
+                        }
+                        // для остальных продуктов получаем значение доп полей
+                        else {
+                            val1 = document.getElementById("modal-input1").value;
+                            val2 = document.getElementById("modal-input2").value;
+                        }
 
                         modalTarget.dataset.name = val1;
                         modalTarget.dataset.extra = val2;
@@ -569,6 +588,7 @@
                             nodeInSchema.name = val1;
                             nodeInSchema.extra = val2;
                         }
+                        
                         Livewire.dispatch('searchProduct', { node_id: modalTarget.id, type: 'nodes' });
                     }
                     if (modalType === "connection" && modalTarget) {
@@ -822,7 +842,7 @@
 
                 function updateColor (){
                     savedSchema.nodes.forEach(c => {
-                        if (c.product_id > 0){
+                        if (c.product_id > 0 || (c.template_id != 1 &&  c.template_id != 4)){
                             document.getElementById(c.id)?.classList.remove('bg-danger');
                             document.getElementById(c.id)?.setAttribute('title', c.product_name);
                         }

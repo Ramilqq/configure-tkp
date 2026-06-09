@@ -2,7 +2,7 @@
     <div class="modal-dialog" style="--bs-modal-width:800px !important">
         <div class="modal-content">
             <div class="modal-header" wire:ignore>
-                <h5 class="modal-title" id="modal-title-node"></h5>
+                <h5 class="modal-title" id="modal-title-node-fr"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             
@@ -101,16 +101,16 @@
                         <div style="width: 100%; text-align: center;"><b>Общая информация</b></div>
 
                         <div class="mb-3">
-                            <label for="modal-input1" class="form-label">Название</label>
+                            <label for="modal-input1-fr" class="form-label">Название</label>
                             <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input1" class="form-control" placeholder="Название или тип">
+                                <input type="text" id="modal-input1-fr" class="form-control" placeholder="Название или тип">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="modal-input2" class="form-label">Дополнительно</label>
+                            <label for="modal-input2-fr" class="form-label">Дополнительно</label>
                             <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input2" class="form-control" placeholder="Дополнительно">
+                                <input type="text" id="modal-input2-fr" class="form-control" placeholder="Дополнительно">
                             </div>
                         </div>
 

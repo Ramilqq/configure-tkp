@@ -17,6 +17,7 @@ return new class extends Migration
         Template::create(['name' => 'КСО', 'description' => 'Шаблон для КСО']);
         Template::create(['name' => 'Кабель', 'description' => 'Шаблон для Кабеля']);
         Template::create(['name' => 'УПП', 'description' => 'Шаблон для УПП']);
+        Template::create(['name' => 'Без цены', 'description' => 'Шаблон для схемы']);
     }
 
     /**

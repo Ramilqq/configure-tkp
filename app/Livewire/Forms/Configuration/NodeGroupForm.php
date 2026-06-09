@@ -16,7 +16,7 @@ class NodeGroupForm extends Form
     {
         return [
             'template_id' => 'required|numeric|exists:templates,id',
-            'name' => 'required|min:2|max:20|unique:node_groups,name,'.$this->id,
+            'name' => 'required|min:2|max:100|unique:node_groups,name,'.$this->id,
         ];
     }
 

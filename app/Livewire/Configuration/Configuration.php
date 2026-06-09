@@ -70,6 +70,11 @@ class Configuration extends Component
         foreach($this->saved_schema['nodes'] as $key => $node){
             if($node['id'] === $node_id){
 
+                if ($node['template_id'] != 1 && $node['template_id'] != 4) {
+                    $this->dispatch('saved_schema-updated');
+                    break;
+                }
+
                 $category = $this->resolveStrategy($node['template_id']);
 
                 $query = $category->buildQuery($query, $this->getData);
@@ -398,6 +403,7 @@ class Configuration extends Component
     {
         // формирование узлов для конфигурации
         $node = Node::query()->with('nodeGroup')->with('nodeGroup.template')->with('nodeGroup.template.options')->get()->toArray();
+        
         foreach($node as $node_key => $value_node)
         {
             $node[$node_key]['endpoints'] = json_decode($node[$node_key]['endpoints'], 1);
@@ -408,6 +414,7 @@ class Configuration extends Component
                 $node[$node_key]['endpoints'][$anchor_key]['anchor'] = array_values($node[$node_key]['endpoints'][$anchor_key]['anchor']);
             }
         }
+        
         $node = json_encode($node, JSON_UNESCAPED_UNICODE);
         
         // формирование груп для узлов

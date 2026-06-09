@@ -71,10 +71,10 @@ class DimensionSchemeResolver
     private function extractRuleMap(array $node): array
     {
         $rules = [];
-
+        
         if ($node['product']['price_rules_applied']) {
             foreach($node['product']['price_rules_applied'] as $rules_key => $rules_value) {
-                $rules[$rules_value['rule_key']] = $rules_value['form_value'] ?? null;
+                $rules[$rules_value['rule_id']] = $rules_value['value'] ?? null;
             }
         }
         return is_array($rules) ? $rules : [];

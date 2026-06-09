@@ -64,11 +64,6 @@ class PdfController extends Controller
         foreach (($configuration['saved_schema']['nodes'] ?? []) as $key => $node) {
             $pid = $node['product']['hash'] ?? null;
             
-            if (!empty($node['product']['price_rules_applied'])) {
-                foreach($node['product']['price_rules_applied'] as $rules_key => $rules_value) {
-                    $pid .= trim($rules_value['rule_key']);
-                }
-            }
             if (!$pid) continue;
             if (array_key_exists($pid, $dimensionSchemes)) continue;
         
