@@ -67,6 +67,7 @@ class FrProductSearchStrategy extends SearchStrategyAbstract implements SearchSt
             'kpd' => $savedFields['kpd'] ?? '0',
             'cos_phi' => $savedFields['cos_phi'] ?? '0',
             'manufacturer' => $savedFields['manufacturer'] ?? 'ООО "Завод РУ-Драйв"',
+            'count_power_cell' => $savedFields['count_power_cell'] ?? '5',
 
             // Дополнительные опции
             'interface' => $savedFields['interface'] ?? 'RS-485, Modbus RTU',
@@ -79,7 +80,7 @@ class FrProductSearchStrategy extends SearchStrategyAbstract implements SearchSt
             'precharge' => $savedFields['precharge'] ?? 'Нет',
             'service_vfd' => $savedFields['service_vfd'] ?? '',
             'bypass_vfd' => $savedFields['bypass_vfd'] ?? 'Нет',
-            'section_in_out' => $savedFields['section_in_out'] ?? 'Нет',
+            //'section_in_out' => $savedFields['section_in_out'] ?? 'Нет',
             'plc_pt_100' => $savedFields['plc_pt_100'] ?? 'Нет',
         ];
     }
@@ -107,6 +108,13 @@ class FrProductSearchStrategy extends SearchStrategyAbstract implements SearchSt
                 'template_option_id' => $this->templateOptions['i_output']->id,
                 'operator' => '>=',
                 'value' => (int)($getData['nominalnyi_tok_ed_a'] ?? 0),
+            ],
+            [
+                'label' => 'Количество силовых ячеек на фазу',
+                'relation' => 'productOption',
+                'template_option_id' => $this->templateOptions['count_power_cell']->id,
+                'operator' => '>=',
+                'value' => (int)($getData['count_power_cell'] ?? 5),
             ],
             /*[
                 'label' => 'Наличие функции предзаряда',
@@ -199,13 +207,13 @@ class FrProductSearchStrategy extends SearchStrategyAbstract implements SearchSt
                 'operator' => '=',
                 'value' => (string)($getData['bypass_vfd'] ?? ''),
             ],
-            [
+            /*[
                 'label' => 'Секция ввода/вывода сверху',
                 'relation' => 'productOptionPrice',
                 'template_option_id' => $this->templateOptions['section_in_out']->id,
                 'operator' => '=',
                 'value' => (string)($getData['section_in_out'] ?? ''),
-            ],
+            ],*/
             [
                 'label' => 'ПЛК и датчики контроля температуры обмоток и подшипников ЭД',
                 'relation' => 'productOptionPrice',

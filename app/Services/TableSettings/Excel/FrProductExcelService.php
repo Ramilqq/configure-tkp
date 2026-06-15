@@ -180,7 +180,7 @@ class FrProductExcelService
                     'value'     => 'Нет',
                 ],
                 [
-                    'value'     => 'Опция 8',
+                    'value'     => 'Да',
                     'price'     => '[Price_bypassVFD]',
                     'drawing'   => '[Drawing_bypassVFD]',
                     'dimension' => '[Dimension_bypassVFD]',

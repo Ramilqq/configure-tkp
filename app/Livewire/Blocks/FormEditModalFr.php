@@ -78,6 +78,14 @@ class FormEditModalFr extends Component
     {
         if ($value < 0) $this->getData['v_output'] = 0;
         if ($value > 11000) $this->getData['v_output'] = 11000;
+
+        if ($value == 6000) {
+            if ($this->getData['count_power_cell'] > 6) $this->getData['count_power_cell'] = 5;
+        }
+
+        if ($value == 10000) {
+            if ($this->getData['count_power_cell'] < 8) $this->getData['count_power_cell'] = 8;
+        }
         
         $this->getData['v_output'] = $value;
         $this->updateValueCurent();

@@ -10,7 +10,7 @@
 
                 <div class="row g-3 align-items-center pb-1">
                     <div class="col-auto">
-                        Название для схеме
+                        Название соединения
                     </div>
                     <div class="col-auto" style="margin-left:auto;">
                         <input type="text" id="modal-input10" class="form-control mb-2" placeholder="Кабель"
@@ -22,7 +22,7 @@
                 
                 <div class="row g-3 align-items-center pb-1">
                     <div class="col-auto">
-                        Длинна для схеме
+                        Длина соединения, м
                     </div>
                     <div class="col-auto" style="margin-left:auto;">
                         <input type="text" id="modal-input11" class="form-control mb-2" placeholder="1 метр"
@@ -128,7 +128,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal">Удалить</button>
-                <button type="button" class="btn btn-primary" onclick="saveModal()">Сохранить</button>
+                <button type="button" class="btn btn-primary" onclick="saveModal()">Применить</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>

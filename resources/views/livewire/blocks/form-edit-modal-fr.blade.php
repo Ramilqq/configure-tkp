@@ -26,7 +26,7 @@
                                 'plc_syn'                       => 'select',
                                 'plc_pt_100'                    => 'select',
                                 'bypass_vfd'                    => 'select',
-                                'section_in_out'                => 'select',
+                                //'section_in_out'                => 'select',
                             ];
                         @endphp
 
@@ -85,8 +85,8 @@
                                             @endif
 
                                             @if ($product_filter['key'] == 'ip')
-                                            <div class="alert alert-info" role="alert" wire:show="getData.ip == '42'" style="font-size: 11px;">
-                                                Без учета цены воздуховода.
+                                            <div class="alert alert-warning" role="alert" wire:show="getData.ip == '42'" style="font-size: 11px;">
+                                                С учетом воздуховода*
                                             </div>
                                             @endif
                                         </div>
@@ -138,6 +138,7 @@
                         @php 
                             $form_data = [
                                 'vfd_series'                    => 'select',
+                                'count_power_cell'                    => 'select',
                             ];
                         @endphp
 
@@ -158,6 +159,29 @@
                                             >
                                                 @foreach ($product_filter['fields'] as $field)
                                                     @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
+                                                    
+                                                    {{-- Для 6кВ значения 5,6 --}}
+                                                    {{-- Для 10кВ значения 8,9 --}}
+                                                    @elseif ($product_filter['key'] == 'count_power_cell')
+                                                    <?php
+                                                        $disabled = '';
+                                                        if ($getData['v_output'] == 6000) {
+                                                            if ($field < 8) {
+                                                                $disabled = '';
+                                                            } else {
+                                                                $disabled = 'disabled';
+                                                            }
+                                                        }
+
+                                                        if ($getData['v_output'] == 10000) {
+                                                            if ($field > 6) {
+                                                                $disabled = '';
+                                                            } else {
+                                                                $disabled = 'disabled';
+                                                            }
+                                                        }
+                                                    ?>
+                                                    <option value="{{$field}}" {{$disabled}}> {{$field}} </option>
                                                     @else
                                                     <option value="{{$field}}">{{$field}}</option>
                                                     @endif
@@ -291,7 +315,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger me-auto" onclick="deleteModalTarget()" data-bs-dismiss="modal" wire:loading.attr="disabled">Удалить</button>
-                <button type="submit" class="btn btn-primary" onclick="saveModal()" wire:loading.attr="disabled">Сохранить</button>
+                <button type="submit" class="btn btn-primary" onclick="saveModal()" wire:loading.attr="disabled">Применить</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>

@@ -59,8 +59,14 @@
             .node-lable {
                 position: absolute;
                 top: 0px;
-                left: 65px;
+                left: 50%;
                 font-weight:bold;
+                line-height: 8px;
+
+                
+                width: 50%;
+                height: 28px;
+                align-content: center;
             }
 
             @media (hover: none) and (pointer: coarse) {
@@ -85,7 +91,7 @@
             }
             
             .node .label {
-                font-size: 12px;
+                font-size: 10px;
             }
 
             .connection-label {
@@ -401,7 +407,7 @@
                     
                     const labelName = savedName || settings.defaultName;
                     const labelExtra = savedExtra || settings.defaultExtra;
-                    node.innerHTML += `<!--div class="node-name">${settings.name}</div--><div class="label node-lable">${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div>`;
+                    node.innerHTML += `<!--div class="node-name">${settings.name}</div--><div class="label node-lable"><div>${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div></div>`;
                     node.appendChild(img);
 
                     node.dataset.name = labelName;
@@ -418,7 +424,7 @@
                             modalId = id;
                             document.getElementById("modal-input1-fr").value = node.dataset.name;
                             document.getElementById("modal-input2-fr").value = node.dataset.extra;
-                            document.getElementById("modal-title-node-fr").innerText = "Редактировать узел ПЧ";
+                            document.getElementById("modal-title-node-fr").innerText = "Редактировать блок ПЧ";
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
@@ -434,7 +440,7 @@
                             modalId = id;
                             document.getElementById("modal-input1-upp").value = node.dataset.name;
                             document.getElementById("modal-input2-upp").value = node.dataset.extra;
-                            document.getElementById("modal-title-node-upp").innerText = "Редактировать узел УПП";
+                            document.getElementById("modal-title-node-upp").innerText = "Редактировать блок УПП";
                             Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
                             modal.show();
@@ -582,7 +588,7 @@
                         modalTarget.dataset.name = val1;
                         modalTarget.dataset.extra = val2;
                         const label = modalTarget.querySelector(".label");
-                        if (label) label.innerHTML = val1 + (val2 ? '<br/>' + `${val2}` : "");
+                        if (label) label.innerHTML = '<div>'+val1 + (val2 ? '<br/>' + `${val2}` : "")+'</div>';
                         const nodeInSchema = savedSchema.nodes.find(n => n.id === modalTarget.id);
                         if (nodeInSchema) {
                             nodeInSchema.name = val1;
