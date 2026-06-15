@@ -4,6 +4,7 @@ namespace App\Livewire\Configuration;
 
 use App\Livewire\Forms\Configuration\NodeForm;
 use App\Models\Configuration\Node;
+use App\Models\TableSettings\Template;
 use Livewire\WithFileUploads;
 use Livewire\Component;
 
@@ -72,8 +73,10 @@ class NodeModal extends Component
 
     public function render()
     {
-        //dd($this->form);
-        
-        return view('livewire.configuration.node-modal', ['data' => $this->form->endpoints_arr]);
+        $templates = Template::get()->toArray();
+        return view('livewire.configuration.node-modal', [
+            'data' => $this->form->endpoints_arr,
+            'templates' => $templates,
+        ]);
     }
 }

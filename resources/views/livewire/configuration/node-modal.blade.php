@@ -7,6 +7,22 @@
         </div>
 
         <div class="mb-3">
+            <label for="template_id" class="form-label">Шаблон</label>
+            <select class="form-select" wire:model="form.template_id" id="template_id">
+                @forelse($templates as $t_key => $t_value)
+                <option
+                    wire:key="template_id_{{$t_key}}"
+                    value="{{$t_value['id']}}"
+                >
+                    {{ $t_value['name'] }}
+                </option>
+                @empty
+                    <option>Ошибка компонента!</option>
+                @endforelse
+            </select>
+        </div>
+
+        <div class="mb-3">
             <label for="image_upload" class="form-label">Изображение</label>
             <br />
             <span class="form-text">Максимальная высота 120px</span>

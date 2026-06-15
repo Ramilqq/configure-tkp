@@ -8,14 +8,11 @@ use Livewire\Form;
 class NodeGroupForm extends Form
 {
     public int $id = 0;
-    public int $template_id = 0;
     public string $name = '';
-
 
     protected function rules()
     {
         return [
-            'template_id' => 'required|numeric|exists:templates,id',
             'name' => 'required|min:2|max:100|unique:node_groups,name,'.$this->id,
         ];
     }

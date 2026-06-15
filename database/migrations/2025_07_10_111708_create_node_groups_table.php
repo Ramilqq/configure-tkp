@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('node_groups', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('template_id');
 
             $table->string('name')->nullable()->default(NULL);
 

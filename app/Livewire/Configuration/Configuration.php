@@ -402,7 +402,7 @@ class Configuration extends Component
     public function render()
     {
         // формирование узлов для конфигурации
-        $node = Node::query()->with('nodeGroup')->with('nodeGroup.template')->with('nodeGroup.template.options')->get()->toArray();
+        $node = Node::query()->with('nodeGroup')->with('template')->with('template.options')->get()->toArray();
         
         foreach($node as $node_key => $value_node)
         {

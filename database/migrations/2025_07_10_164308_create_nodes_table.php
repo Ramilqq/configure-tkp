@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('node_group_id')->constrained('node_groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('template_id');
 
             $table->string('type')->nullable()->default(NULL);
             $table->string('name')->nullable()->default(NULL);

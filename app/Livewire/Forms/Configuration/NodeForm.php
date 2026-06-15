@@ -13,6 +13,7 @@ class NodeForm extends Form
 
     public int $id = 0;
     public int $node_group_id = 0;
+    public int $template_id = 0;
     public string $type = '';
     public string $name = '';
     public $image_upload;
@@ -38,6 +39,7 @@ class NodeForm extends Form
     {
         return [
             'node_group_id' => 'required|exists:node_groups,id',
+            'template_id' => 'required|numeric|exists:templates,id',
             'type' => 'required|min:2|max:100|unique:nodes,name,'.$this->id,
             'name' => 'required|min:2|max:100|unique:nodes,name,'.$this->id,
             'image_upload' => 'nullable|image|mimes:jpg,png,jpeg,svg|max:10480000|dimensions:max_height=500',

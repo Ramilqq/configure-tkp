@@ -16,7 +16,7 @@ class NodeGroupList extends Component
 
     public function render()
     {
-        $data = NodeGroup::query()->with('nodes')->with('template')->get()->toArray();
+        $data = NodeGroup::query()->with('nodes')->get()->toArray();
         //dd($data);
         return view('livewire.configuration.node-group-list', ['data' => $data]);
     }

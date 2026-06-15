@@ -8,7 +8,7 @@
             <thead class="table-dark">
                 <tr>
                     <th style="width:60px;">ID</th>
-                    <th>Имя / Шаблон</th>
+                    <th>Имя</th>
                     <th style="width:130px;" class="text-center">Действия</th>
                 </tr>
             </thead>
@@ -24,9 +24,6 @@
                             <i class="bi bi-chevron-down small text-muted"></i>
                             {{ $value['name'] }}
                         </a>
-                        <div class="text-muted small">
-                            <i class="bi bi-layout-text-sidebar me-1"></i>Шаблон: {{ $value['template']['name'] ?? '—' }}
-                        </div>
                     </td>
                     <td class="text-center">
                         <button title="Изменить группу" class="btn btn-outline-primary btn-sm"

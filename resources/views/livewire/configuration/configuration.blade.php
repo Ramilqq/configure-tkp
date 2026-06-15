@@ -357,7 +357,7 @@
                         el.className = "mb-2 border rounded p-2 text-center";
                         el.setAttribute("draggable", "true");
                         el.setAttribute("data-type", item.type);
-                        el.setAttribute("data-id", item.node_group.template.id);
+                        el.setAttribute("data-id", item.template.id);
                         el.innerHTML = `
                             <img src="${item.image}" alt="${item.name}" style="width:44px;height:44px;object-fit:contain;">
                             <div class="small mt-1 fw-semibold">${item.name}</div>
@@ -396,7 +396,8 @@
                     const node = document.createElement("div");
                     const id = savedId || "node" + Date.now(); //nodeIdCounter++;
                     const node_group_id = settings.node_group.id;
-                    const template_id = settings.node_group.template_id;
+                    const template_id = settings.template_id;
+                    const name = settings.name;
                     node.className = n?.product?.id ? "node" : "node bg-danger";
                     node.title = "Нет привязки к продукту";
                     node.id = id;
@@ -416,7 +417,7 @@
                     node.dataset.template_id = template_id;
                     
                     // для ЧРП отельное окно. 1 = группа ЧРП, остальные - для остальных продуктов. В дальнейшем можно будет расширить
-                    if (node_group_id == 1) {
+                    if (template_id == 1) {
                         // ПК: двойной клик / Мобильный: одиночный тап
                         const openModalFR = () => {
                             modalTarget = node;
@@ -425,14 +426,14 @@
                             document.getElementById("modal-input1-fr").value = node.dataset.name;
                             document.getElementById("modal-input2-fr").value = node.dataset.extra;
                             document.getElementById("modal-title-node-fr").innerText = "Редактировать блок ПЧ";
-                            Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
+                            Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
                         };
                         node.addEventListener("dblclick", openModalFR);
                         addTapHandler(node, openModalFR);
                     // окно для UPP
-                    } else if (node_group_id == 4) {
+                    } else if (template_id == 4) {
                         // ПК: двойной клик / Мобильный: одиночный тап
                         const openModalUPP = () => {
                             modalTarget = node;
@@ -441,7 +442,7 @@
                             document.getElementById("modal-input1-upp").value = node.dataset.name;
                             document.getElementById("modal-input2-upp").value = node.dataset.extra;
                             document.getElementById("modal-title-node-upp").innerText = "Редактировать блок УПП";
-                            Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
+                            Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
                             modal.show();
                         };
@@ -456,8 +457,8 @@
                             modalId = id;
                             document.getElementById("modal-input1").value = node.dataset.name;
                             document.getElementById("modal-input2").value = node.dataset.extra;
-                            document.getElementById("modal-title-node").innerText = "Редактировать узел общее";
-                            Livewire.dispatch('updateFilter', { template_id: settings.node_group.template.id, node_id: id });
+                            document.getElementById("modal-title-node").innerText = "Редактировать " + name;
+                            Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
                             modal.show();
                         };
@@ -498,7 +499,7 @@
                             name: labelName,
                             extra: labelExtra,
                             product_id: 0,
-                            template_id: settings.node_group.template.id,
+                            template_id: settings.template.id,
                             filter_fields: [],
                             rules_fields: [],
                             //count: 1,
