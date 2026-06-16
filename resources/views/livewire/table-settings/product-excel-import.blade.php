@@ -32,8 +32,8 @@
                         <input type="file" wire:model="file" accept=".xlsx,.xls" class="form-control form-control-sm" />
                         @error('file') <div class="text-warning small mt-1">{{ $message }}</div> @enderror
                         <div class="text-muted small mt-1">
-                            Строка 1 — имена колонок. Строка 2 — подписи (не важно). Данные с 3 строки.
-                            Обновление строго по <b>id</b>.
+                            Строка 3 — заголовки. Строка 4 — tech-ключи <code>[Key]</code>. Данные с 5 строки.
+                            Upsert по <b>hash</b> (ЧРП / УПП) или по <b>id</b> (Generic).
                         </div>
                     </div>
 
@@ -150,23 +150,15 @@
                         <div class="fw-semibold mb-2"><i class="bi bi-check-circle me-1"></i>Импорт выполнен</div>
                         <div><b>Лист:</b> {{ $importResult['sheet'] ?? '' }}</div>
                         <div><b>Template:</b> {{ $importResult['template_id'] ?? '' }}</div>
+                        <div><b>Режим:</b> {{ $importResult['mode'] ?? 'generic' }} / upsert по {{ $importResult['upsert_key'] ?? 'id' }}</div>
                         <hr class="my-2">
-                        <div><b>Создано новых опций:</b> {{ $importResult['created_options'] ?? 0 }}</div>
                         <div><b>Просканировано строк:</b> {{ $importResult['scanned_rows'] ?? 0 }}</div>
-                        <div class="mt-1"><b>Создано товаров всего:</b> {{ $importResult['created_products'] ?? 0 }}</div>
-                        <div class="ms-3">— с указанным id: {{ $importResult['created_products_with_id'] ?? 0 }}</div>
-                        <div class="ms-3">— без id (auto): {{ $importResult['created_products_auto_id'] ?? 0 }}</div>
+                        <div class="mt-1"><b>Создано товаров:</b> {{ $importResult['created_products'] ?? 0 }}</div>
                         @php($createdSample = $importResult['created_product_ids_sample'] ?? [])
                         @if(!empty($createdSample))
-                        <div class="mt-1 text-muted"><b>Пример созданных ID:</b> {{ implode(', ', $createdSample) }}</div>
+                        <div class="ms-3 text-muted">Пример ID: {{ implode(', ', $createdSample) }}</div>
                         @endif
                         <div class="mt-1"><b>Обновлено товаров:</b> {{ $importResult['updated_products'] ?? 0 }}</div>
-                        <div class="mt-1"><b>Пропущено (другой template):</b> {{ $importResult['skipped_rows_wrong_template'] ?? 0 }}</div>
-                        @php($wrong = $importResult['wrong_template_ids_sample'] ?? [])
-                        @if(!empty($wrong))
-                        <div class="text-danger"><b>Пример ID (другой template):</b> {{ implode(', ', $wrong) }}</div>
-                        @endif
-                        <div class="mt-1"><b>Пропущено (нет name при создании):</b> {{ $importResult['skipped_rows_no_name_on_create'] ?? 0 }}</div>
                         <div class="mt-1"><b>Обновлено значений опций (ячейки):</b> {{ $importResult['updated_option_cells'] ?? 0 }}</div>
                     </div>
                     @endif

@@ -109,7 +109,7 @@ class UppProductExcelService
                     'price'     => '[Price_One_Service]',
                     'dimension' => '[Dimension_One_Service]',
                     'weight'    => '[Weight_One_Service]',
-                    'service'   => '[Drawing_One_Service]',
+                    'drawing'   => '[Drawing_One_Service]',
                 ],
             ],
         ],
@@ -219,7 +219,7 @@ class UppProductExcelService
             ]
         ],
 
-        '[wsk]' => [
+        'wsk' => [
             'template_name' => 'Контроллер температуры и влажности',
             'template_key'  => 'wsk',
             'variants' => [
@@ -543,24 +543,12 @@ class UppProductExcelService
             $rowByTech = $this->makeFrRowByTechFromProduct($product, $productOptions, $productPrices);
             $rowByTech = $this->enrichFrDerivedValues($rowByTech);
 
-            $rowNum = $templateRowByHash[(string)$product->fr_hash] ?? null;
-            $isTemplateRow = (bool)$rowNum;
+            $rowNum = $fallbackRowNum++;
 
-            if (!$rowNum) {
-                $rowNum = $fallbackRowNum;
-                $fallbackRowNum++;
-            }
-
-            // Если есть строка из исходного шаблона — B/D/E/F не трогаем.
-            // Если шаблон не найден и мы в skeleton/fallback — заполняем базовые колонки,
-            // чтобы экспорт не был пустым.
-            if (!$isTemplateRow) {
-                $sheet->setCellValue([2, $rowNum], 'FR');
-                $sheet->setCellValue([4, $rowNum], $fallbackSeq);
-                $sheet->setCellValue([5, $rowNum], $product->name);
-                $sheet->setCellValue([6, $rowNum], $product->description);
-                $fallbackSeq++;
-            }
+            $sheet->setCellValue([2, $rowNum], 'FR');
+            $sheet->setCellValue([4, $rowNum], $fallbackSeq++);
+            $sheet->setCellValue([5, $rowNum], $product->name);
+            $sheet->setCellValue([6, $rowNum], $product->description);
 
             foreach ($this->frExportTechColumns() as $techKey => $colIndex) {
                 $sheet->setCellValue(
@@ -647,13 +635,29 @@ class UppProductExcelService
             $productOption->save();
             $updated++;
 
-            /*ProductOptionPrice::query()
-                ->where('product_id', $product->id)
-                ->where('template_option_id', $templateOption->id)
-                ->delete();*/
+            // Собираем все значения, которые придут в этом импорте
+            $incomingValues = [];
+            if (!$this->isFrVariantEmpty($base)) {
+                $incomingValues[] = $this->safeSheetTitle($base['value']);
+            }
+            foreach (($group['variants'] ?? []) as $variantMap) {
+                $variant = $this->extractMappedData($variantMap, $rowByTech);
+                if (!$this->isFrVariantEmpty($variant)) {
+                    $incomingValues[] = $this->safeSheetTitle($variant['value']);
+                }
+            }
+
+            // Удаляем варианты, которых больше нет в файле
+            if (!empty($incomingValues)) {
+                ProductOptionPrice::query()
+                    ->where('product_id', $product->id)
+                    ->where('template_option_id', $templateOption->id)
+                    ->whereNotIn('value', $incomingValues)
+                    ->delete();
+            }
 
             $fields = $templateOption->fields;
-            
+
             // default/base variant — важен для rename/rename_end
             if (!$this->isFrVariantEmpty($base)) {
                 $base['value'] = $this->safeSheetTitle($base['value']);
@@ -689,7 +693,7 @@ class UppProductExcelService
                 }
 
                 $variant['value'] = $this->safeSheetTitle($variant['value']);
-                
+
                 ProductOptionPrice::query()->updateOrCreate([
                     'product_id'         => $product->id,
                     'template_option_id' => $templateOption->id,
@@ -712,14 +716,10 @@ class UppProductExcelService
                         $fields[] = (string)$variant['value'];
                     }
                 }
-
-                /*if ($variantMap['value'] == '[VFD_Series (Minprom)]') {
-                    dd($variantMap, $variant['value'],  $fields);
-                }*/
             }
 
             $templateOption->fields = array_values(array_unique(array_filter($fields)));
-            
+
             $templateOption->save();
         }
 
@@ -856,24 +856,12 @@ class UppProductExcelService
     private function enrichFrDerivedValues(array $rowByTech): array
     {
         $vInput = (string)($rowByTech['[V_input]'] ?? '');
-        $vOutput = (string)($rowByTech['[I_rated]'] ?? '');
 
         $rowByTech['[V_input_name]'] = match ($vInput) {
             '6000'  => '60',
             '10000' => '10',
             default => $vInput,
         };
-
-        $rowByTech['[I_rated_name]'] = match ($vOutput) {
-            '6000'  => '60',
-            '10000' => '10',
-            default => $vOutput,
-        };
-
-        $countPowerCell = (int)($rowByTech['[Count_power_cell]'] ?? 0);
-        $rowByTech['[PWM_level]'] = $countPowerCell > 0
-            ? (string)(2 * $countPowerCell + 1)
-            : '';
 
         return $rowByTech;
     }
@@ -1123,8 +1111,8 @@ class UppProductExcelService
             52 => '[Drawing_Reverse]',
             53 => '[Service_Reverse]',
             54 => '[Dimension_Reverse]',
-            55 => '[Weight_Reverse](Minprom)]',
-            56 => '[Price_Cascade](Minprom)]',
+            55 => '[Weight_Reverse]',
+            56 => '[Price_Cascade]',
             57 => '[Drawing_Cascade]',
             58 => '[Service_Cascade]',
             59 => '[Dimension_Cascade]',

@@ -569,24 +569,12 @@ class FrProductExcelService
             $rowByTech = $this->makeFrRowByTechFromProduct($product, $productOptions, $productPrices);
             $rowByTech = $this->enrichFrDerivedValues($rowByTech);
 
-            $rowNum = $templateRowByHash[(string)$product->fr_hash] ?? null;
-            $isTemplateRow = (bool)$rowNum;
+            $rowNum = $fallbackRowNum++;
 
-            if (!$rowNum) {
-                $rowNum = $fallbackRowNum;
-                $fallbackRowNum++;
-            }
-
-            // Если есть строка из исходного шаблона — B/D/E/F не трогаем.
-            // Если шаблон не найден и мы в skeleton/fallback — заполняем базовые колонки,
-            // чтобы экспорт не был пустым.
-            if (!$isTemplateRow) {
-                $sheet->setCellValue([2, $rowNum], 'FR');
-                $sheet->setCellValue([4, $rowNum], $fallbackSeq);
-                $sheet->setCellValue([5, $rowNum], $product->name);
-                $sheet->setCellValue([6, $rowNum], $product->description);
-                $fallbackSeq++;
-            }
+            $sheet->setCellValue([2, $rowNum], 'FR');
+            $sheet->setCellValue([4, $rowNum], $fallbackSeq++);
+            $sheet->setCellValue([5, $rowNum], $product->name);
+            $sheet->setCellValue([6, $rowNum], $product->description);
 
             foreach ($this->frExportTechColumns() as $techKey => $colIndex) {
                 $sheet->setCellValue(
@@ -673,13 +661,29 @@ class FrProductExcelService
             $productOption->save();
             $updated++;
 
-            /*ProductOptionPrice::query()
-                ->where('product_id', $product->id)
-                ->where('template_option_id', $templateOption->id)
-                ->delete();*/
+            // Собираем все значения, которые придут в этом импорте
+            $incomingValues = [];
+            if (!$this->isFrVariantEmpty($base)) {
+                $incomingValues[] = $this->safeSheetTitle($base['value']);
+            }
+            foreach (($group['variants'] ?? []) as $variantMap) {
+                $variant = $this->extractMappedData($variantMap, $rowByTech);
+                if (!$this->isFrVariantEmpty($variant)) {
+                    $incomingValues[] = $this->safeSheetTitle($variant['value']);
+                }
+            }
+
+            // Удаляем варианты, которых больше нет в файле
+            if (!empty($incomingValues)) {
+                ProductOptionPrice::query()
+                    ->where('product_id', $product->id)
+                    ->where('template_option_id', $templateOption->id)
+                    ->whereNotIn('value', $incomingValues)
+                    ->delete();
+            }
 
             $fields = $templateOption->fields;
-            
+
             // default/base variant — важен для rename/rename_end
             if (!$this->isFrVariantEmpty($base)) {
                 $base['value'] = $this->safeSheetTitle($base['value']);
@@ -715,7 +719,7 @@ class FrProductExcelService
                 }
 
                 $variant['value'] = $this->safeSheetTitle($variant['value']);
-                
+
                 ProductOptionPrice::query()->updateOrCreate([
                     'product_id'         => $product->id,
                     'template_option_id' => $templateOption->id,
@@ -738,14 +742,10 @@ class FrProductExcelService
                         $fields[] = (string)$variant['value'];
                     }
                 }
-
-                /*if ($variantMap['value'] == '[VFD_Series (Minprom)]') {
-                    dd($variantMap, $variant['value'],  $fields);
-                }*/
             }
 
             $templateOption->fields = array_values(array_unique(array_filter($fields)));
-            
+
             $templateOption->save();
         }
 
