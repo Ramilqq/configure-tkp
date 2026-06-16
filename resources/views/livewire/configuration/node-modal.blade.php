@@ -55,7 +55,7 @@
 
                     <div class="col">
                         <span class="form-text">Положение по X от 0 до 1</span>
-                        <input type="range" class="form-range" min="0" max="1" step="0.05" 
+                        <input type="range" class="form-range" min="0" max="1" step="0.01" 
                             wire:model="form.endpoints_arr.{{$endpoint_key}}.anchor.anchor_x"
                             id="endpoints_arr_anchor_{{$endpoint_key}}_anchor_x" 
                         />

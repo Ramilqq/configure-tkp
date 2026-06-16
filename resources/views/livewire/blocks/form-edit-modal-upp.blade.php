@@ -2,7 +2,7 @@
     <div class="modal-dialog" style="--bs-modal-width:800px !important">
         <div class="modal-content">
             <div class="modal-header" wire:ignore>
-                <h5 class="modal-title" id="modal-title-node-upp"></h5>
+                <h5 class="modal-title" id="modal-title-node-upp" x-ref="modalTitle"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             
@@ -46,6 +46,10 @@
                                             >
                                                 @foreach ($product_filter['fields'] as $field)
                                                     @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
+                                                    @elseif ($product_filter['key'] == 'line_switch')
+
+                                                    <option value="{{$field}}">{{$field}}</option>
+                                                    
                                                     @else
                                                     <option value="{{$field}}">{{$field}}</option>
                                                     @endif
@@ -54,10 +58,19 @@
                                             </select>
 
                                             <?php
-                                                if ($key == 'ip') {
+                                                if ($key == 'line_switch') {
                                             ?>
-                                                <div class="alert alert-info" role="alert" style="font-size: 11px;" wire:show="getData.ip == '42'">
-                                                    Без учета цены воздуховода
+                                                <!-- Блок alert показывается, только если совпадают оба условия -->
+                                                <div class="alert alert-warning" role="alert" style="font-size: 11px;"
+                                                    x-show="$wire.getData.line_switch == 'Да' && (document.getElementById('modal-title-node-upp')?.textContent || '').trim() == 'Редактировать Устройство плавного пуска'" 
+                                                    x-cloak>
+                                                    Замените блок “Устройство плавного пуска” на блок “Устройство плавного пуска с линейным”
+                                                </div>
+
+                                                <div class="alert alert-warning" role="alert" style="font-size: 11px;"
+                                                    x-show="$wire.getData.line_switch == 'Нет' && (document.getElementById('modal-title-node-upp')?.textContent || '').trim() == 'Редактировать Устройство плавного пуска с линейным Контактором Выключателем'" 
+                                                    x-cloak>
+                                                    Замените блок “Устройство плавного пуска с линейным” на блок “Устройство плавного пуска”
                                                 </div>
                                             <?php
                                                 }
@@ -161,9 +174,9 @@
                                 wire:change.debounce.500ms="updateData('motor_type', $event.target.value)"
                             >
                                 <option value="A">Асинхронный</option>
-                                <option value="S">Синхронный</option>
+                                <option value="S" disabled>Синхронный</option>
                             </select>
-                            <div class="alert alert-info" role="alert" style="font-size: 11px;" wire:show="getData.motor_type == 'S'">
+                            <div class="alert alert-info" role="alert" style="font-size: 11px;" wire:show="getData.motor_type == 'A'">
                                 <span>
                                     УПП для синхронного двигателя по запросу
                                 </span>
@@ -241,7 +254,11 @@
                             >
                         </div>
 
-                            
+                        <div class="alert alert-info" role="alert" style="font-size: 11px;">
+                            <span>
+                                Для ручного ввода тока и мощности должно быть КПД = 0, Cos φ = 0
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

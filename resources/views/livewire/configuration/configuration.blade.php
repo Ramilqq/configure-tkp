@@ -30,7 +30,7 @@
             }
             .node {
                 position: absolute;
-                height: 120px;
+                /*height: 120px;*/
                 border: 1px solid #333;
                 background: #ffffff;
                 text-align: center;
@@ -425,7 +425,7 @@
                             modalId = id;
                             document.getElementById("modal-input1-fr").value = node.dataset.name;
                             document.getElementById("modal-input2-fr").value = node.dataset.extra;
-                            document.getElementById("modal-title-node-fr").innerText = "Редактировать блок ПЧ";
+                            document.getElementById("modal-title-node-fr").innerText = "Редактировать " + name;
                             Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
@@ -441,7 +441,7 @@
                             modalId = id;
                             document.getElementById("modal-input1-upp").value = node.dataset.name;
                             document.getElementById("modal-input2-upp").value = node.dataset.extra;
-                            document.getElementById("modal-title-node-upp").innerText = "Редактировать блок УПП";
+                            document.getElementById("modal-title-node-upp").innerText = "Редактировать " + name;
                             Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
                             modal.show();

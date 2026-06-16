@@ -60,8 +60,8 @@ class UppProductSearchStrategy implements SearchStrategyInterface
     {
         return [
             'v_input' => $savedFields['v_input'] ?? '6000',
-            'nominalnyi_tok_ed_a' => $savedFields['nominalnyi_tok_ed_a'] ?? '50',
-            'p_output' => $savedFields['p_output'] ?? '420',
+            'nominalnyi_tok_ed_a' => $savedFields['nominalnyi_tok_ed_a'] ?? '0',
+            'p_output' => $savedFields['p_output'] ?? '0',
             //'count_power_thyristors' => $savedFields['count_power_thyristors'] ?? '18',
             'bypass' => $savedFields['bypass'] ?? 'Контактор',
             'kpd' => $savedFields['kpd'] ?? '0',
