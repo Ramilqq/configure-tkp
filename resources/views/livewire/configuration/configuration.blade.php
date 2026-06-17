@@ -567,16 +567,17 @@
                     
                     if (modalType === "node" && modalTarget) {
                         const group_id = modalTarget.dataset.group_id;
+                        const template_id = modalTarget.dataset.template_id;
                         let val1 = "";
                         let val2 = "";
 
                         // для чрп получаем значение доп полей
-                        if (group_id == 1) {
+                        if (template_id == 1) {
                             val1 = document.getElementById("modal-input1-fr").value;
                             val2 = document.getElementById("modal-input2-fr").value;
                         }
                         // для упп получаем значение доп полей
-                        else if (group_id == 4) {
+                        else if (template_id == 4) {
                             val1 = document.getElementById("modal-input1-upp").value;
                             val2 = document.getElementById("modal-input2-upp").value;
                         }
@@ -735,7 +736,8 @@
                                 if (existingLabel) existingLabel.setLabel(label);
                             }
                         });
-                    }, 100);
+                        instance.repaintEverything();
+                    }, 300);
                 }
                 // Сохранить канвас как изображение
                 // не используется, осталось для теста

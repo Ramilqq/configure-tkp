@@ -71,6 +71,7 @@ class Configuration extends Component
             if($node['id'] === $node_id){
 
                 if ($node['template_id'] != 1 && $node['template_id'] != 4) {
+                    //dd($node);
                     $this->dispatch('saved_schema-updated');
                     break;
                 }
