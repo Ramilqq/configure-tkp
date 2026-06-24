@@ -55,6 +55,7 @@ class GenericProductSearchStrategy extends SearchStrategyAbstract implements Sea
     public function getDefaultFilterFields(array $savedFields): array
     {
         $savedFields['manufacturer'] = $savedFields['manufacturer'] ?? 'ООО "Завод РУ-Драйв"';
+        $savedFields['suplier'] = $savedFields['suplier'] ?? 'ООО "Завод РУ-Драйв"';
         return $savedFields; // дефолты берём из saved_schema как есть
     }
 

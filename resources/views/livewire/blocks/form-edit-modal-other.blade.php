@@ -9,37 +9,9 @@
             <div class="modal-body" wire:loading.class="opacity-50">
 
                 <div class="row">
-                    <div class="col-6">
 
-                        <div style="width: 100%; text-align: center;"><b>Опции</b></div>
 
-                        @foreach ($product_filter_select as $key => $product_filter) 
-                            <div class="mb-3" wire:key="getDataDiv-{{$key}}">
-                                
-                                <label for="getData-{{$key}}" class="form-label" style="font-size: 11px;">{{$product_filter['name']}}.</label>
-                                <select
-                                    wire:key="getData-{{$key}}"
-                                    wire:model.defer="getData.{{$key}}"
-                                    id="getData-{{$key}}"
-                                    class="form-select"
-                                    wire:change.debounce.500ms="updateData('{{$key}}', $event.target.value)"
-                                    style="font-size: 11px;"
-                                    
-                                    @foreach ($product_filter['fields'] as $field)
-                                        @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
-                                        @else
-                                        <option value="{{$field}}">{{$field}}</option>
-                                        @endif
-                                    @endforeach
-                    
-                                </select>
-                                
-                            </div>
-                        @endforeach
-                        
-                    </div>
-
-                    <div class="col-6">
+                    <div class="col-12">
                         <div style="width: 100%; text-align: center;"><b>Общая информация</b></div>
 
                         <div class="mb-3">
@@ -73,6 +45,27 @@
                                         }
                                     ?>
                                     <option value="{{ $manufacturer['name'] }}" {{$selected}}>{{ $manufacturer['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="getData.suplier.other" class="form-label">Поставщик</label>
+                            <select
+                                wire:key="getData.suplier.other"
+                                wire:model.defer="getData.suplier"
+                                id="getData.suplier.other"
+                                class="form-select"
+                                wire:change.debounce.500ms="updateValueSuplier($event.target.value)"
+                            >
+                                @foreach($product_suplier_select as $suplier)
+                                    <?php 
+                                        $selected = '';
+                                        if($suplier['name'] == $getData['suplier']) {
+                                            $selected = 'selected';
+                                        }
+                                    ?>
+                                    <option value="{{ $suplier['name'] }}" {{$selected}}>{{ $suplier['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>

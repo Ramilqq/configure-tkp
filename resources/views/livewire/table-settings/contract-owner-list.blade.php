@@ -23,11 +23,13 @@
                     <td>{{ $value->name }}</td>
                     <td class="text-center">
                         <button title="Изменить" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#contactOwnerModalForm"
-                            @click="$dispatch('contactOwnerEditOpen', {id : {{$value->id}} })">
+                            @click="$dispatch('contactOwnerEditOpen', {id : {{$value->id}} })"
+                        >
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <button title="Удалить" class="btn btn-outline-danger btn-sm"
-                            wire:click="delete({{$value->id}})">
+                            wire:click="delete({{$value->id}})"
+                            disabled>
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>

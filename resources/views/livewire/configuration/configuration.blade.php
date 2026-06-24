@@ -62,11 +62,25 @@
                 left: 50%;
                 font-weight:bold;
                 line-height: 8px;
-
-                
                 width: 50%;
                 height: 28px;
                 align-content: center;
+            }
+
+            .node-lable-center {
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                font-weight: bold;
+                line-height: 1.3;
+                word-break: break-word;
+                padding: 4px;
+                box-sizing: border-box;
             }
 
             @media (hover: none) and (pointer: coarse) {
@@ -359,8 +373,8 @@
                         el.setAttribute("data-type", item.type);
                         el.setAttribute("data-id", item.template.id);
                         el.innerHTML = `
-                            <img src="${item.image}" alt="${item.name}" style="width:44px;height:44px;object-fit:contain;">
-                            <div class="small mt-1 fw-semibold">${item.name}</div>
+                            <img src="${item.image}" alt="${item.title}" style="width:44px;height:44px;object-fit:contain;">
+                            <div class="small mt-1 fw-semibold">${item.title}</div>
                             <button class="btn btn-outline-success btn-sm mt-1 w-100 node-add-btn" type="button"
                                 title="Добавить на схему (перетащите на ПК или нажмите на мобильном)">
                                 <i class="bi bi-plus-lg me-1"></i>Добавить
@@ -408,7 +422,9 @@
                     
                     const labelName = savedName || settings.defaultName;
                     const labelExtra = savedExtra || settings.defaultExtra;
-                    node.innerHTML += `<!--div class="node-name">${settings.name}</div--><div class="label node-lable"><div>${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div></div>`;
+                    const isTextBlock = settings.type === 'Tekstovyj_blok';
+                    const labelClass = isTextBlock ? 'node-lable-center' : 'node-lable';
+                    node.innerHTML += `<!--div class="node-name">${settings.name}</div--><div class="label ${labelClass}"><div>${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div></div>`;
                     node.appendChild(img);
 
                     node.dataset.name = labelName;

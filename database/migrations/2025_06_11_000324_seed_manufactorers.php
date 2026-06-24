@@ -14,6 +14,8 @@ return new class extends Migration
     {
         Manufacturer::create(['name' => 'ООО НПП "РУ-Инжиниринг"']);
         Manufacturer::create(['name' => 'ООО "Завод РУ-Драйв"']);
+        Manufacturer::create(['name' => 'Заказчик']);
+        Manufacturer::create(['name' => 'Внешний']);
     }
 
     /**

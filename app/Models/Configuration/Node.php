@@ -12,7 +12,9 @@ class Node extends Model
         'node_group_id',
         'template_id',
         'type',
+        'title',
         'name',
+        'extra',
         'image',
         'endpoints',
     ];

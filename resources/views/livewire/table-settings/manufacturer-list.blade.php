@@ -27,7 +27,8 @@
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <button title="Удалить" class="btn btn-outline-danger btn-sm"
-                            wire:click="delete({{$value->id}})">
+                            wire:click="delete({{$value->id}})"
+                            disabled>
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>

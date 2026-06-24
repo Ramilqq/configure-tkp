@@ -71,7 +71,14 @@ class Configuration extends Component
             if($node['id'] === $node_id){
 
                 if ($node['template_id'] != 1 && $node['template_id'] != 4) {
-                    //dd($node);
+                    
+                    $this->saved_schema['nodes'][$key]['product'] = [
+                        'manufacturer' => $this->getData['manufacturer'] ?? '',
+                        'suplier' => $this->getData['suplier'] ?? '',
+                        ''
+                    ];
+                    $this->saved_schema['nodes'][$key]['filter_fields'] = $this->getData;
+                    //dd($this->saved_schema, $this->getData);
                     $this->dispatch('saved_schema-updated');
                     break;
                 }
@@ -251,7 +258,7 @@ class Configuration extends Component
         }  
 
         $this->dispatch('saved_schema-updated');
-        //dd($this->saved_schema);
+        //dd($this->saved_schema, $this->getData);
     }
 
     public function deleteProduct($id)
@@ -298,7 +305,8 @@ class Configuration extends Component
             conn_id: $conn_id,
             product_filter_select: $this->product_filter_select
         )->to($category->getView());
-
+        
+        //dd($this->getData);
         $this->dispatch(
             $category->getEventSyncModalData(),
             getData: $this->getData
@@ -409,7 +417,7 @@ class Configuration extends Component
         {
             $node[$node_key]['endpoints'] = json_decode($node[$node_key]['endpoints'], 1);
             $node[$node_key]['defaultName'] = $node[$node_key]['name'];
-            $node[$node_key]['defaultExtra'] = '';
+            $node[$node_key]['defaultExtra'] = $node[$node_key]['extra'] ?? '';
             foreach($node[$node_key]['endpoints'] as $anchor_key => $anchor_value)
             {
                 $node[$node_key]['endpoints'][$anchor_key]['anchor'] = array_values($node[$node_key]['endpoints'][$anchor_key]['anchor']);

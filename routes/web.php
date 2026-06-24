@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('table-settings/engineering-list', App\Livewire\TableSettings\EngineeringList::class)->name('table-settings.engineering-list');
     Route::get('table-settings/manufacturer-list', App\Livewire\TableSettings\ManufacturerList::class)->name('table-settings.manufacturer-list');
+    Route::get('table-settings/supplier-list', App\Livewire\TableSettings\SupplierList::class)->name('table-settings.supplier-list');
     Route::get('table-settings/delivery-list', App\Livewire\TableSettings\DeliveryList::class)->name('table-settings.delivery-list');
     Route::get('table-settings/industry-list', App\Livewire\TableSettings\IndustryList::class)->name('table-settings.industry-list');
     Route::get('table-settings/payment-schemes', App\Livewire\TableSettings\PaymentSchemeList::class)->name('table-settings.payment-schemes');

@@ -1,8 +1,8 @@
 <div>
     <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-        <h5 class="mb-0 fw-semibold"><i class="bi bi-credit-card me-2 text-success"></i>Платежные схемы</h5>
-        <button title="Добавить" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#paymentSchemeModalForm"
-            @click="$dispatch('paymentSchemeCreateOpen')">
+        <h5 class="mb-0 fw-semibold"><i class="bi bi-truck me-2 text-success"></i>Поставщики</h5>
+        <button title="Добавить" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#supplierModalForm"
+            @click="$dispatch('supplierCreateOpen')">
             <i class="bi bi-plus-lg me-1"></i>Создать
         </button>
     </div>
@@ -17,14 +17,13 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($paymentScheme as $key => $value)
+                @forelse($suppliers as $value)
                 <tr>
                     <td class="text-center text-muted">{{ $value->id }}</td>
                     <td>{{ $value->name }}</td>
                     <td class="text-center">
-                        <button title="Изменить" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#paymentSchemeModalForm"
-                            @click="$dispatch('paymentSchemeEditOpen', {id : {{$value->id}} })"
-                        >
+                        <button title="Изменить" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#supplierModalForm"
+                            @click="$dispatch('supplierEditOpen', {id : {{$value->id}} })">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <button title="Удалить" class="btn btn-outline-danger btn-sm"
@@ -45,5 +44,5 @@
         </table>
     </div>
 
-    <livewire:table-settings.payment-scheme-edit />
+    <livewire:table-settings.supplier-edit />
 </div>

@@ -2,8 +2,18 @@
     <form wire:submit="saveForm" >
         <x-blocks.error-message />
         <div class="mb-3">
-            <label for="name" class="form-label">Имя</label>
-            <input type="text" wire:model="form.name" class="form-control" placeholder="Имя" id="name" />
+            <label for="title" class="form-label">Заголовок <span class="text-muted small">(отображается в панели слева)</span></label>
+            <input type="text" wire:model="form.title" class="form-control" placeholder="Заголовок" id="title" />
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Название <span class="text-muted small">(отображается на схеме и в поиске)</span></label>
+            <input type="text" wire:model="form.name" class="form-control" placeholder="Название" id="name" />
+        </div>
+
+        <div class="mb-3">
+            <label for="extra" class="form-label">Дополнительно <span class="text-muted small">(отображается на схеме под названием)</span></label>
+            <input type="text" wire:model="form.extra" class="form-control" placeholder="Дополнительно" id="extra" />
         </div>
 
         <div class="mb-3">

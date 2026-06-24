@@ -16,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Tkp\Engineering::class => \App\Policies\EngineeringPolicy::class,
         \App\Models\Tkp\Industry::class => \App\Policies\IndustryPolicy::class,
         \App\Models\Tkp\Manufacturer::class => \App\Policies\ManufacturerPolicy::class,
+        \App\Models\Tkp\Supplier::class => \App\Policies\SupplierPolicy::class,
         \App\Models\Tkp\PaymentScheme::class => \App\Policies\PaymentSchemePolicy::class,
     ];
 

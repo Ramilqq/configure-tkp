@@ -18,7 +18,9 @@ return new class extends Migration
             $table->unsignedInteger('template_id');
 
             $table->string('type')->nullable()->default(NULL);
+            $table->string('title')->nullable()->default(NULL);
             $table->string('name')->nullable()->default(NULL);
+            $table->string('extra')->nullable()->default(NULL);
             $table->longText('image')->nullable()->default(NULL);
             $table->text('endpoints')->nullable()->default(NULL);
 

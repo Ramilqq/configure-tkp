@@ -95,6 +95,13 @@
                                         <i class="bi bi-person-badge me-2"></i>Владелец договора</a></li>
                                 @endcan
 
+                                @can('view', new \App\Models\Tkp\Supplier)
+                                    <li><a class="dropdown-item @if(url()->current() == route('table-settings.supplier-list')) active @endif"
+                                        href="{{ route('table-settings.supplier-list') }}">
+                                        <i class="bi bi-person-badge me-2"></i>Поставщики</a></li>
+                                @endcan
+
+                                
                                 @can('view', new \App\Models\Tkp\ContractOwner)
                                     <li><a class="dropdown-item @if(url()->current() == route('table-settings.user-list')) active @endif"
                                         href="{{ route('table-settings.user-list') }}">
