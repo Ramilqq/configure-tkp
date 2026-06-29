@@ -125,7 +125,14 @@
             if ($node['product']['drawing']) {
                 $img = public_path('storage/drawing/'.$node['product']['drawing'].'.jpg');
 
-                if (file_exists($img)) {
+                $power_cell_bypass_img = false;
+                if ($node['product']['option_applied']) {
+                    foreach ($node['product']['option_applied'] as $key_img => $option) {
+                        if ($option['value'] == 'Механический') $power_cell_bypass_img = true;
+                    }
+                }
+
+                if (file_exists($img) && !$power_cell_bypass_img) {
 
                     ?>
                         <page orientation="L" backtop="22mm" backbottom="0mm" backleft="10mm" backright="10mm">

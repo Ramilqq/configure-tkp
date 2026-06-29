@@ -561,6 +561,8 @@
     $form->pay_params['resault_total'] = $total;
     $form->pay_params['resault_nds'] = $nds;
     $form->pay_params['resault_total_nds'] = $total_nds;
+
+    $price_cols = [5, 6, 8, 11, 14, 15, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 36, 37, 41, 42, 43, 44];
 @endphp
 
                 <table class="table table-bordered table-hover align-middle mb-0">
@@ -600,7 +602,7 @@
                                     />
                                     </td>
                                     @else
-                                    <td>{!! $key == 5 ? number_format((int)$prod_col[$key], 0, '.', ' ') : $prod_col[$key] !!}</td>
+                                    <td>{!! in_array((int)$key, $price_cols) ? number_format((int)$prod_col[$key], 0, '.', ' ') : $prod_col[$key] !!}</td>
                                     @endif
                                 @else
                                 <td class="text-muted">{{ $key }}</td>
