@@ -47,9 +47,12 @@
                                                 @foreach ($product_filter['fields'] as $field)
                                                     @if ($product_filter['key'] == 'power_cell_bypass' && $field == 'Электронный')
                                                     @elseif ($product_filter['key'] == 'line_switch')
+                                                    <?php $disabled = ''; ?>
+                                                    {{-- включение и отключение полей в модальном окне при открытии модального окна УПП --}}
+                                                    <?php if ($modal_title == 'Редактировать УПП' && $field == 'Да') $disabled = 'disabled'; ?>
+                                                    <?php if ($modal_title == 'Редактировать УПП лин.' && $field == 'Нет') $disabled = 'disabled'; ?>
 
-                                                    <option value="{{$field}}">{{$field}}</option>
-                                                    
+                                                    <option value="{{$field}}" {{ $disabled }}>{{$field}}</option>
                                                     @else
                                                     <option value="{{$field}}">{{$field}}</option>
                                                     @endif
@@ -62,13 +65,13 @@
                                             ?>
                                                 <!-- Блок alert показывается, только если совпадают оба условия -->
                                                 <div class="alert alert-warning" role="alert" style="font-size: 11px;"
-                                                    x-show="$wire.getData.line_switch == 'Да' && (document.getElementById('modal-title-node-upp')?.textContent || '').trim() == 'Редактировать Устройство плавного пуска'" 
+                                                    x-show="$wire.getData.line_switch == 'Да' && (document.getElementById('modal-title-node-upp')?.textContent || '').trim() == 'Редактировать УПП'" 
                                                     x-cloak>
                                                     Замените блок “Устройство плавного пуска” на блок “Устройство плавного пуска с линейным”
                                                 </div>
 
                                                 <div class="alert alert-warning" role="alert" style="font-size: 11px;"
-                                                    x-show="$wire.getData.line_switch == 'Нет' && (document.getElementById('modal-title-node-upp')?.textContent || '').trim() == 'Редактировать Устройство плавного пуска с линейным Контактором Выключателем'" 
+                                                    x-show="$wire.getData.line_switch == 'Нет' && (document.getElementById('modal-title-node-upp')?.textContent || '').trim() == 'Редактировать УПП лин.'" 
                                                     x-cloak>
                                                     Замените блок “Устройство плавного пуска с линейным” на блок “Устройство плавного пуска”
                                                 </div>
@@ -282,4 +285,17 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        document.getElementById('editModalUPP').addEventListener('shown.bs.modal', () => {
+            // включение и отключение полей в модальном окне при открытии модального окна УПП
+            Livewire.dispatch('uppModalOpened', {
+                data : {
+                    modalTitle: document.getElementById('modal-title-node-upp').textContent.trim(),
+                    modalInput1: document.getElementById('modal-input1-upp').value.trim(),
+                    modalInput2: document.getElementById('modal-input2-upp').value.trim()
+                }
+            });
+        });
+    </script>
 </div>

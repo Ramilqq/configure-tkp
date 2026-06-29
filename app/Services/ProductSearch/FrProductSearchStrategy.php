@@ -56,7 +56,7 @@ class FrProductSearchStrategy extends SearchStrategyAbstract implements SearchSt
         return $query;
     }
 
-    public function getDefaultFilterFields(array $savedFields): array
+    public function getDefaultFilterFields(array $savedFields, string $type = ''): array
     {
         return [
             // Характеристики электродвигателя

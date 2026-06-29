@@ -281,9 +281,11 @@ class Configuration extends Component
         // фильтр для узлов
         foreach($this->saved_schema['nodes'] as $key => $node)
         {
+            //dd($this->saved_schema['nodes']);
+
             if ($node['id'] == $node_id)
             {
-                $this->getData = $category->getDefaultFilterFields($this->saved_schema['nodes'][$key]['filter_fields']);
+                $this->getData = $category->getDefaultFilterFields($this->saved_schema['nodes'][$key]['filter_fields'], $this->saved_schema['nodes'][$key]['type'] ?? '');
                 break;
             }
         }

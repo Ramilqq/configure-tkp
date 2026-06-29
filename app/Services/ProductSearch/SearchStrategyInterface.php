@@ -17,7 +17,7 @@ interface SearchStrategyInterface
     public function buildQuery(Builder $query, array $filterData): Builder;
     // формируем массив полей для фильтра,
     // которые будут отображаться в форме при открытии модального окна редактирования
-    public function getDefaultFilterFields(array $savedFields): array;
+    public function getDefaultFilterFields(array $savedFields, string $type): array;
     // формируем массив проверок, которые последовательно применяем к запросу
     // при диагностике причин отсутствия результатов,
     // а также для формирования альтернативных вариантов для корректировки фильтра

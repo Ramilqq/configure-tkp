@@ -17,6 +17,8 @@ class FormEditModalOther extends Component
     public string $message_success = '';
     public string $message_error = '';
 
+    public string $modal_title = '';
+
     #[On('editModalOther.updateFilter')]
     public function updateFilter($template_id, $node_id = null, $conn_id = null, $product_filter_select)
     {
@@ -36,6 +38,12 @@ class FormEditModalOther extends Component
     {
         $this->message_success = $message_success;
         $this->message_error = $message_error;
+    }
+
+    // включение и отключение полей в модальном окне при открытии модального окна УПП
+    #[On('otherModalOpened')]
+    public function handleOtherModalOpen($data = []) {
+        return;
     }
 
     // обновляем данные в модальном окне при изменении характеристик электродвигателя и пересчитываем номинальный ток

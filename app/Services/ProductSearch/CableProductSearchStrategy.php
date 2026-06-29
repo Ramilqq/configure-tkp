@@ -47,7 +47,7 @@ class CableProductSearchStrategy extends SearchStrategyAbstract implements Searc
         return $query;
     }
 
-    public function getDefaultFilterFields(array $savedFields): array
+    public function getDefaultFilterFields(array $savedFields, string $type = ''): array
     {
         $savedFields['manufacturer'] = $savedFields['manufacturer'] ?? '';
         $savedFields['price'] = $savedFields['price'] ?? 0;

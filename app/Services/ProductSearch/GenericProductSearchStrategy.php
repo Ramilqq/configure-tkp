@@ -52,10 +52,32 @@ class GenericProductSearchStrategy extends SearchStrategyAbstract implements Sea
         return $query;
     }
 
-    public function getDefaultFilterFields(array $savedFields): array
+    public function getDefaultFilterFields(array $savedFields, string $type = ''): array
     {
-        $savedFields['manufacturer'] = $savedFields['manufacturer'] ?? 'ООО "Завод РУ-Драйв"';
-        $savedFields['suplier'] = $savedFields['suplier'] ?? 'ООО "Завод РУ-Драйв"';
+        $manufacturer   = 'ООО "Завод РУ-Драйв"';
+        $suplier        = 'ООО "Завод РУ-Драйв"';
+        
+         
+        if ($type === 'Asinxronnyj_dvigatel' || 
+            $type === 'Sinxronnyj_dvigatel_s_postoyannymi_magnitami' || 
+            $type === 'Sinxronnyj_dvigatel'
+        ) $manufacturer = 'Внешний';
+        
+        if ($type === 'Asinxronnyj_dvigatel' || 
+            $type === 'Sinxronnyj_dvigatel_s_postoyannymi_magnitami' || 
+            $type === 'Sinxronnyj_dvigatel'
+        ) $suplier = 'Внешний';
+         
+        if ($type === 'Yachejka_pitaniya' || 
+            $type === 'Izmeritelnyj_transformator_napryazheniya'
+        ) $manufacturer = 'Заказчик';
+        
+        if ($type === 'Yachejka_pitaniya' || 
+            $type === 'Izmeritelnyj_transformator_napryazheniya'
+        ) $suplier = 'Заказчик';
+        
+        $savedFields['manufacturer'] = $savedFields['manufacturer'] ?? $manufacturer;
+        $savedFields['suplier'] = $savedFields['suplier'] ?? $suplier;
         return $savedFields; // дефолты берём из saved_schema как есть
     }
 

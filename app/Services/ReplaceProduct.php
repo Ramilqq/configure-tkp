@@ -111,7 +111,7 @@ class ReplaceProduct
 Габаритные размеры УПП (ДхГхВ): [Dimension_SMV]мм. Вес:[Weight_SMV]кг. Способ обслуживания: [Service_SMV].
 Интерфейс связи с АСУ ТП: [Interface].
 
-Опции:[Reverse][WSK]';
+Опции:[Line_Switch][WSK]';
 
         $newPrice = 0;
 
@@ -206,7 +206,31 @@ class ReplaceProduct
                 return (string)$value['airflow_rate']['value'];
             },
             '[Dimension_VFD_standart]' => function ($value = []) {
-                return (string)$value['dimension_vfd_standard']['value'];
+                
+                foreach($value as &$option_arr) {
+                    $option_arr['dimension'] = $option_arr['dimension'] ?? '0х0х0';
+                }
+                $dimension_arr[] = explode('х', $value['dimension_vfd_standard']['value']);
+                $dimension_arr[] = explode('х', $value['sync_to_grid']['dimension']);
+                $dimension_arr[] = explode('х', $value['power_cell_bypass']['dimension']);
+                $dimension_arr[] = explode('х', $value['precharge']['dimension']);
+                $dimension_arr[] = explode('х', $value['bypass_vfd']['dimension']);
+                $dimension_arr[] = explode('х', $value['section_in_out']['dimension']);
+                
+                $dimension_all[0] = 0;
+                $dimension_all[1] = 0;
+                $dimension_all[2] = 0;
+                //dd($dimension_arr);
+                foreach ($dimension_arr as $dimension){
+                    $dimension_all[0] = $dimension_all[0] + (int)$dimension[0] ?? 0;
+                    $dimension_all[1] = $dimension_all[1] + (int)$dimension[1] ?? 0;
+                    if((int)$dimension[2] > $dimension_all[2]) {
+                        $dimension_all[2] = (int)$dimension[2] ?? 0;
+                    }
+                }
+                
+                return (string)($dimension_all[0] . 'х' . $dimension_all[1] . 'х' . $dimension_all[2]);
+                //return (string)$value['dimension_vfd_standard']['value'];
             },
             '[VFD_Weight]' => function ($value = []) {
                 return (string)$value['vfd_weight']['value'];
@@ -288,9 +312,9 @@ class ReplaceProduct
             '[Service_SMV]' => function ($value = []) {
                 return (string)$value['service_smv']['value'];
             },
-            '[Reverse]' => function ($value = []) {
-                if ($value['motor_reverse']['value'] == 'Да') {
-                    return PHP_EOL .'Реверс двигателя (Секция реверса). Добавляется секция реверса (СР) стандартно слева от УПП. Габаритные размеры СР: '.$value['motor_reverse']['dimension'].'мм. Способ обслуживания СР: '.$value['motor_reverse']['service'].'. Вес СР: '.$value['motor_reverse']['weight'].'кг.';
+            '[Line_Switch]' => function ($value = []) {
+                if ($value['line_switch']['value'] == 'Да') {
+                    return PHP_EOL .'Линейный выключатель (Встроен в корпус УПП)';
                 }
                 return null;
             },

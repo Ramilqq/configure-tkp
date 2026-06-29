@@ -38,7 +38,7 @@
                                 <b>Работы:</b>
                                 <div class="row mb-3 align-items-end">
                                     @foreach(($product->getEngineeringList() ?? ['Нет данных' => 'non']) as $k => $v)
-                                        <div class="col-3">
+                                        <div class="col-3 text-center">
                                             <label for="{{ $k }}" class="form-label">{{ $v }}</label>
                                             <input id="{{ $k }}" type="number" class="form-control" placeholder="0" wire:model="form.new_product.product.engineering.{{ $k }}">
                                         </div>

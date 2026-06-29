@@ -96,4 +96,17 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('editModal').addEventListener('shown.bs.modal', () => {
+            // включение и отключение полей в модальном окне при открытии модального окна
+            Livewire.dispatch('otherModalOpened', {
+                data : {
+                    modalTitle: document.getElementById('modal-title-node').textContent.trim(),
+                    modalInput1: document.getElementById('modal-input1').value.trim(),
+                    modalInput2: document.getElementById('modal-input2').value.trim()
+                }
+            });
+        });
+    </script>
 </div>

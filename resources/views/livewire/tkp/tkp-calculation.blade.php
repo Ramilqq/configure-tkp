@@ -141,12 +141,12 @@
                             </thead>
                             <tbody>
                                 @forelse($saved_schema['nodes'] as $nodes)
-                                    @php if (!isset($nodes['product'])) continue; @endphp
+                                    @php if (!isset($nodes['product']['id'])) continue; @endphp
                                     <tr>
                                         <td class="text-center text-muted">{{ $nodes['product']['id'] }}</td>
                                         <td>{{ $nodes['product']['name'] }}</td>
                                         <td>{{ $nodes['product']['count'] ?? 1}}</td>
-                                        <td>{{ $nodes['product']['price'] }}</td>
+                                        <td>{{ number_format((int)$nodes['product']['price'], 0, '.', ' ') }}</td>
                                         <td><span class="badge bg-secondary">{{ $nodes['product']['currency'] }}</span></td>
                                         <td>{{ $nodes['product']['currency_val'] }}</td>
                                         <td>{{ $nodes['product']['delivery'] }} <small class="text-muted">RUB</small></td>
@@ -211,6 +211,46 @@
                                 @endif
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Запоминалка --}}
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-header bg-dark text-white py-2 px-3 d-flex align-items-center justify-content-between">
+                    <span class="small fw-semibold"><i class="bi bi-box-seam me-1"></i>Внимание</span>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <div class="alert alert-warning m-0 rounded-0 small" role="alert">
+                            
+                            <?php
+                            $fr_ip42 = false;
+                            $fr_power_cell_bypass = false;
+                            if (isset($saved_schema['nodes'])) {
+                                foreach($saved_schema['nodes'] as $nodes) {
+                                    if (isset($nodes['template_id']) && $nodes['template_id'] == 1) {
+                                        
+                                        if ($nodes['product']['option_applied']['ip']['value'] == '42' && !$fr_ip42) {
+                                            $fr_ip42 = true;
+                                            echo '<i class="bi bi-exclamation-triangle me-1"></i>';
+                                            echo 'Опция IP42 с учетом стоимости воздуховода: 200 000р. Приведенная стоимость воздуховода является ориентировочной и учитывает затраты на материалы, проектирование и изготовление. Окончательная цена воздуховода определяется конфигурацией выбранного ЧРП и его дополнительных опций. Итоговый расчет предоставляется по запросу отдельно';
+                                            echo '<br>';
+                                            echo '<br>';
+                                        }
+                                        if ($nodes['product']['option_applied']['power_cell_bypass']['value'] == 'Механический' && !$fr_power_cell_bypass) {
+                                            $fr_power_cell_bypass = true;
+                                            echo '<i class="bi bi-exclamation-triangle me-1"></i>';
+                                            echo 'Опция байпас неисправной силовой ячейки (электронный) предоставляется по запросу. Обратитесь в техническую поддержку продукта';
+                                            echo '<br>';
+                                            echo '<br>';
+                                        }
+                                    }
+                                }
+                            }
+                            ?>   
+                        </div>
                     </div>
                 </div>
             </div>
@@ -497,7 +537,10 @@
             $table['product_col'][$pid][16]
         ) - $table['product_col'][$pid][13];
 
-        $table['product_col'][$pid][5] = ($price * $currency_val) + $priceRule;
+        $col5 = ($price * $currency_val) + $priceRule;
+        $col5 = (int)$col5;
+
+        $table['product_col'][$pid][5] = $col5;
         $table['product_col'][$pid][6] = $table['product_col'][$pid][4] * $table['product_col'][$pid][5];
         $table['product_col'][$pid][7] = isset($p['discount']) ? floatval($p['discount']) : 0;
         $table['product_col'][$pid][8] = $table['product_col'][$pid][6] - ($table['product_col'][$pid][6] * ($table['product_col'][$pid][7] / 100));
@@ -557,7 +600,7 @@
                                     />
                                     </td>
                                     @else
-                                    <td>{!! $prod_col[$key] !!}</td>
+                                    <td>{!! $key == 5 ? number_format((int)$prod_col[$key], 0, '.', ' ') : $prod_col[$key] !!}</td>
                                     @endif
                                 @else
                                 <td class="text-muted">{{ $key }}</td>

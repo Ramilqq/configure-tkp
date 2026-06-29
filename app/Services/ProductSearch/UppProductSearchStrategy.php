@@ -56,7 +56,7 @@ class UppProductSearchStrategy implements SearchStrategyInterface
         return $query;
     }
 
-    public function getDefaultFilterFields(array $savedFields): array
+    public function getDefaultFilterFields(array $savedFields, string $type = ''): array
     {
         return [
             'v_input' => $savedFields['v_input'] ?? '6000',
