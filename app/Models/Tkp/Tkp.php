@@ -104,6 +104,11 @@ class Tkp extends Model
         return $this->hasOne(User::class, 'id', 'user_id')->first();
     }
 
+    public function updateUser(): ?Model
+    {
+        return $this->hasOne(User::class, 'id', 'update_user_id')->first();
+    }
+
     public function configuration(): Model
     {
         return $this->hasOne(Configuration::class, 'tkp_version', 'tkp_version')->first();

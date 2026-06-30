@@ -222,10 +222,15 @@ class ReplaceProduct
                 $dimension_all[2] = 0;
                 //dd($dimension_arr);
                 foreach ($dimension_arr as $dimension){
-                    $dimension_all[0] = $dimension_all[0] + (int)$dimension[0] ?? 0;
-                    $dimension_all[1] = $dimension_all[1] + (int)$dimension[1] ?? 0;
-                    if((int)$dimension[2] > $dimension_all[2]) {
-                        $dimension_all[2] = (int)$dimension[2] ?? 0;
+                    // длина (Д): секции стоят в ряд вдоль длины — суммируем
+                    $dimension_all[0] = $dimension_all[0] + (int)($dimension[0] ?? 0);
+                    // глубина (Г): секции стоят в ряд, глубина не складывается — берём максимум
+                    if((int)($dimension[1] ?? 0) > $dimension_all[1]) {
+                        $dimension_all[1] = (int)($dimension[1] ?? 0);
+                    }
+                    // высота (В): берём максимум
+                    if((int)($dimension[2] ?? 0) > $dimension_all[2]) {
+                        $dimension_all[2] = (int)($dimension[2] ?? 0);
                     }
                 }
                 

@@ -11,7 +11,10 @@
             <thead class="table-dark">
                 <tr>
                     <th style="width:60px;">ID</th>
-                    <th>Пользователь</th>
+                    <th>Дата создания</th>
+                    <th>Дата изменения</th>
+                    <th>Менеджер</th>
+                    <th>Последнее изменение</th>
                     <th>Проект</th>
                     <th>Заказчик</th>
                     <th>Комментарий</th>
@@ -22,7 +25,10 @@
                 @forelse($tkp as $key => $value)
                 <tr>
                     <td class="text-center fw-semibold text-muted">{{ $value->id }}</td>
-                    <td>{{ $value->user()->name }}</td>
+                    <td class="small">{{ $value->created_at }}</td>
+                    <td class="small">{{ $value->updated_at }}</td>
+                    <td>{{ $value->user()?->name }}</td>
+                    <td>{{ $value->updateUser()?->name ?? '—' }}</td>
                     <td>{{ $value->project_name }}</td>
                     <td>{{ $value->client_name }}</td>
                     <td class="text-muted small">{{ $value->comments }}</td>
@@ -38,7 +44,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
+                    <td colspan="9" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-3 d-block mb-2"></i>Нет записей
                     </td>
                 </tr>

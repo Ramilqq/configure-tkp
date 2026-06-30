@@ -26,8 +26,14 @@
     <h4 style="text-align: center;">9. Условная схема подключения</h4>
     
     @if($node['product']['option_applied']['vfd_series'] == 'Стандарт' || $node['product']['option_applied']['vfd_series'] == 'Стандарт (Минпромторг)')
-    <img src="<?= public_path('assets/image/pdf/scheme.jpg') ?>" style="width:750px;height:900px;">
+    {{-- scheme.jpg 1832x3104 (соотношение ~0.59) — задаём ширину пропорционально высоте, чтобы не растягивать --}}
+    <div style="text-align:center;">
+        <img src="<?= public_path('assets/image/pdf/scheme.jpg') ?>" style="width:531px;height:900px;">
+    </div>
     @else
-    <img src="<?= public_path('assets/image/pdf/scheme_c.jpg') ?>" style="width:750px;height:900px;">
+    {{-- scheme_c.jpg 669x1164 (соотношение ~0.575) --}}
+    <div style="text-align:center;">
+        <img src="<?= public_path('assets/image/pdf/scheme_c.jpg') ?>" style="width:518px;height:900px;">
+    </div>
     @endif
 </page>

@@ -14,6 +14,11 @@
         }
         return preg_replace($search, $replace, $string);
     }
+
+    // Форматирование денежных/числовых значений: 3 знака после запятой, округление в большую сторону
+    function money3($v){
+        return number_format(ceil((float)$v * 1000) / 1000, 3, ',', ' ');
+    }
 ?>
 
 <style>
@@ -74,14 +79,14 @@
     <table class="tkp_table" ыstyle="width: 100%; table-layout: fixed;">
         <thead>
             <col style="width:2%">
-            <col style="width:10%;overflow-wrap: break-word;">
-            <col style="width:40%">
+            <col style="width:15%;overflow-wrap: break-word;word-break: break-all;">
+            <col style="width:35%">
             <col style="width:5%">
             <col style="width:10%">
             <col style="width:10%">
             <col style="width:5%">
             <col style="width:10%">
-            <col style="width:10%">
+            <col style="width:8%">
             <tr style="text-align: center;">
                 <td colspan="9" style="border: none;text-align: center;">ТЕХНИКО-КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ- СПЕЦИФИКАЦИЯ ОБОРУДОВАНИЯ И РАБОТ №1</td>
             </tr>
@@ -137,13 +142,24 @@
 
             <tr style="vertical-align: top;">
                 <td style="text-align: center;"><?php echo $i;?></td>
-                <td style=""><?php echo wordwrap($val['product']['name'], 12, "<br />\n", true); ?></td>
-                <td><?php echo $val['product']['description'];?></td>
+                <td style="word-break: break-all;"><?php echo wordwrap($val['product']['name'], 18, "<br />\n", true); ?></td>
+                <td><?php
+                    // Опции выводим с новой строки, заголовок «Опции:» — жирным
+                    $desc = $val['product']['description'];
+                    $pos = mb_strpos($desc, 'Опции:');
+                    if ($pos !== false) {
+                        $before = mb_substr($desc, 0, $pos);
+                        $optionsPart = mb_substr($desc, $pos + mb_strlen('Опции:'));
+                        echo $before . '<b>Опции:</b>' . nl2br($optionsPart);
+                    } else {
+                        echo $desc;
+                    }
+                ?></td>
                 <td style="text-align: center;"><?php echo (int)$val['product']['count'];?></td>
-                <td style="text-align: center;"><?php echo $val['product']['currency'] .' '. number_format(ceil($val['product']['price']),0,',',' ');?></td>
-                <td style="text-align: center;"><?php echo number_format(ceil((float)$val['product']['price'] * (float)$val['product']['currency_val']),0,',',' ');?>р.</td>
-                <td style="text-align: center;"><?php echo $val['product']['currency_val'];?></td>
-                <td style="text-align: center;"><?php echo number_format(ceil((($val['product']['price'] * (float)$val['product']['currency_val']) * (int)$val['product']['count'])),0,',',' ');?>р.</td>
+                <td style="text-align: center;"><?php echo $val['product']['currency'] .' '. money3($val['product']['price']);?></td>
+                <td style="text-align: center;"><?php echo money3((float)$val['product']['price'] * (float)$val['product']['currency_val']);?>р.</td>
+                <td style="text-align: center;"><?php echo money3($val['product']['currency_val']);?></td>
+                <td style="text-align: center;"><?php echo money3(($val['product']['price'] * (float)$val['product']['currency_val']) * (int)$val['product']['count']);?>р.</td>
                 <td><?php echo $val['product']['text'];?></td>
             </tr>
             
@@ -162,7 +178,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: center;"><?php echo number_format(ceil($tkp['pay_params']['resault_total']),0,',',' ');?>р.</td>
+                <td style="text-align: center;"><?php echo money3($tkp['pay_params']['resault_total']);?>р.</td>
                 <td></td>
             </tr>
             <!--ИТОГО НДС-->
@@ -174,7 +190,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: center;"><?php echo number_format(ceil($tkp['pay_params']['resault_total']),0,',',' ');?>р.</td>
+                <td style="text-align: center;"><?php echo money3($tkp['pay_params']['resault_total']);?>р.</td>
                 <td></td>
             </tr>
             <tr style="vertical-align: top;">
@@ -185,7 +201,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: center;"><?php echo number_format(ceil(($tkp['pay_params']['resault_nds'])),0,',',' ');?>р.</td>
+                <td style="text-align: center;"><?php echo money3($tkp['pay_params']['resault_nds']);?>р.</td>
                 <td></td>
             </tr>
             <tr class="table_header" style="vertical-align: top;">
@@ -196,7 +212,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: center;"><?php echo number_format(ceil($tkp['pay_params']['resault_total_nds']),0,',',' ');?>р.</td>
+                <td style="text-align: center;"><?php echo money3($tkp['pay_params']['resault_total_nds']);?>р.</td>
                 <td></td>
             </tr>
         </tbody>
@@ -243,7 +259,7 @@
                 <td style="border:0px"><b>Условия оплаты услуг:</b> <?php echo $tkp['delivery_params']['payment_scheme'];?></td>
             </tr>
             <tr>
-                <td style="border:0px"><b>Гарантийный срок:</b> <?php echo $tkp['delivery_params']['offer_is_valid'];?></td>
+                <td style="border:0px"><b>Гарантийный срок:</b> <?php echo $tkp['delivery_params']['offer_is_valid'];?> дней</td>
             </tr>
             <tr>
                 <td style="border:0px"><b>Примечание:</b> Предложение действительно в течении 30 дней при курсе ЦБ, не превышающем <?php echo '-' ;?> руб. за 1 <?php echo '-';?>, при неизменности технических требований.</td>

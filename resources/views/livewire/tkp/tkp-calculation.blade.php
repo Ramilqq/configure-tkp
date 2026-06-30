@@ -563,6 +563,11 @@
     $form->pay_params['resault_total_nds'] = $total_nds;
 
     $price_cols = [5, 6, 8, 11, 14, 15, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 36, 37, 41, 42, 43, 44];
+
+    // Форматирование числовых значений: 3 знака после запятой, округление в большую сторону
+    $fmt3 = function ($v) {
+        return number_format(ceil((float)$v * 1000) / 1000, 3, ',', ' ');
+    };
 @endphp
 
                 <table class="table table-bordered table-hover align-middle mb-0">
@@ -590,19 +595,20 @@
                                     </td>
                                     @elseif(array_key_exists ($key, $table_fields))
                                     <td
-                                        style="background-color: #f3f7e3;"
+                                        style="background-color: #f3f7e3; @if($key != '9') text-align:center; @endif"
                                         data-id="{{$prod_id}}"
                                         data-col="{{$key}}"
                                     >
                                     <input
-                                        style="border: 0;"
+                                        style="border: 0; @if($key != '9') text-align:center; @endif width:100%;"
                                         type="text"
                                         wire:change.debounce.500ms="tableUpdate($event.target.value, '{{$prod_id}}', '{{$key}}')"
                                         value="{!! $prod_col[$key] !!}"
                                     />
                                     </td>
                                     @else
-                                    <td>{!! in_array((int)$key, $price_cols) ? number_format((int)$prod_col[$key], 0, '.', ' ') : $prod_col[$key] !!}</td>
+                                    @php $isNum = in_array((int)$key, $price_cols) || in_array($key, ['0', '4']); @endphp
+                                    <td @if($isNum) style="text-align:center;" @endif>{!! in_array((int)$key, $price_cols) ? $fmt3($prod_col[$key]) : $prod_col[$key] !!}</td>
                                     @endif
                                 @else
                                 <td class="text-muted">{{ $key }}</td>
@@ -615,21 +621,21 @@
                             <td colspan="3"></td>
                             <td>Итого:</td>
                             <td colspan="4"></td>
-                            <td class="text-end">{{ number_format((int)$total, 0, '.', ' ') }}</td>
+                            <td class="text-center">{{ $fmt3($total) }}</td>
                             <td colspan="{{ count($table['col']) - 9 }}"></td>
                         </tr>
                         <tr class="table-light fw-semibold">
                             <td colspan="3"></td>
                             <td>НДС:</td>
                             <td colspan="4"></td>
-                            <td class="text-end">{{ number_format((int)$nds, 0, '.', ' ') }}</td>
+                            <td class="text-center">{{ $fmt3($nds) }}</td>
                             <td colspan="{{ count($table['col']) - 9 }}"></td>
                         </tr>
                         <tr class="table-success fw-bold">
                             <td colspan="3"></td>
                             <td>Итого с учётом НДС:</td>
                             <td colspan="4"></td>
-                            <td class="text-end">{{ number_format((int)$total_nds, 0, '.', ' ') }}</td>
+                            <td class="text-center">{{ $fmt3($total_nds) }}</td>
                             <td colspan="{{ count($table['col']) - 9 }}"></td>
                         </tr>
                     </tbody>
