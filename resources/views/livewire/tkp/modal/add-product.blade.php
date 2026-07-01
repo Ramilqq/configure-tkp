@@ -73,7 +73,8 @@
                                         <label for="new_product.product.delivery" class="form-label">Доставка <span class="small">(RUB)</span></label>
                                         <input type="text" wire:model="form.new_product.product.delivery" class="form-control" placeholder="0.0" id="new_product.product.delivery" />
                                     </div>
-
+                                    
+                                    @if(isset($form->new_product['product']['price_rules_applied']))
                                     @foreach($form->new_product['product']['price_rules_applied'] as $key_rule => $rule)
                                     <div class="col-12">
                                         <label for="form.new_product.product.price_rules_applied.{{ $key_rule }}.value" class="form-label">{{ $rule['rule_name'] }} <span class="small">({{ $rule['currency'] }})</span></label>
@@ -85,6 +86,7 @@
                                         />
                                     </div>
                                     @endforeach
+                                    @endif
 
 
                                 </div>
