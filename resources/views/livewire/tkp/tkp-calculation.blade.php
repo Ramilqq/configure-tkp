@@ -11,6 +11,13 @@
 
     @else
 
+    @unless($canEdit)
+    <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+        <i class="bi bi-eye me-2"></i>
+        <div>Это ТКП создано другим пользователем. Режим просмотра — редактирование недоступно. Чтобы работать с расчётом, создайте копию (кнопка «Создать копию»).</div>
+    </div>
+    @endunless
+
     {{-- Панель навигации по страницам проекта --}}
     <div class="page-nav-bar mb-3">
         <span class="text-muted small fw-semibold me-2">Страницы проекта:</span>
@@ -39,24 +46,26 @@
 
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="small text-muted">Обновить курс валют:</span>
+                        @if($canEdit)
                         <button title="Обновить" class="btn btn-outline-primary btn-sm" wire:click="currency()">
                             <i class="bi bi-arrow-clockwise"></i>
                         </button>
+                        @endif
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small mb-1">Расходы на продвижение (%)</label>
-                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.marketing" wire:loading.attr="disabled">
+                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.marketing" wire:loading.attr="disabled" @disabled(!$canEdit)>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small mb-1">Коэффициент расходов на продвижение</label>
-                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.marketing_coef" wire:loading.attr="disabled">
+                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.marketing_coef" wire:loading.attr="disabled" @disabled(!$canEdit)>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small mb-1">НДС</label>
-                        <select class="form-select form-select-sm" wire:model.lazy="form.pay_params.nds" wire:loading.attr="disabled">
+                        <select class="form-select form-select-sm" wire:model.lazy="form.pay_params.nds" wire:loading.attr="disabled" @disabled(!$canEdit)>
                             <option value="0">0%</option>
                             <option value="18">18%</option>
                             <option value="20">20%</option>
@@ -66,7 +75,7 @@
 
                     <div class="mb-0">
                         <label class="form-label small mb-1">Резерв на изменение (%)</label>
-                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.reserve" wire:loading.attr="disabled">
+                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.pay_params.reserve" wire:loading.attr="disabled" @disabled(!$canEdit)>
                     </div>
 
                 </div>
@@ -81,13 +90,15 @@
 
                     <div class="mb-3">
                         <label class="form-label small mb-1">Комментарий к версии</label>
-                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.comments">
+                        <input type="text" class="form-control form-control-sm" wire:model.lazy="form.comments" @disabled(!$canEdit)>
                     </div>
 
                     <div class="d-grid gap-2">
+                        @if($canEdit)
                         <button wire:click="saveParams()" wire:loading.attr="disabled" type="button" class="btn btn-primary btn-sm">
                             <i class="bi bi-floppy me-1"></i>Сохранить изменения
                         </button>
+                        @endif
                         <!--a target="_blank" href="{{ route('tkp.pdf.show', ['id' => $id, 'tkp_version' => $tkp_version]) }}" class="btn btn-success btn-sm"-->
                         <a target="_blank" wire:click="openPdf()" class="btn btn-success btn-sm">
                             <i class="bi bi-file-earmark-pdf me-1"></i>Открыть PDF
@@ -122,7 +133,9 @@
             <div class="card mb-3 border-0 shadow-sm">
                 <div class="card-header bg-dark text-white py-2 px-3 d-flex align-items-center justify-content-between">
                     <span class="small fw-semibold"><i class="bi bi-box-seam me-1"></i>Список продуктов</span>
+                    @if($canEdit)
                     <livewire:tkp.modal.add-product :tkp_version="$tkp_version" :banks="$banks"/>
+                    @endif
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -151,6 +164,7 @@
                                         <td>{{ $nodes['product']['currency_val'] }}</td>
                                         <td>{{ $nodes['product']['delivery'] }} <small class="text-muted">RUB</small></td>
                                         <td class="text-center">
+                                            @if($canEdit)
                                             <button title="Показатели надёжности" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editIndicatorsReliability"
                                                 @click="$dispatch('editIndicatorsReliabilityOpenForm', {tkp_version : {{$tkp_version}}, hash : '{{$nodes['product']['hash']}}' })">
                                                 <i class="bi bi-shield-check"></i>
@@ -159,6 +173,9 @@
                                                 @click="$dispatch('addProductOpenForm', {product_id : '{{$nodes['id']}}' })">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
+                                            @else
+                                            <span class="text-muted small">—</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -175,10 +192,14 @@
                                             <td>{{ $nodes['params']['product']['currency_val'] }}</td>
                                             <td>{{ $nodes['params']['product']['delivery'] }} <small class="text-muted">RUB</small></td>
                                             <td class="text-center text-muted small">
+                                                @if($canEdit)
                                                 <button title="Изменить продукт" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductForm"
                                                     @click="$dispatch('addProductOpenForm', {product_id : '{{$nodes['params']['id']}}' })">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
+                                                @else
+                                                <span class="text-muted small">—</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endif
@@ -196,6 +217,7 @@
                                             <td>{{ $nodes['product']['currency_val'] }}</td>
                                             <td>{{ $nodes['product']['delivery'] }} <small class="text-muted">RUB</small></td>
                                             <td class="text-center">
+                                                @if($canEdit)
                                                 <button title="Изменить продукт" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductForm"
                                                     @click="$dispatch('addProductOpenForm', {product_id : '{{$nodes['id']}}' })">
                                                     <i class="bi bi-pencil-square"></i>
@@ -204,6 +226,9 @@
                                                     @click="$dispatch('addProductRemove', {product_id : '{{$nodes['id']}}' })">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
+                                                @else
+                                                <span class="text-muted small">—</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty
@@ -223,8 +248,6 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <div class="alert alert-warning m-0 rounded-0 small" role="alert">
-                            
                             <?php
                             $fr_ip42 = false;
                             $fr_power_cell_bypass = false;
@@ -234,23 +257,30 @@
                                         
                                         if ($nodes['product']['option_applied']['ip']['value'] == '42' && !$fr_ip42) {
                                             $fr_ip42 = true;
+                                            echo '<div class="alert alert-warning m-0 rounded-0 small" role="alert">';
                                             echo '<i class="bi bi-exclamation-triangle me-1"></i>';
                                             echo 'Опция IP42 с учетом стоимости воздуховода: 200 000р. Приведенная стоимость воздуховода является ориентировочной и учитывает затраты на материалы, проектирование и изготовление. Окончательная цена воздуховода определяется конфигурацией выбранного ЧРП и его дополнительных опций. Итоговый расчет предоставляется по запросу отдельно';
+                                            echo '</div>';
                                             echo '<br>';
                                             echo '<br>';
                                         }
                                         if ($nodes['product']['option_applied']['power_cell_bypass']['value'] == 'Механический' && !$fr_power_cell_bypass) {
                                             $fr_power_cell_bypass = true;
+                                            echo '<div class="alert alert-warning m-0 rounded-0 small" role="alert">';
                                             echo '<i class="bi bi-exclamation-triangle me-1"></i>';
                                             echo 'Опция байпас неисправной силовой ячейки (электронный) предоставляется по запросу. Обратитесь в техническую поддержку продукта';
+                                            echo '</div>';
                                             echo '<br>';
                                             echo '<br>';
                                         }
                                     }
                                 }
                             }
-                            ?>   
-                        </div>
+                            if (!$fr_ip42 && !$fr_power_cell_bypass) {
+                                echo 'Пусто.';
+                            }
+                            ?>
+
                     </div>
                 </div>
             </div>
@@ -599,12 +629,16 @@
                                         data-id="{{$prod_id}}"
                                         data-col="{{$key}}"
                                     >
+                                    @if($canEdit)
                                     <input
                                         style="border: 0; @if($key != '9') text-align:center; @endif width:100%;"
                                         type="text"
                                         wire:change.debounce.500ms="tableUpdate($event.target.value, '{{$prod_id}}', '{{$key}}')"
                                         value="{!! $prod_col[$key] !!}"
                                     />
+                                    @else
+                                    {!! $prod_col[$key] !!}
+                                    @endif
                                     </td>
                                     @else
                                     @php $isNum = in_array((int)$key, $price_cols) || in_array($key, ['0', '4']); @endphp

@@ -36,10 +36,12 @@
                         <a title="Открыть расчёт" class="btn btn-primary btn-sm"
                             href="{{ route('tkp.calculation.edit', ['id' => $value->id, 'tkp_version' => $value->tkp_version]) }}"
                         ><i class="bi bi-pencil-square"></i></a>
+                        @can('delete', $value)
                         <button title="Удалить" class="btn btn-danger btn-sm"
                             wire:click="delete({{ $value->id }})"
                             wire:confirm="Удалить этот ТКП?"
                         ><i class="bi bi-trash"></i></button>
+                        @endcan
                     </td>
                 </tr>
                 @empty

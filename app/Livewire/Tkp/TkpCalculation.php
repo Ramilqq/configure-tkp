@@ -10,13 +10,14 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Cache;
 use PSpell\Config;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class TkpCalculation extends Component
 {
     protected $listeners = [
         'addProductUpdateList' => 'mount',
     ];
-    
+
     public TkpCalculationForm $form;
     public int $tkp_version;
     public int $id;
@@ -24,6 +25,8 @@ class TkpCalculation extends Component
     public array $pay_params = [];
     public array $banks;
     public string $dublicate_comments = '';
+    // может ли текущий пользователь редактировать это ТКП (только владелец); для UI
+    public bool $canEdit = false;
     public array $table_fields = [
         '9' => 'text',
         '7' => 'discount',
@@ -41,6 +44,9 @@ class TkpCalculation extends Component
 
     public function tableUpdate($value, $hash, $col_id)
     {
+        // редактировать ячейки таблицы может только владелец ТКП
+        $this->authorize('update', Tkp::findOrFail($this->id));
+
         $change = false;
         foreach($this->saved_schema as $key => &$products){
             if ($key == 'nodes' || $key == 'other'){
@@ -127,6 +133,10 @@ class TkpCalculation extends Component
         if ($this->id && $this->tkp_version) {
             $tkp = Tkp::findOrFail($this->id);
             $this->authorize('view', $tkp);
+            // редактирование доступно только владельцу ТКП
+            $this->canEdit = Gate::allows('update', $tkp);
+        } else {
+            $this->canEdit = true;
         }
 
         $this->form->editForm($this->id, $this->tkp_version);
@@ -153,20 +163,30 @@ class TkpCalculation extends Component
         if ($engineering && !isset($configuration['saved_schema']['engineering'])) {
             $this->saved_schema['engineering'] = $engineering->pluck('price', 'key')->toArray();
 
-            $this->saveConfiguration();
+            // сохраняем в БД только если пользователь — владелец
+            if ($this->canEdit) {
+                $this->saveConfiguration();
+            }
         }
 
         $banks = app(\App\Services\BankRequest::class);
-        
+
         $this->banks = $banks->get()['Valute'] ?? [];
-        
-        $this->form->saveForm($this->id, $this->tkp_version);
+
+        // автосохранение при открытии — только для владельца, чтобы просмотр
+        // чужого ТКП не перезаписывал его и не менял «Последнее изменение»
+        if ($this->canEdit) {
+            $this->form->saveForm($this->id, $this->tkp_version);
+        }
     }
 
 
     // записываем обновление цен по всем продуктам
     public function currency()
     {
+        // обновлять курс/цены может только владелец ТКП
+        $this->authorize('update', Tkp::findOrFail($this->id));
+
         foreach (['nodes', 'connections', 'other'] as $name) {
             foreach ($this->saved_schema[$name] as $key => $product) {
                 foreach ($this->banks as $banks) {
