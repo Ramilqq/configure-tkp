@@ -25,7 +25,7 @@
             .grid-page {
                 background-image:   linear-gradient(to right, #e0e0e0 1px, transparent 1px),
                                     linear-gradient(to bottom, #e0e0e0 1px, transparent 1px) !important;
-                background-size: 20px 20px !important;
+                background-size: 10px 10px !important;
                 background-color: #fafafa !important;
             }
             .node {
@@ -485,7 +485,7 @@
                     canvas.appendChild(node);
                     // Делаем узел перетаскиваемым
                     instance.draggable(node, {
-                        grid: [20, 20],
+                        grid: [10, 10],
                         stop: () => {
                             const n = savedSchema.nodes.find(n => n.id === node.id);
                             if (n) {
