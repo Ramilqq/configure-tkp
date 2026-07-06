@@ -146,7 +146,6 @@ class PdfController extends Controller
         $dimension_arr[] = explode('х', $option_applied['power_cell_bypass']['dimension']);
         $dimension_arr[] = explode('х', $option_applied['precharge']['dimension']);
         $dimension_arr[] = explode('х', $option_applied['bypass_vfd']['dimension']);
-        $dimension_arr[] = explode('х', $option_applied['section_in_out']['dimension']);
         
         $dimension_all[0] = 0;
         $dimension_all[1] = 0;
@@ -222,22 +221,21 @@ class PdfController extends Controller
                 'Метод изоляции высокого/низкого напряжения' => 'Оптоволоконные кабели',
             ],
             'Корпус' => [
-                'Габаритные размеры ВПЧ (ДхГхВ)' => $option_applied['dimension_vfd_standard']['value'] . 'мм' ?? 0 . 'мм',
-                'Масса ВПЧ' => $option_applied['vfd_weight']['value'] . 'кг' ?? 0 . 'кг',
+                //'Габаритные размеры ВПЧ (ДхГхВ)' => $option_applied['dimension_vfd_standard']['value'] . 'мм' ?? 0 . 'мм',
+                //'Масса ВПЧ' => $option_applied['vfd_weight']['value'] . 'кг' ?? 0 . 'кг',
                 'Общий габаритный размер (ДхГхВ)' => $dimension_all[0] . 'x' . $dimension_all[1] . 'x' . $dimension_all[2] . 'мм' ?? 0 . 'мм',
                 'Общая масса' => ((int)$option_applied['vfd_weight']['value'] ?? 0)
                     + ((int)$option_applied['sync_to_grid']['weight'] ?? 0) 
                     + ((int)$option_applied['power_cell_bypass']['weight'] ?? 0 )
                     + ((int)$option_applied['precharge']['weight'] ?? 0)
-                    + ((int)$option_applied['bypass_vfd']['weight'] ?? 0)
-                    + ((int)$option_applied['section_in_out']['weight'] ?? 0) . 'кг' ?? 0 . 'кг',
+                    + ((int)$option_applied['bypass_vfd']['weight'] ?? 0) . 'кг' ?? 0 . 'кг',
                 'Ввод/вывод кабеля' => 'Снизу',
                 'Тип охлаждения' => 'Воздушное',
                 'Степень защиты' => 'IP' . $option_applied['ip']['value'] ?? 'Нет',
                 'Цвет' => 'RAL7035',
                 'Способ обслуживания' => $option_applied['service_vfd']['value'] ?? 'Нет',
             ],
-            'ЗИП' => [
+            /*'ЗИП' => [
                 'Силовая ячейка 690В 96А' => '1 шт.',
                 'Вентилятор охлаждения серии F-400' => '1 шт.',
                 'Вентилятор охлаждения серии F-450' => '1 шт.',
@@ -245,7 +243,7 @@ class PdfController extends Controller
                 'Платы управления' => '1 комплект',
                 'Делитель напряжения' => '1 шт.',
                 'Фильтр очистки воздуха' => '1 комплект',
-            ],
+            ],*/
         ];
     }
 

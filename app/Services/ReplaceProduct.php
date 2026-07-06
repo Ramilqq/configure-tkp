@@ -72,15 +72,14 @@ class ReplaceProduct
         }
 
         foreach ($title_keys as $title_key) {
-            if ($title_key == '[VFD_Series_Start]') $title_key = '[VFD_Series_Start]-';
-            if ($title_key == '[VFD_Series_End]') $title_key = '-[VFD_Series_End]';
+            
             $this->name = str_replace(
                 $title_key, 
                 $this->titleRules($title_key)($option_applied), 
                 $this->name
             );
         }
-
+        
         // перерасчет цены
         foreach ($option_applied as $option) {
             if ((float)$option['price'] > 0 && $option['key'] == 'material_trans') {
@@ -215,7 +214,6 @@ class ReplaceProduct
                 $dimension_arr[] = explode('х', $value['power_cell_bypass']['dimension']);
                 $dimension_arr[] = explode('х', $value['precharge']['dimension']);
                 $dimension_arr[] = explode('х', $value['bypass_vfd']['dimension']);
-                $dimension_arr[] = explode('х', $value['section_in_out']['dimension']);
                 
                 $dimension_all[0] = 0;
                 $dimension_all[1] = 0;
@@ -279,12 +277,6 @@ class ReplaceProduct
                 }
                 return null;
             },
-            '[Section_in_out]' => function ($value = []) {
-                if ($value['section_in_out']['value'] == 'Да') {
-                    return PHP_EOL .'Секция ввода/вывода сверху. Добавляется секция ввода/вывода (СВ) стандартно слева от ВПЧ. Габаритные размеры СВ: '.$value['section_in_out']['dimension'].' мм. Способ обслуживания СВ: '.$value['section_in_out']['service'].'. Вес СВ: '.$value['section_in_out']['weight'].'кг.';
-                }
-                return null;
-            },
             '[Plc_pt_100]' => function ($value = []) {
                 if ($value['plc_pt_100']['value'] == 'Да') {
                     return PHP_EOL .'ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100.';
@@ -341,10 +333,12 @@ class ReplaceProduct
     // правила для замены в описании
     public function titleRules ($key = null)
     {
+        
         $title_name = [
-            '[VFD_Series_Start]-' => function ($value = []) {
-                if ((string)$value['vfd_series']['rename_title'] == 'Empty') return null;
-                if ((string)$value['vfd_series']['rename_title'] == '') return null;
+            '[VFD_Series_Start]' => function ($value = []) {
+                if ((string)$value['vfd_series']['rename_title'] == 'Empty') return '-';
+                if ((string)$value['vfd_series']['rename_title'] == '') return '-';
+
                 return (string)$value['vfd_series']['rename_title'] . '-';
             },
             '[S_trans]' => function ($value = []) {
@@ -368,7 +362,7 @@ class ReplaceProduct
             '[Interface_S]' => function ($value = []) {
                 return (string)$value['interface']['rename_title'];
             },
-            '-[VFD_Series_End]' => function ($value = []) {
+            '[VFD_Series_End]' => function ($value = []) {
                 if ((string)$value['vfd_series']['rename_title_end'] == 'Empty') return null;
                 if ((string)$value['vfd_series']['rename_title_end'] == '') return null;
                 return '-'.(string)$value['vfd_series']['rename_title_end'];

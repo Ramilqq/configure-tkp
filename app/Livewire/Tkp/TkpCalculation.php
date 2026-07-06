@@ -44,6 +44,8 @@ class TkpCalculation extends Component
 
     public function tableUpdate($value, $hash, $col_id)
     {
+        
+        //dd($value, $hash, $col_id);
         // редактировать ячейки таблицы может только владелец ТКП
         $this->authorize('update', Tkp::findOrFail($this->id));
 

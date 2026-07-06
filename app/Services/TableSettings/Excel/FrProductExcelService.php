@@ -180,11 +180,25 @@ class FrProductExcelService
                     'value'     => 'Нет',
                 ],
                 [
-                    'value'     => 'Да',
+                    'value'     => 'Авто. 3К3Р',
                     'price'     => '[Price_bypassVFD]',
                     'drawing'   => '[Drawing_bypassVFD]',
                     'dimension' => '[Dimension_bypassVFD]',
                     'weight'    => '[Weight_bypassVFD]',
+                ],
+                [
+                    'value'     => 'Авто. 3К',
+                    'price'     => '[Price_bypass2_VFD]',
+                    'drawing'   => '[Drawing_bypass2VFD]',
+                    'dimension' => '[Dimension_bypass2VFD]',
+                    'weight'    => '[Weight_bypass2VFD]',
+                ],
+                [
+                    'value'     => 'Ручной. 3Р',
+                    'price'     => '[Price_bypass3_VFD]',
+                    'drawing'   => '[Drawing_bypass3VFD]',
+                    'dimension' => '[Dimension_bypass3VFD]',
+                    'weight'    => '[Weight_bypass3VFD]',
                 ],
             ],
         ],
@@ -219,24 +233,6 @@ class FrProductExcelService
             ],
         ],
         
-        'section_in_out' => [
-            'template_name' => 'Секция ввода/вывода сверху',
-            'template_key'  => 'section_in_out',
-            'variants' => [
-                [
-                    'value'     => 'Нет',
-                ],
-                [
-                    'value'     => 'Да',
-                    'price'     => '[Price_InOut]',
-                    'drawing'   => '[Drawing_InOut]',
-                    'dimension' => '[Dimension_InOut]',
-                    'service'   => '[Service_InOut]',
-                    'weight'    => '[Weight_InOut]',
-                ],
-            ],
-        ],
-
         'plc_pt_100' => [
             'template_name' => 'ПЛК и датчики контроля температуры обмоток и подшипников ЭД',
             'template_key'  => 'plc_pt_100',
@@ -247,6 +243,58 @@ class FrProductExcelService
                 [
                     'value'     => 'Да',
                     'price'     => '[Price_PLC_Pt100]',
+                ],
+            ],
+        ],
+
+        'zip' => [
+            'template_name' => 'ЗИП',
+            'template_key'  => 'zip',
+            'variants' => [
+                [
+                    'value'     => 'Нет',
+                ],
+                [
+                    'value'     => 'F400',
+                    'price'     => '[Price_Fan_F400]',
+                ],
+                [
+                    'value'     => 'F400 Bypass',
+                    'price'     => '[Price_Fan_F400_Bypass]',
+                ],
+                [
+                    'value'     => 'F450',
+                    'price'     => '[Price_Fan_F450]',
+                ],
+                [
+                    'value'     => 'F450 Bypass',
+                    'price'     => '[Price_Fan_F450_Bypass]',
+                ],
+                [
+                    'value'     => 'F500',
+                    'price'     => '[Price_Fan_F500]',
+                ],
+                [
+                    'value'     => 'F560',
+                    'price'     => '[Price_Fan_F560]',
+                ],
+                [
+                    'value'     => 'F560 Bypass',
+                    'price'     => '[Price_Fan_F560_Bypass]',
+                ],
+                [
+                    'value'     => 'Price Set of boards',
+                    'price'     => '[Price_Set_of_boards]',
+                ],
+                [
+                    'value'     => 'PU',
+                    'price'     => '[Price_PU]',
+                    'weight'    => '[Current_PU]',
+                ],
+                [
+                    'value'     => 'PU Bypass',
+                    'price'     => '[Price_PU_Bypass]',
+                    'weight'    => '[Current_PU_Bypass]',
                 ],
             ],
         ],
@@ -1096,12 +1144,14 @@ class FrProductExcelService
             55 => 'Опция 6: Серия ВПЧ - Минпромторг',
             57 => 'Опция 7: Тип ЭД - синхронный',
             59 => 'Опция 7.1: Наличие ПЛК управления системой возбуждения',
-            60 => 'Опция 8: Байпас ВПЧ (автоматический)',
-            64 => 'Опция 10.1: Интерфейс = RS-485, Profibus',
-            67 => 'Опция 10.2: Интерфейс = Ethernet, Modbus TCP',
-            70 => 'Опция 10.3: Интерфейс = Ethernet, Profinet',
-            73 => 'Опция 11: Секция ввода/вывода сверху',
-            78 => 'Опция 12: ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100)',
+            60 => 'Опция 8: Байпас ВПЧ (автоматический) (3 Контактора 3 разъединителя)',
+            64 => 'Опция 8.2: Байпас ВПЧ (автоматический) (3 контактора)',
+            68 => 'Опция 8.3: Байпас ВПЧ (Ручной) (3 разъединителя)',
+            72 => 'Опция 10.1: Интерфейс = RS-485, Profibus',
+            75 => 'Опция 10.2: Интерфейс = Ethernet, Modbus TCP',
+            78 => 'Опция 10.3: Интерфейс = Ethernet, Profinet',
+            86 => 'Опция 12: ПЛК и датчики контроля температуры обмоток и подшипников ЭД (8-10 датчиков PT100)',
+            87 => 'ЗИП: Вентилятор охлаждения Платы управления Силовая ячейка',
         ];
     }
 
@@ -1166,21 +1216,43 @@ class FrProductExcelService
             61 => '[Drawing_bypassVFD]',
             62 => '[Dimension_bypassVFD]',
             63 => '[Weight_bypassVFD]',
-            64 => '[Profibus_S]',
-            65 => '[Profibus]',
-            66 => '[Price_Profibus]',
-            67 => '[ModbusTCP_S]',
-            68 => '[ModbusTCP]',
-            69 => '[Price_ModbusTCP]',
-            70 => '[Profinet_S]',
-            71 => '[Profinet]',
-            72 => '[Price_Profinet]',
-            73 => '[Price_InOut]',
-            74 => '[Drawing_InOut]',
-            75 => '[Dimension_InOut]',
-            76 => '[Service_InOut]',
-            77 => '[Weight_InOut]',
-            78 => '[Price_PLC_Pt100]',
+            64 => '[Price_bypass2_VFD]',
+            65 => '[Drawing_bypass2VFD]',
+            66 => '[Dimension_bypass2VFD]',
+            67 => '[Weight_bypass2VFD]',
+            68 => '[Price_bypass3_VFD]',
+            69 => '[Drawing_bypass3VFD]',
+            70 => '[Dimension_bypass3VFD]',
+            71 => '[Weight_bypass3VFD]',
+
+            72 => '[Profibus_S]',
+            73 => '[Profibus]',
+            74 => '[Price_Profibus]',
+            75 => '[ModbusTCP_S]',
+            76 => '[ModbusTCP]',
+            77 => '[Price_ModbusTCP]',
+            78 => '[Profinet_S]',
+            79 => '[Profinet]',
+            80 => '[Price_Profinet]',
+
+            86 => '[Price_PLC_Pt100]',
+
+            87 => '[Price_Fan_F400]',
+            88 => '[Fan_F400]',
+            89 => '[Price_Fan_F400_Bypass]',
+            90 => '[Price_Fan_F450]',
+            91 => '[Fan_F450]',
+            92 => '[Price_Fan_F450_Bypass]',
+            93 => '[Price_Fan_F500]',
+            94 => '[Fan_F500]',
+            95 => '[Price_Fan_F560]',
+            96 => '[Fan_F560]',
+            97 => '[Price_Fan_F560_Bypass]',
+            98 => '[Price_Set_of_boards]',
+            99 => '[Price_PU]',
+            100 => '[Current_PU]',
+            101 => '[Price_PU_Bypass]',
+            102 => '[Current_PU_Bypass]',
         ];
     }
 

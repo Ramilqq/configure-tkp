@@ -76,7 +76,7 @@
 
 
 
-    <table class="tkp_table" ыstyle="width: 100%; table-layout: fixed;">
+    <table class="tkp_table" style="width: 100%; table-layout: fixed;">
         <thead>
             <col style="width:2%">
             <col style="width:15%;overflow-wrap: break-word;word-break: break-all;">
@@ -122,6 +122,7 @@
                 foreach($products as $key => $val) {
                     if (isset($val['params'])) $val = $val['params'];
                     if (!isset($val['product'])) continue;
+                    if (!isset($val['product']['id']) || !isset($val['product']['hash'])) continue;
 
                     $id = $val['product']['hash'] ?? $val['product']['id'];
                     
@@ -146,13 +147,14 @@
                 <td><?php
                     // Опции выводим с новой строки, заголовок «Опции:» — жирным
                     $desc = $val['product']['description'];
+                    //dd($desc);
                     $pos = mb_strpos($desc, 'Опции:');
                     if ($pos !== false) {
                         $before = mb_substr($desc, 0, $pos);
                         $optionsPart = mb_substr($desc, $pos + mb_strlen('Опции:'));
-                        echo $before . '<b>Опции:</b>' . nl2br($optionsPart);
+                        echo nl2br($before) . '<b>Опции:</b>' . nl2br($optionsPart);
                     } else {
-                        echo $desc;
+                        echo nl2br($desc);
                     }
                 ?></td>
                 <td style="text-align: center;"><?php echo (int)$val['product']['count'];?></td>
@@ -160,7 +162,7 @@
                 <td style="text-align: center;"><?php echo money3((float)$val['product']['price'] * (float)$val['product']['currency_val']);?>р.</td>
                 <td style="text-align: center;"><?php echo money3($val['product']['currency_val']);?></td>
                 <td style="text-align: center;"><?php echo money3(($val['product']['price'] * (float)$val['product']['currency_val']) * (int)$val['product']['count']);?>р.</td>
-                <td><?php echo $val['product']['text'];?></td>
+                <td><?php echo $val['product']['text'] ?? '';?></td>
             </tr>
             
 
@@ -258,11 +260,11 @@
             <tr>
                 <td style="border:0px"><b>Условия оплаты услуг:</b> <?php echo $tkp['delivery_params']['payment_scheme'];?></td>
             </tr>
-            <tr>
+            <!--tr>
                 <td style="border:0px"><b>Гарантийный срок:</b> <?php echo $tkp['delivery_params']['offer_is_valid'];?> дней</td>
-            </tr>
+            </tr-->
             <tr>
-                <td style="border:0px"><b>Примечание:</b> Предложение действительно в течении 30 дней при курсе ЦБ, не превышающем <?php echo '-' ;?> руб. за 1 <?php echo '-';?>, при неизменности технических требований.</td>
+                <td style="border:0px"><b>Примечание:</b> Предложение действительно в течении <?php echo $tkp['delivery_params']['offer_is_valid'];?> дней при курсе ЦБ, не превышающем <?php echo '-' ;?> руб. за 1 <?php echo '-';?>, при неизменности технических требований.</td>
             </tr>
         </tbody>
     </table>
