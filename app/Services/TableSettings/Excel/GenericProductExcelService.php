@@ -212,6 +212,17 @@ class GenericProductExcelService
 
         $plan = $this->buildPlan($template, $parsed);
 
+        $scan = $this->scanFile($path, $sheetName, $templateId);
+        $plan['full_scan'] = [
+            'scanned_rows' => $scan['scanned_rows'],
+            'to_create' => $scan['to_create'],
+            'to_create_auto' => $scan['to_create_auto'],
+            'to_update' => $scan['to_update'],
+            'to_wrong_template' => $scan['to_wrong_template'],
+        ];
+        $plan['blocking_duplicates'] = $scan['duplicate_id_groups'];
+        $plan['garbage'] = $this->buildGarbage($template, $parsed, $templateId, $scan['ids_in_file']);
+
         $rows = [];
         $start = self::DATA_ROW;
         $end = min($highestRow, $start + max(0, $limit - 1));
@@ -299,6 +310,17 @@ class GenericProductExcelService
             throw new \RuntimeException("В файле нет колонки ID (строка " . self::HEADER_ROW . "). Нужен столбец ID.");
         }
 
+        $scan = $this->scanFile($path, $sheetName, $templateId);
+        if (!empty($scan['duplicate_id_groups'])) {
+            $parts = [];
+            foreach ($scan['duplicate_id_groups'] as $id => $rows) {
+                $parts[] = "id={$id} (строки " . implode(', ', $rows) . ")";
+            }
+            throw new \RuntimeException(
+                "В файле найдены повторяющиеся ID в нескольких строках — импорт остановлен: " . implode('; ', $parts)
+            );
+        }
+
         $defaultGroupId = $this->defaultGroupId();
 
         // existing options by normalized name + existing keys set (чтобы делать уникальные key)
@@ -332,13 +354,25 @@ class GenericProductExcelService
                 $baseKey = $this->makeOptionKey($optHeaderRaw);
                 $uniqueKey = $this->uniqueKey($baseKey, $existingKeys);
 
-                $opt = TemplateOption::create([
-                    'template_id' => $templateId,
-                    'group_id' => $defaultGroupId,
-                    'name' => $optHeaderRaw,   // как в Excel (RU)
-                    'key' => $uniqueKey,       // EN snake_case
-                    'fields' => [],
-                ]);
+                try {
+                    $opt = TemplateOption::create([
+                        'template_id' => $templateId,
+                        'group_id' => $defaultGroupId,
+                        'name' => $optHeaderRaw,   // как в Excel (RU)
+                        'key' => $uniqueKey,       // EN snake_case
+                        'fields' => [],
+                    ]);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // гонка: параллельный импорт уже создал опцию с таким key — переиспользуем её
+                    if ((string)$e->getCode() !== '23000') throw $e;
+
+                    $opt = TemplateOption::query()
+                        ->where('template_id', $templateId)
+                        ->where('key', $uniqueKey)
+                        ->first();
+
+                    if (!$opt) throw $e;
+                }
 
                 $optIdByNormName[$norm] = (int)$opt->id;
                 $existingKeys[$uniqueKey] = true;
@@ -501,6 +535,8 @@ class GenericProductExcelService
             'ok' => true,
             'sheet' => $sheetName,
             'template_id' => $templateId,
+            'mode' => 'generic',
+            'upsert_key' => 'id',
 
             'created_options' => $createdOptions,
             'created_options_list' => $newOptionsCreated,
@@ -632,6 +668,123 @@ class GenericProductExcelService
         ];
     }
 
+    /**
+     * Полный проход по всему файлу (без записи в БД): агрегаты по ВСЕМ строкам
+     * (а не только по previewLimit) + поиск дублей id внутри одного файла.
+     */
+    private function scanFile(string $path, string $sheetName, int $templateId): array
+    {
+        [$sheet, $highestRow, $highestCol] = $this->openSheet($path, $sheetName);
+
+        $headerRow = $this->trimArray($sheet->rangeToArray(
+            'A' . self::HEADER_ROW . ":{$highestCol}" . self::HEADER_ROW,
+            null, true, false
+        )[0]);
+
+        $parsed = $this->parseHeader($headerRow);
+
+        $scanned = 0;
+        $idRows = []; // id => [номера строк Excel]
+
+        for ($r = self::DATA_ROW; $r <= $highestRow; $r++) {
+            $raw = $sheet->rangeToArray("A{$r}:{$highestCol}{$r}", null, true, false)[0];
+            $row = $this->rowToAssoc($raw, $parsed['columns']);
+            if ($this->isRowEmpty($row)) continue;
+
+            $scanned++;
+
+            $idRaw = $row['id'] ?? null;
+            if (is_numeric($idRaw) && (int)$idRaw > 0) {
+                $idRows[(int)$idRaw][] = $r;
+            }
+        }
+
+        $duplicateGroups = [];
+        foreach ($idRows as $id => $rows) {
+            if (count($rows) > 1) {
+                $duplicateGroups[$id] = $rows;
+            }
+        }
+
+        $uniqueIds = array_keys($idRows);
+        $byIdTemplate = [];
+        if (!empty($uniqueIds)) {
+            $byIdTemplate = Product::query()
+                ->whereIn('id', $uniqueIds)
+                ->pluck('template_id', 'id')
+                ->mapWithKeys(fn($tpl, $id) => [(int)$id => (int)$tpl])
+                ->all();
+        }
+
+        $toCreate = 0;
+        $toUpdate = 0;
+        $toWrongTemplate = 0;
+        foreach ($uniqueIds as $id) {
+            if (!isset($byIdTemplate[$id])) {
+                $toCreate++;
+            } elseif ($byIdTemplate[$id] === (int)$templateId) {
+                $toUpdate++;
+            } else {
+                $toWrongTemplate++;
+            }
+        }
+
+        $rowsWithId = array_sum(array_map('count', $idRows));
+
+        return [
+            'parsed' => $parsed,
+            'scanned_rows' => $scanned,
+            'to_create' => $toCreate,
+            'to_create_auto' => $scanned - $rowsWithId,
+            'to_update' => $toUpdate,
+            'to_wrong_template' => $toWrongTemplate,
+            'duplicate_id_groups' => $duplicateGroups, // id => [номера строк]
+            'ids_in_file' => $uniqueIds,
+        ];
+    }
+
+    /**
+     * Диагностика "мусора": опции/товары, которые есть в БД, но не встретились
+     * в текущем файле импорта. Только для отображения, ничего не удаляет.
+     */
+    private function buildGarbage(Template $template, array $parsed, int $templateId, array $idsInFile): array
+    {
+        $excelNorm = array_fill_keys(array_map([$this, 'normalizeHeader'], $parsed['option_headers']), true);
+
+        $orphanedOptions = [];
+        foreach ($template->options as $opt) {
+            $norm = $this->normalizeHeader((string)$opt->name);
+            if (isset($excelNorm[$norm])) continue;
+
+            $nonEmptyValues = ProductOption::query()
+                ->where('template_option_id', $opt->id)
+                ->where('value', '!=', '')
+                ->count();
+
+            $orphanedOptions[] = [
+                'name' => $opt->name,
+                'key' => $opt->key,
+                'non_empty_values' => $nonEmptyValues,
+            ];
+        }
+
+        $notInFileQuery = Product::query()->where('template_id', $templateId);
+        if (!empty($idsInFile)) {
+            $notInFileQuery->whereNotIn('id', $idsInFile);
+        }
+
+        $productsNotInFileCount = (clone $notInFileQuery)->count();
+        $productsNotInFileSample = $productsNotInFileCount > 0
+            ? $notInFileQuery->orderBy('id')->limit(20)->get(['id', 'name'])->toArray()
+            : [];
+
+        return [
+            'orphaned_options' => $orphanedOptions,
+            'products_not_in_file_count' => $productsNotInFileCount,
+            'products_not_in_file_sample' => $productsNotInFileSample,
+        ];
+    }
+
     // ---------------- ROW READING ----------------
 
     /**
@@ -698,9 +851,14 @@ class GenericProductExcelService
 
     private function normalizeHeader(string $s): string
     {
+        // неразрывные пробелы, zero-width символы -> обычный пробел/убираем,
+        // чтобы визуально одинаковые заголовки из разных Excel-файлов совпадали
+        $s = str_replace(["\xC2\xA0", "\xE2\x80\x8B", "\xEF\xBB\xBF"], [' ', '', ''], $s);
+        $s = str_replace(['«', '»', '"', '“', '”', "'", '`'], '', $s);
         $s = trim($s);
         $s = preg_replace('/\s+/u', ' ', $s);
         $s = mb_strtolower($s);
+        $s = str_replace('ё', 'е', $s);
         // убираем лишнюю пунктуацию, оставляем буквы/цифры/пробел/underscore/дефис
         $s = preg_replace('/[^\p{L}\p{N}\s_\-]+/u', '', $s);
         $s = preg_replace('/\s+/u', ' ', $s);

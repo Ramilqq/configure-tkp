@@ -51,8 +51,10 @@ class TkpCalculation extends Component
 
         $change = false;
         foreach($this->saved_schema as $key => &$products){
+            
             if ($key == 'nodes' || $key == 'other'){
                 foreach($products as &$product){
+                    if (!isset($product['product']['hash'])) continue;
                     if($product['product']['hash'] == $hash){
                         $change = true;
                         $product['product'][$this->table_fields[$col_id]] = $value;
@@ -61,6 +63,7 @@ class TkpCalculation extends Component
             }
             if ($key == 'connections'){
                 foreach($products as &$product){
+                    if (!isset($product['product']['hash'])) continue;
                     if($product['params']['product']['hash'] == $hash){
                         $change = true;
                         $product['params']['product'][$this->table_fields[$col_id]] = $value;

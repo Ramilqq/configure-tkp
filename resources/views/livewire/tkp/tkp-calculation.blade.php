@@ -570,7 +570,7 @@
         $col5 = ($price * $currency_val) + $priceRule;
         $col5 = (int)$col5;
 
-        $table['product_col'][$pid][5] = $col5;
+        $table['product_col'][$pid][5] = $col5 * $table['product_col'][$pid][10];
         $table['product_col'][$pid][6] = $table['product_col'][$pid][4] * $table['product_col'][$pid][5];
         $table['product_col'][$pid][7] = isset($p['discount']) ? floatval($p['discount']) : 0;
         $table['product_col'][$pid][8] = $table['product_col'][$pid][6] - ($table['product_col'][$pid][6] * ($table['product_col'][$pid][7] / 100));

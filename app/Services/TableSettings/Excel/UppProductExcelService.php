@@ -308,7 +308,9 @@ class UppProductExcelService
                 break;
             }
         }
-        
+
+        $scan = $this->scanFile($path, $sheetName, $templateId);
+
         return [
             'ok' => true,
             'plan' => [
@@ -318,9 +320,138 @@ class UppProductExcelService
                 'data_row' => self::DATA_ROW,
                 'upsert_key' => 'hash',
                 'grouped_options' => array_keys(self::FR_GROUPS),
+                'full_scan' => [
+                    'scanned_rows' => $scan['scanned_rows'],
+                    'to_create' => $scan['to_create'],
+                    'to_update' => $scan['to_update'],
+                    'to_skip_no_name' => $scan['skipped_rows_no_name'],
+                ],
+                'blocking_duplicates' => $scan['duplicate_hash_groups'],
+                'garbage' => $this->buildGarbage($templateId, $scan['hashes_in_file']),
             ],
             'columns' => array_keys($rows[0] ?? ['_status' => null]),
             'rows' => $rows,
+        ];
+    }
+
+    /**
+     * Полный проход по всему файлу (без записи в БД): агрегаты по ВСЕМ строкам
+     * (а не только по limit) + поиск дублей hash внутри одного файла.
+     */
+    private function scanFile(string $path, string $sheetName, int $templateId): array
+    {
+        [$sheet, $highestRow, $highestCol] = $this->openSheet($path, $sheetName);
+
+        $labelRow = $sheet->rangeToArray(
+            'A' . self::LABEL_ROW . ":{$highestCol}" . self::LABEL_ROW,
+            null,
+            true,
+            false
+        )[0];
+
+        $techIndex = $this->buildFrTechIndex($labelRow);
+        $mergeMap = $this->buildMergeMap($sheet);
+
+        $scanned = 0;
+        $skippedNoName = 0;
+        $hashRows = []; // hash => [номера строк Excel]
+
+        for ($r = self::DATA_ROW; $r <= $highestRow; $r++) {
+            $rowByTech = $this->readFrRowByTechKey($sheet, $r, $techIndex, $mergeMap);
+            if ($this->isFrDataRowEmpty($rowByTech)) {
+                continue;
+            }
+
+            $scanned++;
+
+            $nameTemplate = $this->getMergedAwareCellValue($sheet, $r, 5, $mergeMap);
+            if (trim((string)$nameTemplate) === '') {
+                // не настоящий товар (легенда/шаблон/мусор) — import() тоже его пропустит
+                $skippedNoName++;
+                continue;
+            }
+
+            $rowByTech = $this->enrichFrDerivedValues($rowByTech);
+            $blockId = $this->getMergedAwareCellValue($sheet, $r, 4, $mergeMap);
+            $blockTitle = $this->getMergedAwareCellValue($sheet, $r, 2, $mergeMap);
+
+            $hash = $this->makeFrHash($blockId, $blockTitle, $rowByTech);
+            $hashRows[$hash][] = $r;
+        }
+
+        $duplicateGroups = [];
+        foreach ($hashRows as $hash => $rows) {
+            if (count($rows) > 1) {
+                $duplicateGroups[$hash] = $rows;
+            }
+        }
+
+        $uniqueHashes = array_keys($hashRows);
+        $existingHashes = [];
+        if (!empty($uniqueHashes)) {
+            $existingHashes = array_flip(
+                Product::query()
+                    ->where('template_id', $templateId)
+                    ->whereIn('hash', $uniqueHashes)
+                    ->pluck('hash')
+                    ->all()
+            );
+        }
+
+        $toCreate = 0;
+        $toUpdate = 0;
+        foreach ($uniqueHashes as $hash) {
+            if (isset($existingHashes[$hash])) {
+                $toUpdate++;
+            } else {
+                $toCreate++;
+            }
+        }
+
+        return [
+            'scanned_rows' => $scanned,
+            'to_create' => $toCreate,
+            'to_update' => $toUpdate,
+            'skipped_rows_no_name' => $skippedNoName,
+            'duplicate_hash_groups' => $duplicateGroups, // hash => [номера строк]
+            'hashes_in_file' => $uniqueHashes,
+        ];
+    }
+
+    /**
+     * Диагностика "мусора": товары в БД, не затронутые текущим файлом импорта,
+     * и уже существующие в БД дубли hash (могли накопиться до этого фикса).
+     * Только для отображения, ничего не удаляет.
+     */
+    private function buildGarbage(int $templateId, array $hashesInFile): array
+    {
+        $notInFileQuery = Product::query()
+            ->where('template_id', $templateId)
+            ->whereNotNull('hash');
+
+        if (!empty($hashesInFile)) {
+            $notInFileQuery->whereNotIn('hash', $hashesInFile);
+        }
+
+        $productsNotInFileCount = (clone $notInFileQuery)->count();
+        $productsNotInFileSample = $productsNotInFileCount > 0
+            ? $notInFileQuery->orderBy('id')->limit(20)->get(['id', 'name'])->toArray()
+            : [];
+
+        $duplicateHashGroupsInDb = Product::query()
+            ->where('template_id', $templateId)
+            ->whereNotNull('hash')
+            ->select('hash')
+            ->selectRaw('COUNT(*) as cnt')
+            ->groupBy('hash')
+            ->havingRaw('COUNT(*) > 1')
+            ->pluck('cnt', 'hash')
+            ->all();
+
+        return [
+            'products_not_in_file_count' => $productsNotInFileCount,
+            'products_not_in_file_sample' => $productsNotInFileSample,
+            'duplicate_hash_groups_in_db' => $duplicateHashGroupsInDb,
         ];
     }
 
@@ -346,7 +477,17 @@ class UppProductExcelService
         )[0];
 
         $techIndex = $this->buildFrTechIndex($labelRow);
-        
+
+        $scan = $this->scanFile($path, $sheetName, $templateId);
+        if (!empty($scan['duplicate_hash_groups'])) {
+            $parts = [];
+            foreach ($scan['duplicate_hash_groups'] as $hash => $rows) {
+                $parts[] = "строки " . implode(', ', $rows) . " (одинаковые технические параметры)";
+            }
+            throw new \RuntimeException(
+                "В файле найдены строки-дубли (совпадающие технические параметры) — импорт остановлен: " . implode('; ', $parts)
+            );
+        }
 
         $this->ensureFrTemplateOptionsExist($templateId);
 
@@ -355,6 +496,7 @@ class UppProductExcelService
         $updatedProducts = 0;
         $updatedOptionCells = 0;
         $createdIdsSample = [];
+        $skippedNoName = 0;
 
         DB::transaction(function () use (
             $sheet,
@@ -365,7 +507,8 @@ class UppProductExcelService
             &$createdProducts,
             &$updatedProducts,
             &$updatedOptionCells,
-            &$createdIdsSample
+            &$createdIdsSample,
+            &$skippedNoName
         ) {
             $mergeMap  = $this->buildMergeMap($sheet);
 
@@ -377,8 +520,6 @@ class UppProductExcelService
 
                 $scanned++;
 
-                $rowByTech = $this->enrichFrDerivedValues($rowByTech);
-
                 $blockId = $this->getMergedAwareCellValue($sheet, $r, 4, $mergeMap);
                 $blockTitle = $this->getMergedAwareCellValue($sheet, $r, 2, $mergeMap);
                 $nameTemplate = $this->getMergedAwareCellValue($sheet, $r, 5, $mergeMap);
@@ -388,7 +529,16 @@ class UppProductExcelService
                 $name = (string)$nameTemplate;
                 //$description = $this->renderTemplateString((string)$descTemplate, $rowByTech);
                 $description = (string)$descTemplate;
-                
+
+                // строка без наименования — не настоящий товар (легенда/шаблон/мусор
+                // в хвосте файла), пропускаем целиком: не создаём товар, не трогаем опции
+                if (trim($name) === '') {
+                    $skippedNoName++;
+                    continue;
+                }
+
+                $rowByTech = $this->enrichFrDerivedValues($rowByTech);
+
                 $hash = $this->makeFrHash($blockId, $blockTitle, $rowByTech);
 
                 $product = $this->findExistingFrProduct($templateId, $hash);
@@ -434,7 +584,8 @@ class UppProductExcelService
             'updated_products' => $updatedProducts,
             'updated_option_cells' => $updatedOptionCells,
             'created_product_ids_sample' => $createdIdsSample,
-            'mode' => 'FR',
+            'skipped_rows_no_name' => $skippedNoName,
+            'mode' => 'UPP',
             'upsert_key' => '$hashId',
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\TableSettings;
 
+use App\Models\TableSettings\ProductImportLog;
 use App\Models\TableSettings\Template;
 use App\Services\TableSettings\Excel\ProductExcelService;
 use Livewire\Component;
@@ -114,11 +115,17 @@ class ProductExcelImport extends Component
             return;
         }
 
+        if (!empty($this->plan['blocking_duplicates'] ?? [])) {
+            $this->error = "В файле есть повторяющиеся строки (одинаковый id/технические параметры). Исправьте файл и сделайте предпросмотр заново.";
+            return;
+        }
+
         try {
             $this->importResult = $svc->import(
                 path: $this->file->getRealPath(),
                 sheetName: $this->sheet,
-                templateId: $this->templateId
+                templateId: $this->templateId,
+                originalFileName: $this->file->getClientOriginalName(),
             );
         } catch (\Throwable $e) {
             $this->error = $e->getMessage();
@@ -134,6 +141,10 @@ class ProductExcelImport extends Component
     {
         return view('livewire.table-settings.product-excel-import', [
             'templates' => Template::query()->select(['id','name'])->orderBy('id')->get(),
+            'importLogs' => ProductImportLog::with(['template:id,name', 'user:id,name'])
+                ->latest()
+                ->limit(20)
+                ->get(),
         ]);
     }
 }

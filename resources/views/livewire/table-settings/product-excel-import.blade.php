@@ -62,7 +62,7 @@
                     </div>
 
                     <button wire:click="import" class="btn btn-success btn-sm w-100" wire:loading.attr="disabled"
-                        @if(empty($previewRows) || empty($plan)) disabled @endif>
+                        @if(empty($previewRows) || empty($plan) || !empty($plan['blocking_duplicates'] ?? [])) disabled @endif>
                         <i class="bi bi-cloud-upload me-1"></i>Импортировать (обновить по id)
                     </button>
 
@@ -89,6 +89,34 @@
                 <div class="card-body p-3">
 
                     @if(!empty($plan))
+
+                        @php($blockingDups = $plan['blocking_duplicates'] ?? [])
+                        @if(!empty($blockingDups))
+                        <div class="alert alert-danger py-2 small">
+                            <b><i class="bi bi-exclamation-octagon me-1"></i>Дубли внутри файла — импорт заблокирован:</b>
+                            <ul class="mb-0 mt-1">
+                                @foreach($blockingDups as $key => $rowNumbers)
+                                <li>{{ is_string($key) && strlen($key) > 16 ? 'hash '.substr($key, 0, 8).'…' : 'id='.$key }} — строки {{ implode(', ', $rowNumbers) }}</li>
+                                @endforeach
+                            </ul>
+                            <div class="mt-1">Несколько строк указывают на один и тот же товар. Исправьте файл и сделайте предпросмотр заново.</div>
+                        </div>
+                        @endif
+
+                        @php($fullScan = $plan['full_scan'] ?? [])
+                        @if(!empty($fullScan))
+                        <div class="p-3 bg-light rounded mb-3 small">
+                            <div class="fw-semibold mb-1">По всему файлу ({{ $fullScan['scanned_rows'] ?? 0 }} строк)</div>
+                            <div>Создать: <b>{{ $fullScan['to_create'] ?? 0 }}</b>@if(isset($fullScan['to_create_auto'])) (+{{ $fullScan['to_create_auto'] }} без id, auto)@endif</div>
+                            <div>Обновить: <b>{{ $fullScan['to_update'] ?? 0 }}</b></div>
+                            @if(!empty($fullScan['to_wrong_template']))
+                            <div class="text-danger">Пропустят (другой шаблон): <b>{{ $fullScan['to_wrong_template'] }}</b></div>
+                            @endif
+                            @if(!empty($fullScan['to_skip_no_name']))
+                            <div class="text-muted">Пропустят (нет наименования, не товар): <b>{{ $fullScan['to_skip_no_name'] }}</b></div>
+                            @endif
+                        </div>
+                        @endif
 
                         @php($dups = $plan['duplicates_in_excel'] ?? [])
                         @if(!empty($dups))
@@ -138,6 +166,56 @@
                             </div>
                         </div>
 
+                        @php($garbage = $plan['garbage'] ?? [])
+                        @if(!empty($garbage))
+                        <div class="p-3 bg-light rounded mt-3 small">
+                            <div class="fw-semibold mb-1"><i class="bi bi-recycle me-1"></i>Диагностика (не удаляется автоматически)</div>
+
+                            @php($orphanedOptions = $garbage['orphaned_options'] ?? [])
+                            @if(!empty($orphanedOptions))
+                            <div class="mt-2">
+                                <b>Опции в БД без колонки в файле:</b>
+                                <div class="text-muted">
+                                    @foreach($orphanedOptions as $o)
+                                        <div>{{ $o['name'] ?? '' }} ({{ $o['key'] ?? '' }}) — заполнено значений: {{ $o['non_empty_values'] ?? 0 }}</div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+
+                            @php($notInFileCount = $garbage['products_not_in_file_count'] ?? 0)
+                            @if($notInFileCount > 0)
+                            <div class="mt-2">
+                                <b>Товары шаблона, не затронутые этим файлом:</b> {{ $notInFileCount }}
+                                <details class="mt-1">
+                                    <summary class="text-muted">Показать примеры (до 20)</summary>
+                                    <div class="text-muted">
+                                        @foreach($garbage['products_not_in_file_sample'] ?? [] as $p)
+                                            <div>#{{ $p['id'] ?? '' }} — {{ $p['name'] ?? '' }}</div>
+                                        @endforeach
+                                    </div>
+                                </details>
+                            </div>
+                            @endif
+
+                            @php($dupHashDb = $garbage['duplicate_hash_groups_in_db'] ?? [])
+                            @if(!empty($dupHashDb))
+                            <div class="mt-2 text-danger">
+                                <b>Уже существующие в БД дубли (одинаковый hash):</b>
+                                <div>
+                                    @foreach($dupHashDb as $hash => $cnt)
+                                        <div>hash {{ substr((string)$hash, 0, 8) }}… — {{ $cnt }} товара(ов)</div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+
+                            @if(empty($orphanedOptions) && $notInFileCount === 0 && empty($dupHashDb))
+                            <div class="text-muted mt-2">Проблем не найдено.</div>
+                            @endif
+                        </div>
+                        @endif
+
                     @else
                     <div class="text-center text-muted py-4 small">
                         <i class="bi bi-arrow-left-circle fs-3 d-block mb-2"></i>
@@ -160,6 +238,15 @@
                         @endif
                         <div class="mt-1"><b>Обновлено товаров:</b> {{ $importResult['updated_products'] ?? 0 }}</div>
                         <div class="mt-1"><b>Обновлено значений опций (ячейки):</b> {{ $importResult['updated_option_cells'] ?? 0 }}</div>
+                        @if(!empty($importResult['skipped_rows_no_name']))
+                        <div class="mt-1 text-muted">Пропущено строк без наименования (не товар): {{ $importResult['skipped_rows_no_name'] }}</div>
+                        @endif
+                        @if(!empty($importResult['skipped_rows_wrong_template']))
+                        <div class="mt-1 text-danger">Пропущено строк (другой шаблон): {{ $importResult['skipped_rows_wrong_template'] }}</div>
+                        @endif
+                        @if(!empty($importResult['skipped_rows_no_name_on_create']))
+                        <div class="mt-1 text-muted">Пропущено строк без наименования при создании: {{ $importResult['skipped_rows_no_name_on_create'] }}</div>
+                        @endif
                     </div>
                     @endif
 
@@ -205,4 +292,55 @@
         </div>
     </div>
     @endif
+
+    {{-- История импортов --}}
+    <div class="card border-0 shadow-sm mt-3">
+        <div class="card-header bg-dark text-white py-2 px-3">
+            <span class="small fw-semibold"><i class="bi bi-clock-history me-1"></i>История импортов (последние 20)</span>
+        </div>
+        <div class="card-body p-0">
+            @if($importLogs->isEmpty())
+            <div class="text-center text-muted py-4 small">Импортов ещё не было.</div>
+            @else
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm align-middle mb-0" style="font-size:12px;">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th class="px-2 py-1">Дата</th>
+                            <th class="px-2 py-1">Пользователь</th>
+                            <th class="px-2 py-1">Шаблон</th>
+                            <th class="px-2 py-1">Файл</th>
+                            <th class="px-2 py-1">Статус</th>
+                            <th class="px-2 py-1">Итог</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($importLogs as $log)
+                        <tr class="@if($log->status === 'error') table-danger @endif">
+                            <td class="px-2 py-1">{{ $log->created_at?->format('d.m.Y H:i') }}</td>
+                            <td class="px-2 py-1">{{ $log->user?->name ?? '—' }}</td>
+                            <td class="px-2 py-1">{{ $log->template?->name ?? $log->template_id }}</td>
+                            <td class="px-2 py-1">{{ $log->file_name }}</td>
+                            <td class="px-2 py-1">{{ $log->status === 'success' ? 'Успешно' : 'Ошибка' }}</td>
+                            <td class="px-2 py-1">
+                                @if($log->status === 'error')
+                                    <span class="text-danger">{{ $log->error_message }}</span>
+                                @else
+                                    Создано: {{ $log->result['created_products'] ?? 0 }},
+                                    Обновлено: {{ $log->result['updated_products'] ?? 0 }},
+                                    Опций: {{ $log->result['updated_option_cells'] ?? 0 }}
+                                    <details class="mt-1">
+                                        <summary class="text-muted">Подробнее</summary>
+                                        <pre class="mb-0" style="white-space:pre-wrap;font-size:11px;">{{ json_encode($log->result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
+                                    </details>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
+        </div>
+    </div>
 </div>
