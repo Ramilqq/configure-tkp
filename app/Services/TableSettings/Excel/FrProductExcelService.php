@@ -1067,7 +1067,10 @@ class FrProductExcelService
         int $col,
         array $mergeMap = []
     ): mixed {
-        $value = $sheet->getCell([$col, $row])->getValue();
+        // getCalculatedValue(), а не getValue(): некоторые ячейки (например, цена)
+        // заданы формулой ("=89287+7872") — getValue() вернул бы саму формулу
+        // строкой, и (float)"=..." превращался бы в 0.
+        $value = $sheet->getCell([$col, $row])->getCalculatedValue();
 
         if ($value !== null && $value !== '') {
             return $value;
@@ -1077,7 +1080,7 @@ class FrProductExcelService
             $startCol = $mergeMap[$row][$col]['start_col'];
             $startRow = $mergeMap[$row][$col]['start_row'];
 
-            return $sheet->getCell([$startCol, $startRow])->getValue();
+            return $sheet->getCell([$startCol, $startRow])->getCalculatedValue();
         }
 
         return null;
