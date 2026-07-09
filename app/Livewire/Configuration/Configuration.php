@@ -2,19 +2,19 @@
 
 namespace App\Livewire\Configuration;
 
+use App\Enums\TemplateType;
 use App\Models\Configuration\Configuration as TkpConfiguration;
 use App\Models\Configuration\Node;
 use App\Models\Configuration\NodeGroup;
 use App\Models\TableSettings\Product;
 use App\Models\TableSettings\TemplateOption;
-use App\Models\Tkp\Engineering;
 use App\Models\Tkp\Tkp;
-use App\Services\BankRequest;
-use App\Services\ReplaceProduct;
+use App\Services\Configuration\SchemaProductAssembler;
+use App\Services\ProductSearch\ProductSearchStrategyFactory;
+use App\Services\ProductSearch\SearchDiagnosticsFormatter;
+use App\Services\ProductSearch\SearchStrategyInterface;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use App\Services\TableSettings\TemplatePriceRuleService;
-use App\Services\FrService\FrOptionsAppliedService;
 
 class Configuration extends Component
 {
@@ -56,45 +56,42 @@ class Configuration extends Component
         $this->message_success = '';
         $this->message_error = '';
 
-        $query = Product::query()->with('template')
-            ->with(['template.priceRules'])
-            ->with('productOption')
-            ->with('productOption.getName');
+        $assembler = app(SchemaProductAssembler::class);
 
-        $banks = new BankRequest();
-
-        $priceRules = app(TemplatePriceRuleService::class);
-        $frReplace = app(ReplaceProduct::class);
-        
         // поиск узла по свойствам фильтра
         foreach($this->saved_schema['nodes'] as $key => $node){
             if($node['id'] === $node_id){
 
-                if ($node['template_id'] != 1 && $node['template_id'] != 4) {
-                    
+                if (!TemplateType::isBlock($node['template_id'])) {
+
                     $this->saved_schema['nodes'][$key]['product'] = [
                         'manufacturer' => $this->getData['manufacturer'] ?? '',
                         'suplier' => $this->getData['suplier'] ?? '',
                         ''
                     ];
                     $this->saved_schema['nodes'][$key]['filter_fields'] = $this->getData;
-                    //dd($this->saved_schema, $this->getData);
                     $this->dispatch('saved_schema-updated');
                     break;
                 }
 
                 $category = $this->resolveStrategy($node['template_id']);
 
-                $query = $category->buildQuery($query, $this->getData);
+                $query = $category->buildQuery(
+                    Product::query()->with('template')
+                        ->with(['template.priceRules'])
+                        ->with('productOption')
+                        ->with('productOption.getName'),
+                    $this->getData
+                );
 
                 $productModel = $query->first();
-                
+
                 if (!$productModel) {
                     // если продукт не найден, выполняем диагностику по шагам и формируем сообщение об ошибке с детализацией
                     $steps = $category->diagnoseSearch($this->getData);
-                    
-                    $this->message_error = $this->formatFrSearchError($steps);
-                    
+
+                    $this->message_error = app(SearchDiagnosticsFormatter::class)->format($steps);
+
                     $this->dispatch(
                         $category->getEventMessage(),
                         message_success: $this->message_success,
@@ -103,59 +100,8 @@ class Configuration extends Component
 
                     return;
                 }
-                
-                // сохранение базовых цен
-                $basePrice = (float)$productModel->price;
-                $baseDelivery = (float)$productModel->delivery;
-                
-                // поиск выбранных опций
-                $optionsAppliedService = new (FrOptionsAppliedService::class);
-                $option_applied = $optionsAppliedService->apply($this->getData, $productModel->productOption, $productModel->productOptionPrice);
-                
-                // изменение цены от опции товара, наименования и описания
-                [$productModel->name,
-                $productModel->description,
-                $productModel->price,
-                $option_price_applied] = $frReplace->apply($productModel, $option_applied);
-                
-                // применение правила цены (автоматически по опциям продукта)
-                $calc = $priceRules->apply($productModel, $option_applied);
-                
-                // НЕ сохраняем модель, просто подменяем для вывода/схемы
-                //$productModel->price = $calc['price'];
-                //$productModel->delivery = $calc['delivery'];
-                $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
-                //dd($applied_rules);
-                // создание хэша по опциям, для количества одинаковых продуктов
-                $productModel->hash = $this->makeFrHash($option_applied + $applied_rules + ['manufacturer' => $this->getData['manufacturer'] ?? '']);
-                
-                // доп данные для ТКП
-                $productModel->discount = 0;
-                $productModel->text = '';
-                $productModel->sel_price_coef = 1;
-                $productModel->gen_contract_service = 0;
-                $productModel->costs_credit = 0;
-                $productModel->risk_reserve = 0;
-                $productModel->tzr_sel = 0;
-                $productModel->sub_work = 0;
-                $productModel->sub_item_price = 0;
-                $productModel->tzr_delivery = 0;
-                $productModel->biz_trips = 0;
-                $productModel->connection = 0;
 
-                // сохраняем данные
-                $product = $productModel->toArray();
-                $product['price_base'] = $basePrice;
-                $product['count'] = 1;
-                $product['manufacturer'] = $this->getData['manufacturer'] ?? '';
-                $product['delivery_base'] = $baseDelivery;
-                $product['option_price_applied'] = $option_price_applied;
-                $product['price_rules_applied'] = $applied_rules;
-                $product['option_applied'] = $option_applied;
-                $product['indicators_reliability'] =$this->getIndicatorsReliability();
-
-                if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
-                else $product['currency_val'] = $banks->getValue($product['currency']);
+                $product = $assembler->assembleForNode($productModel, $this->getData);
 
                 $this->saved_schema['nodes'][$key]['product_id'] = $product['id'];
                 $this->saved_schema['nodes'][$key]['product_name'] = $product['name'];
@@ -168,73 +114,16 @@ class Configuration extends Component
 
         // поиск подключения (кабеля) по свойствам фильтра
         foreach($this->saved_schema['connections'] as $key => $conn){
-            
+
             // если продукт уже найден по узлу, не ищем по подключению
             if (isset($productModel)) {break;}
 
             if($conn['params']['id'] === $conn_id){
 
                 $category = $this->resolveStrategy($conn['params']['template_id']);
-                
-                $productModel = new Product;
 
-                $productModel->id = 0;
-                $productModel->template_id = 0;
-                $productModel->name = $this->getData['name'];
-                $productModel->description = 'Длинна: '.$this->getData['length'] . 'м.';
-                $productModel->currency = 'RUB';
-                $productModel->price = $this->getData['price'];
-                $productModel->delivery = 0;
-                $productModel->engineering = $productModel->getEngineering();;
-                $productModel->drawing = '';
+                $product = $assembler->assembleForConnection($this->getData);
 
-                // доп данные для ТКП
-                $productModel->discount = 0;
-                $productModel->text = '';
-                $productModel->sel_price_coef = 1;
-                $productModel->gen_contract_service = 0;
-                $productModel->costs_credit = 0;
-                $productModel->risk_reserve = 0;
-                $productModel->tzr_sel = 0;
-                $productModel->sub_work = 0;
-                $productModel->sub_item_price = 0;
-                $productModel->tzr_delivery = 0;
-                $productModel->biz_trips = 0;
-                $productModel->connection = 0;
-
-                // --- применяем правила цены (автоматически по опциям продукта) ---
-                $basePrice = $productModel->price;
-                $baseDelivery = $productModel->delivery;
-
-                $calc = $priceRules->apply($productModel);
-
-                // НЕ сохраняем, просто подменяем для вывода/схемы
-                $productModel->price = $calc['price'];
-                $productModel->delivery = $calc['delivery'];
-                $applied_rules = $calc['applied_rules'];    // список примененных правил для вывода в схеме или дальнейшем сохранении
-                $option_applied = $this->getData;
-                
-                // создание хэша по опциям, для количества одинаковых продуктов
-                $productModel->hash = $this->makeFrHash(
-                    $option_applied + $applied_rules 
-                    + ['manufacturer' => $this->getData['manufacturer']]
-                    + ['length' => $this->getData['length']]
-                     ?? ''
-                );
-
-
-                $product = $productModel->toArray();
-                
-                $product['price_base'] = $basePrice;
-                $product['count'] = 1;
-                $product['delivery_base'] = $baseDelivery;
-                $product['price_rules_applied'] = $calc['applied_rules'];
-                $product['option_applied'] = $option_applied;
-                $product['manufacturer'] = $this->getData['manufacturer'];
-
-                if ($product['currency'] == 'RUB') $product['currency_val'] = 1.0;
-                else $product['currency_val'] = $banks->getValue($product['currency']);
-                
                 $this->saved_schema['connections'][$key]['params']['product_id'] = $product['id'];
                 $this->saved_schema['connections'][$key]['params']['filter_fields'] = $this->getData;
                 $this->saved_schema['connections'][$key]['params']['product'] = $product;
@@ -242,8 +131,7 @@ class Configuration extends Component
                 break;
             }
         }
-        //dd($this->saved_schema, $this->getData, $node_id, $conn_id, $type);
-        unset($query);
+
         if(!isset($product)) return;
 
         $this->message_success = 'Продукт найден и применен: ' . $product['name'];
@@ -255,10 +143,9 @@ class Configuration extends Component
                 message_success: $this->message_success,
                 message_error: $this->message_error
             )->to($category->getView());
-        }  
+        }
 
         $this->dispatch('saved_schema-updated');
-        //dd($this->saved_schema, $this->getData);
     }
 
     public function deleteProduct($id)
@@ -315,11 +202,6 @@ class Configuration extends Component
         )->to($category->getView());
     }
     
-    private function makeFrHash(array $options): string
-    {
-        return md5(json_encode($options, JSON_UNESCAPED_UNICODE));
-    }
-
     public function syncModalDataBack($getData)
     {
         $this->getData = $getData;
@@ -438,78 +320,8 @@ class Configuration extends Component
         ]);
     }
 
-
-
-
-
-
-
-
-
-    private function formatFrSearchError(array $steps = []): string
+    private function resolveStrategy(int $template_id = 0): SearchStrategyInterface
     {
-        if (!$steps) return 'Нет данных для диагностики.';
-
-        $html = 'Продукт не найден.<br><br>';
-        $html .= 'Диагностика поиска:<br>';
-
-        foreach ($steps as $step) {
-            $html .= sprintf(
-                '%s (%s %s) — было: %d, осталось: %d%s<br>',
-                e($step['label']),
-                e($step['operator']),
-                e((string)$step['value']),
-                (int)$step['before'],
-                (int)$step['after'],
-                $step['failed'] ? ' ❌' : ''
-            );
-
-            if ($step['failed'] && !empty($step['available_values'])) {
-                $html .= 'Доступные значения у оставшихся товаров: '
-                    . e(implode(', ', $step['available_values']))
-                    . '<br>';
-            }
-        }
-
-        $failedStep = collect($steps)->firstWhere('failed', true);
-
-        if ($failedStep) {
-            $html .= '<br><b>Причина:</b> поиск обнулился на опции "'
-                . e($failedStep['label'])
-                . '".';
-        }
-
-        return $html;
-    }
-
-
-    public function getIndicatorsReliability()
-    {
-        return 
-        [
-            [
-                'group_name' => 'Показатели надежности',
-                'indicators' =>
-                    [
-                        ['name' => 'Средняя наработка на отказ, не менее', 'value' => '50000 часов'],
-                        ['name' => 'Среднее время ремонта, не более', 'value' => '20 минут'],
-                        ['name' => 'Срок службы, не менее', 'value' => '20 лет'],
-                        ['name' => 'Гарантийный срок эксплуатации', 'value' => '12 месяцев с момента ввода в эксплуатацию, но не более 18 месяцев с момента отгрузки оборудования'],
-                    ]
-            ]
-        ];
-    }
-
-
-
-
-    private function resolveStrategy(int $template_id = 0)
-    {
-        return match($template_id) {
-            1             => new \App\Services\ProductSearch\FrProductSearchStrategy($template_id),
-            4             => new \App\Services\ProductSearch\UppProductSearchStrategy($template_id),
-            0             => new \App\Services\ProductSearch\CableProductSearchStrategy($template_id),
-            default       => new \App\Services\ProductSearch\GenericProductSearchStrategy($template_id),
-        };
+        return app(ProductSearchStrategyFactory::class)->make($template_id);
     }
 }

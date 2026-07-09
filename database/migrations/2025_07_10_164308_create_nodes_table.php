@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('extra')->nullable()->default(NULL);
             $table->longText('image')->nullable()->default(NULL);
             $table->text('endpoints')->nullable()->default(NULL);
+            $table->json('label_fields')->nullable();
 
             $table->timestamps();
         });

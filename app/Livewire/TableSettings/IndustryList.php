@@ -3,38 +3,26 @@
 namespace App\Livewire\TableSettings;
 
 use App\Models\Tkp\Industry;
-use Livewire\Component;
-use Illuminate\Support\Facades\Cache;
-use Livewire\Attributes\On;
 
-class IndustryList extends Component
+class IndustryList extends BaseCrudList
 {
-    // обновляем список после редактирования
-    #[On('industryUpdateList')]
-    public function refreshList()
+    protected function modelClass(): string
     {
-        $this->render();
+        return Industry::class;
     }
-    // удаляем позицию
-    public function delete($id)
+
+    protected function viewName(): string
     {
-        // Проверка прав пользователя
-        $industry = Industry::find($id);
-        $this->authorize('delete', $industry);
-        
-        $industry->delete();
+        return 'livewire.table-settings.industry-list';
     }
-    // рендерим список с кэшированием
-    public function render()
+
+    protected function viewVariable(): string
     {
-        // Проверка прав пользователя
-        $industry = new Industry;
-        $this->authorize('view', $industry);
+        return 'industry';
+    }
 
-        $industry = Cache::remember('industry_list', now()->addHours(6), function () {
-            return Industry::all()->sortDesc();
-        });
-
-        return view('livewire.table-settings.industry-list', ['industry' => $industry]);
+    protected function updateEvent(): string
+    {
+        return 'industryUpdateList';
     }
 }

@@ -36,6 +36,36 @@ class NodeModal extends Component
         $this->form->dllAnchor($key);
     }
 
+    public function addLabelField()
+    {
+        $this->form->addLabelField();
+    }
+
+    public function dllLabelField($key)
+    {
+        $this->form->dllLabelField($key);
+    }
+
+    public function nudgeAnchorX($key, $delta)
+    {
+        $this->form->nudgeAnchorX($key, $delta);
+    }
+
+    public function nudgeLabelField($key, $axis, $delta)
+    {
+        $this->form->nudgeLabelField($key, $axis, $delta);
+    }
+
+    public function addLabelFieldOption($fieldKey)
+    {
+        $this->form->addLabelFieldOption($fieldKey);
+    }
+
+    public function dllLabelFieldOption($fieldKey, $optionKey)
+    {
+        $this->form->dllLabelFieldOption($fieldKey, $optionKey);
+    }
+
     public function saveForm()
     {
         //dd($this->form);

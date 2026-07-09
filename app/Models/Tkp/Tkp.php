@@ -89,14 +89,6 @@ class Tkp extends Model
             }
         });
 
-        static::saved(function () {
-            \Illuminate\Support\Facades\Cache::forget('tkp_list');
-        });
-
-        static::deleted(function () {
-            \Illuminate\Support\Facades\Cache::forget('tkp_list');
-        });
-
     }
 
     public function user(): Model

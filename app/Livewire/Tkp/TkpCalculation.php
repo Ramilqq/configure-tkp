@@ -7,7 +7,6 @@ use App\Models\Configuration\Configuration;
 use App\Models\Tkp\Engineering;
 use App\Models\Tkp\Tkp;
 use Livewire\Component;
-use Illuminate\Support\Facades\Cache;
 use PSpell\Config;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -161,9 +160,7 @@ class TkpCalculation extends Component
             $this->pay_params = $tkp->toArray()['pay_params'];
         }
 
-        $engineering = Cache::remember('engineering_list', now()->addHours(6), function () {
-            return Engineering::all()->sortDesc();
-        });
+        $engineering = Engineering::all();
 
         if ($engineering && !isset($configuration['saved_schema']['engineering'])) {
             $this->saved_schema['engineering'] = $engineering->pluck('price', 'key')->toArray();

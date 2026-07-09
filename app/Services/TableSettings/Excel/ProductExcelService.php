@@ -2,8 +2,8 @@
 
 namespace App\Services\TableSettings\Excel;
 
+use App\Enums\TemplateType;
 use App\Models\TableSettings\ProductImportLog;
-use App\Models\TableSettings\Template;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -22,26 +22,12 @@ class ProductExcelService
 
     public function exportData(int $templateId): StreamedResponse
     {
-        switch ($templateId) {
-            case 1:
-                return $this->fr->exportData($templateId);
-            case 4:
-                return $this->upp->exportData($templateId);
-            default:
-                return $this->generic->exportData($templateId);
-        }
+        return $this->serviceFor($templateId)->exportData($templateId);
     }
 
     public function preview(string $path, string $sheetName, int $templateId, int $limit = 10): array
     {
-        switch ($templateId) {
-            case 1:
-                return $this->fr->preview($path, $sheetName, $templateId, $limit);
-            case 4:
-                return $this->upp->preview($path, $sheetName, $templateId, $limit);
-            default:
-                return $this->generic->preview($path, $sheetName, $templateId, $limit);
-        }
+        return $this->serviceFor($templateId)->preview($path, $sheetName, $templateId, $limit);
     }
 
     /**
@@ -51,17 +37,7 @@ class ProductExcelService
     public function import(string $path, string $sheetName, int $templateId, ?string $originalFileName = null): array
     {
         try {
-            switch ($templateId) {
-                case 1:
-                    $result = $this->fr->import($path, $sheetName, $templateId);
-                    break;
-                case 4:
-                    $result = $this->upp->import($path, $sheetName, $templateId);
-                    break;
-                default:
-                    $result = $this->generic->import($path, $sheetName, $templateId);
-                    break;
-            }
+            $result = $this->serviceFor($templateId)->import($path, $sheetName, $templateId);
         } catch (\Throwable $e) {
             $this->logImport($templateId, $sheetName, $originalFileName, 'error', null, $e->getMessage());
             throw $e;
@@ -92,10 +68,12 @@ class ProductExcelService
         ]);
     }
 
-    private function isFrTemplate(int $templateId): bool
+    private function serviceFor(int $templateId): FrProductExcelService|UppProductExcelService|GenericProductExcelService
     {
-        return (int)$templateId === 1;
-        // или:
-        // return str_contains(mb_strtolower((string) Template::find($templateId)?->name), 'чрп');
+        return match (TemplateType::tryFromTemplateId($templateId)) {
+            TemplateType::Fr  => $this->fr,
+            TemplateType::Upp => $this->upp,
+            default           => $this->generic,
+        };
     }
 }

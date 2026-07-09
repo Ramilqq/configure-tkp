@@ -17,6 +17,11 @@ class Node extends Model
         'extra',
         'image',
         'endpoints',
+        'label_fields',
+    ];
+
+    protected $casts = [
+        'label_fields' => 'array',
     ];
 
     public function nodeGroup(): HasOne

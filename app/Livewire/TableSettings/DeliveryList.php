@@ -3,38 +3,26 @@
 namespace App\Livewire\TableSettings;
 
 use App\Models\Tkp\Delivery;
-use Livewire\Component;
-use Illuminate\Support\Facades\Cache;
-use Livewire\Attributes\On;
 
-class DeliveryList extends Component
+class DeliveryList extends BaseCrudList
 {
-    // обновляем список после редактирования
-    #[On('deliveryUpdateList')]
-    public function refreshList()
+    protected function modelClass(): string
     {
-        $this->render();
+        return Delivery::class;
     }
-    // удаляем позицию
-    public function delete($id)
-    {
-        // Проверка прав пользователя
-        $delivery = Delivery::find($id);
-        $this->authorize('delete', $delivery);
 
-        $delivery->delete();
+    protected function viewName(): string
+    {
+        return 'livewire.table-settings.delivery-list';
     }
-    // рендерим список с кэшированием
-    public function render()
+
+    protected function viewVariable(): string
     {
-        // Проверка прав пользователя
-        $delivery = new Delivery;
-        $this->authorize('view', $delivery);
+        return 'delivery';
+    }
 
-        $delivery = Cache::remember('delivery_list', now()->addHours(6), function () {
-            return Delivery::all()->sortDesc();
-        });
-
-        return view('livewire.table-settings.delivery-list', ['delivery' => $delivery]);
+    protected function updateEvent(): string
+    {
+        return 'deliveryUpdateList';
     }
 }

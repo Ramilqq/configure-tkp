@@ -3,38 +3,26 @@
 namespace App\Livewire\TableSettings;
 
 use App\Models\Tkp\ContractOwner;
-use Livewire\Component;
-use Illuminate\Support\Facades\Cache;
-use Livewire\Attributes\On;
 
-class ContractOwnerList extends Component
+class ContractOwnerList extends BaseCrudList
 {
-    // обновляем список после редактирования
-    #[On('contactOwnerUpdateList')]
-    public function refreshList()
+    protected function modelClass(): string
     {
-        $this->render();
+        return ContractOwner::class;
     }
-    // удаляем позицию
-    public function delete($id)
+
+    protected function viewName(): string
     {
-        // Проверка прав пользователя
-        $contactOwner = ContractOwner::find($id);
-        $this->authorize('delete', $contactOwner);
-        
-        $contactOwner->delete();
+        return 'livewire.table-settings.contract-owner-list';
     }
-    // рендерим список с кэшированием
-    public function render()
+
+    protected function viewVariable(): string
     {
-        // Проверка прав пользователя
-        $contactOwner = new ContractOwner;
-        $this->authorize('view', $contactOwner);
+        return 'contactOwner';
+    }
 
-        $contactOwner = Cache::remember('contract_owner_list', now()->addHours(6), function () {
-            return ContractOwner::all()->sortDesc();
-        });
-
-        return view('livewire.table-settings.contract-owner-list', ['contactOwner' => $contactOwner]);
+    protected function updateEvent(): string
+    {
+        return 'contactOwnerUpdateList';
     }
 }

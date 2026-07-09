@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\TemplateType;
 use App\Models\TableSettings\Product;
 use App\Models\TableSettings\ProductOption;
 use Illuminate\Support\Facades\Cache;
@@ -18,10 +19,10 @@ class ReplaceProduct
 
     public function apply(Product $product, $option_applied = []): array
     {
-        if ($product->template_id == 1) {
+        if (TemplateType::isFr($product->template_id)) {
             $this->fr($product, $option_applied);
         }
-        elseif ($product->template_id == 4) {
+        elseif (TemplateType::isUpp($product->template_id)) {
             $this->upp($product, $option_applied);
         }
         else {

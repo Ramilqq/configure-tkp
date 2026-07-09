@@ -100,19 +100,25 @@
                     <div class="col-4">
                         <div style="width: 100%; text-align: center;"><b>Общая информация</b></div>
 
-                        <div class="mb-3">
-                            <label for="modal-input1-fr" class="form-label">Название</label>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input1-fr" class="form-control" placeholder="Название или тип">
+                        <div id="modal-default-labels-fr" wire:ignore>
+                            <div class="mb-3">
+                                <label for="modal-input1-fr" class="form-label">Название</label>
+                                <div class="col-auto" style="margin-left:auto;">
+                                    <input type="text" id="modal-input1-fr" class="form-control" placeholder="Название или тип">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="modal-input2-fr" class="form-label">Дополнительно</label>
+                                <div class="col-auto" style="margin-left:auto;">
+                                    <input type="text" id="modal-input2-fr" class="form-control" placeholder="Дополнительно">
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="modal-input2-fr" class="form-label">Дополнительно</label>
-                            <div class="col-auto" style="margin-left:auto;">
-                                <input type="text" id="modal-input2-fr" class="form-control" placeholder="Дополнительно">
-                            </div>
-                        </div>
+                        {{-- динамические поля подписей узла (label_fields), заполняются из JS конфигуратора;
+                             wire:ignore — иначе обновления Livewire затирают вставленные JS-ом поля --}}
+                        <div id="modal-label-fields-fr" wire:ignore></div>
 
                         <div class="mb-3">
                             <label for="getData.manufacturer.fr" class="form-label">Завод изготовитель</label>

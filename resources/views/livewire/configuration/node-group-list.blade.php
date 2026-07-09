@@ -65,10 +65,10 @@
                                         @foreach($value['nodes'] as $node)
                                         <tr>
                                             <td class="text-muted">{{ $node['id'] }}</td>
-                                            <td class="fw-semibold">{{ $node['name'] }}</td>
+                                            <td class="fw-semibold">{{ $node['title'] }}</td>
                                             <td class="text-center">
                                                 @if(!empty($node['image']))
-                                                <img src="{{ $node['image'] }}" alt="{{ $node['name'] }}"
+                                                <img src="{{ $node['image'] }}" alt="{{ $node['title'] }}"
                                                     style="max-height:40px; max-width:80px; object-fit:contain;">
                                                 @else
                                                 <span class="text-muted small">—</span>

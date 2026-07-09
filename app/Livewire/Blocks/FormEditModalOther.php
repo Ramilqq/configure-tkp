@@ -31,6 +31,9 @@ class FormEditModalOther extends Component
     public function syncModalData($getData)
     {
         $this->getData = $getData;
+
+        // сигнал браузеру: данные модального окна загружены, можно снимать блокирующий оверлей
+        $this->dispatch('modal-sync-complete');
     }
 
     #[On('editModalOther.getMessage')]

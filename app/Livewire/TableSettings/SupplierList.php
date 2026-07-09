@@ -2,35 +2,27 @@
 
 namespace App\Livewire\TableSettings;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Models\Tkp\Supplier;
-use Illuminate\Support\Facades\Cache;
 
-class SupplierList extends Component
+class SupplierList extends BaseCrudList
 {
-    #[On('supplierUpdateList')]
-    public function refreshList()
+    protected function modelClass(): string
     {
-        $this->render();
+        return Supplier::class;
     }
 
-    public function delete($id)
+    protected function viewName(): string
     {
-        $supplier = Supplier::find($id);
-        $this->authorize('delete', $supplier);
-        $supplier->delete();
+        return 'livewire.table-settings.supplier-list';
     }
 
-    public function render()
+    protected function viewVariable(): string
     {
-        $supplier = new Supplier;
-        $this->authorize('view', $supplier);
+        return 'suppliers';
+    }
 
-        $suppliers = Cache::remember('supplier_list', now()->addHours(6), function () {
-            return Supplier::all()->sortDesc();
-        });
-
-        return view('livewire.table-settings.supplier-list', ['suppliers' => $suppliers]);
+    protected function updateEvent(): string
+    {
+        return 'supplierUpdateList';
     }
 }

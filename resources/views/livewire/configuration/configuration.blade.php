@@ -59,7 +59,7 @@
             .node-lable {
                 position: absolute;
                 top: 0px;
-                left: 50%;
+                left: 100%;
                 font-weight:bold;
                 line-height: 8px;
                 width: 50%;
@@ -81,6 +81,37 @@
                 word-break: break-word;
                 padding: 4px;
                 box-sizing: border-box;
+            }
+
+            /* настраиваемая подпись элемента (label_fields узла), позиция в % от элемента;
+               привязка по левому краю: точка X — начало текста, длинное значение растёт вправо
+               и не смещает настроенное положение */
+            .node-field-label {
+                position: absolute;
+                transform: translate(0, -50%);
+                font-weight: bold;
+                line-height: 1;
+                white-space: nowrap;
+                pointer-events: none;
+                font-size: 10px;
+            }
+
+            /* блокирующий оверлей: модальное окно ещё получает данные после открытия,
+               заполнять поля рано (снимается по событию modal-sync-complete) */
+            .modal-initializing .modal-content {
+                position: relative;
+            }
+            .modal-initializing .modal-content::after {
+                content: 'Загрузка данных…';
+                position: absolute;
+                inset: 0;
+                z-index: 1080;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                background: rgba(255, 255, 255, 0.65);
+                cursor: wait;
             }
 
             @media (hover: none) and (pointer: coarse) {
@@ -116,8 +147,13 @@
                 font-size: 10px;
             }
             
+            /* канвас «прилипает» при прокрутке страницы (длинная панель компонентов слева);
+               align-self: flex-start обязателен: иначе bootstrap-колонка растягивается
+               на всю высоту ряда и sticky не срабатывает */
             #canvas-wrapper {
-                position: relative;
+                position: sticky;
+                top: 10px;
+                align-self: flex-start;
                 overflow: visible;
             }
             .btn-moove-right {
@@ -239,12 +275,34 @@
         <livewire:blocks.form-edit-modal-cable />
 
 
-        <script>        
+        <script>
+            // типы шаблонов с особыми модальными окнами (см. App\Enums\TemplateType)
+            const TEMPLATE_ID_FR = {{ \App\Enums\TemplateType::Fr->value }};
+            const TEMPLATE_ID_UPP = {{ \App\Enums\TemplateType::Upp->value }};
+
             document.addEventListener('livewire:initialized', () => {
                 console.log('livewire:initialized');
-                
+
                 // создание компонента laravel
                 component = Livewire.getByName('configuration.configuration')[0];
+
+                // Блокировка модального окна на время загрузки данных после открытия:
+                // пока идёт цепочка обновлений Livewire, поля заполнять нельзя
+                function markModalInitializing(modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (!modal) return;
+                    modal.classList.add('modal-initializing');
+                    // страховка: если сигнал готовности не пришёл (ошибка на сервере), разблокировать через 8 секунд
+                    setTimeout(() => modal.classList.remove('modal-initializing'), 8000);
+                }
+                // сигнал готовности из syncModalData компонентов модальных окон
+                Livewire.on('modal-sync-complete', () => {
+                    document.querySelectorAll('.modal-initializing').forEach(m => m.classList.remove('modal-initializing'));
+                });
+                // при закрытии окна снимаем блокировку на случай, если пользователь закрыл его раньше
+                document.addEventListener('hidden.bs.modal', e => {
+                    if (e.target.classList) e.target.classList.remove('modal-initializing');
+                });
             
             
 
@@ -403,6 +461,38 @@
                     createNode(type, e.offsetX, e.offsetY);
                     positionUpdate();
                 });
+                // Текст одной подписи: значение может быть строкой или {type, value} для полей с вариантами типа
+                function labelFieldText(f, stored) {
+                    const isObj = stored !== null && typeof stored === 'object';
+                    const value = String((isObj ? stored.value : stored) ?? '').trim();
+                    if (value === '') return '';
+
+                    let format = f.format || '{value}';
+                    const options = f.options || [];
+                    if (options.length) {
+                        // шаблон из выбранного варианта типа (по названию), иначе из первого
+                        const opt = options.find(o => o.title === (isObj ? stored.type : null)) || options[0];
+                        format = opt.format || '{value}';
+                    }
+
+                    return format.replaceAll('{value}', value);
+                }
+                // HTML подписей узла: настраиваемые поля (label_fields) или, если их нет, название/дополнительно
+                function nodeLabelsHtml(settings, labelValues, labelName, labelExtra) {
+                    const fields = settings.label_fields || [];
+
+                    if (fields.length) {
+                        return fields.map(f => {
+                            const text = labelFieldText(f, labelValues?.[f.key]);
+                            if (text === '') return '';
+                            return `<span class="node-field-label" style="left:${f.x}%;top:${f.y}%;">${text}</span>`;
+                        }).join('');
+                    }
+
+                    const isTextBlock = settings.type === 'Tekstovyj_blok';
+                    const labelClass = isTextBlock ? 'node-lable-center' : 'node-lable';
+                    return `<div class="label ${labelClass}"><div>${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div></div>`;
+                }
                 // Создание нового узла
                 function createNode(type, x, y, savedId = null, savedName = "", savedExtra = "", n = null) {
                     const settings = nodeSettings.find(n => n.type === type);
@@ -419,21 +509,21 @@
                     node.style.top = y + "px";
                     const img = document.createElement("img");
                     img.src = settings.image;
-                    
+
                     const labelName = savedName || settings.defaultName;
                     const labelExtra = savedExtra || settings.defaultExtra;
-                    const isTextBlock = settings.type === 'Tekstovyj_blok';
-                    const labelClass = isTextBlock ? 'node-lable-center' : 'node-lable';
-                    node.innerHTML += `<!--div class="node-name">${settings.name}</div--><div class="label ${labelClass}"><div>${labelName}${labelExtra ? '<br/>'+labelExtra : ""}</div></div>`;
+                    const labelValues = n?.label_values || {};
+                    node.innerHTML += `<!--div class="node-name">${settings.name}</div-->` + nodeLabelsHtml(settings, labelValues, labelName, labelExtra);
                     node.appendChild(img);
 
                     node.dataset.name = labelName;
-                    node.dataset.extra = labelExtra;                
+                    node.dataset.extra = labelExtra;
                     node.dataset.group_id = node_group_id;
                     node.dataset.template_id = template_id;
+                    node.dataset.type = type;
                     
-                    // для ЧРП отельное окно. 1 = группа ЧРП, остальные - для остальных продуктов. В дальнейшем можно будет расширить
-                    if (template_id == 1) {
+                    // для ЧРП отельное окно, остальные - для остальных продуктов. В дальнейшем можно будет расширить
+                    if (template_id == TEMPLATE_ID_FR) {
                         // ПК: двойной клик / Мобильный: одиночный тап
                         const openModalFR = () => {
                             modalTarget = node;
@@ -441,15 +531,17 @@
                             modalId = id;
                             document.getElementById("modal-input1-fr").value = node.dataset.name;
                             document.getElementById("modal-input2-fr").value = node.dataset.extra;
+                            setupLabelFieldInputs('-fr', node);
                             document.getElementById("modal-title-node-fr").innerText = "Редактировать " + name;
                             Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
+                            markModalInitializing('editModalFR');
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalFR'));
                             modal.show();
                         };
                         node.addEventListener("dblclick", openModalFR);
                         addTapHandler(node, openModalFR);
                     // окно для UPP
-                    } else if (template_id == 4) {
+                    } else if (template_id == TEMPLATE_ID_UPP) {
                         // ПК: двойной клик / Мобильный: одиночный тап
                         const openModalUPP = () => {
                             modalTarget = node;
@@ -457,8 +549,10 @@
                             modalId = id;
                             document.getElementById("modal-input1-upp").value = node.dataset.name;
                             document.getElementById("modal-input2-upp").value = node.dataset.extra;
+                            setupLabelFieldInputs('-upp', node);
                             document.getElementById("modal-title-node-upp").innerText = "Редактировать " + name;
                             Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
+                            markModalInitializing('editModalUPP');
                             const modal = new window.bootstrap.Modal(document.getElementById('editModalUPP'));
                             modal.show();
                         };
@@ -473,8 +567,10 @@
                             modalId = id;
                             document.getElementById("modal-input1").value = node.dataset.name;
                             document.getElementById("modal-input2").value = node.dataset.extra;
+                            setupLabelFieldInputs('', node);
                             document.getElementById("modal-title-node").innerText = "Редактировать " + name;
                             Livewire.dispatch('updateFilter', { template_id: settings.template.id, node_id: id });
+                            markModalInitializing('editModal');
                             const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
                             modal.show();
                         };
@@ -514,6 +610,7 @@
                             y,
                             name: labelName,
                             extra: labelExtra,
+                            label_values: labelValues,
                             product_id: 0,
                             template_id: settings.template.id,
                             filter_fields: [],
@@ -573,46 +670,120 @@
 
                         Livewire.dispatch('updateFilter', { template_id: template_id, conn_id: conn_id });
 
+                        markModalInitializing('editModalCable');
                         const modal = new bootstrap.Modal(document.getElementById('editModalCable'));
                         modal.show();
                     });
 
                 });
+                // Суффикс id полей модального окна по шаблону узла ('' / '-fr' / '-upp')
+                function modalIdSuffix(template_id) {
+                    if (template_id == TEMPLATE_ID_FR) return '-fr';
+                    if (template_id == TEMPLATE_ID_UPP) return '-upp';
+                    return '';
+                }
+                // Заполнение динамических полей подписей в модальном окне узла.
+                // Если у типа узла заданы label_fields — показываем их и прячем название/дополнительно.
+                function setupLabelFieldInputs(suffix, node) {
+                    const container = document.getElementById('modal-label-fields' + suffix);
+                    const defaults = document.getElementById('modal-default-labels' + suffix);
+                    if (!container) return;
+
+                    const settings = nodeSettings.find(s => s.type === node.dataset.type) || {};
+                    const fields = settings.label_fields || [];
+
+                    if (!fields.length) {
+                        container.innerHTML = '';
+                        if (defaults) defaults.style.display = '';
+                        return;
+                    }
+
+                    if (defaults) defaults.style.display = 'none';
+
+                    const nodeInSchema = savedSchema.nodes.find(n => n.id === node.id);
+                    const values = nodeInSchema?.label_values || {};
+
+                    container.innerHTML = fields.map(f => {
+                        const stored = values[f.key];
+                        const isObj = stored !== null && typeof stored === 'object';
+                        const value = String((isObj ? stored?.value : stored) ?? '').replaceAll('"', '&quot;');
+                        const options = f.options || [];
+
+                        // поле с вариантами типа: селект типа + значение
+                        if (options.length) {
+                            const selectedType = isObj ? stored.type : null;
+                            const optionsHtml = options.map(o =>
+                                `<option value="${String(o.title).replaceAll('"', '&quot;')}" ${o.title === selectedType ? 'selected' : ''}>${o.title}</option>`
+                            ).join('');
+
+                            return `
+                                <div class="mb-3">
+                                    <label class="form-label">${f.title}</label>
+                                    <div class="input-group">
+                                        <select class="form-select modal-label-field-type" data-key="${f.key}">${optionsHtml}</select>
+                                        <input type="text" class="form-control modal-label-field" data-key="${f.key}"
+                                            placeholder="Значение" value="${value}">
+                                    </div>
+                                </div>`;
+                        }
+
+                        return `
+                            <div class="mb-3">
+                                <label class="form-label">${f.title}</label>
+                                <div class="col-auto" style="margin-left:auto;">
+                                    <input type="text" class="form-control modal-label-field" data-key="${f.key}"
+                                        placeholder="${(f.format || '{value}').replaceAll('{value}', '…')}"
+                                        value="${value}">
+                                </div>
+                            </div>`;
+                    }).join('');
+                }
                 // Сохранение изменений модального окна
                 function saveModal() {
-                    
+
                     if (modalType === "node" && modalTarget) {
                         const group_id = modalTarget.dataset.group_id;
                         const template_id = modalTarget.dataset.template_id;
-                        let val1 = "";
-                        let val2 = "";
-
-                        // для чрп получаем значение доп полей
-                        if (template_id == 1) {
-                            val1 = document.getElementById("modal-input1-fr").value;
-                            val2 = document.getElementById("modal-input2-fr").value;
-                        }
-                        // для упп получаем значение доп полей
-                        else if (template_id == 4) {
-                            val1 = document.getElementById("modal-input1-upp").value;
-                            val2 = document.getElementById("modal-input2-upp").value;
-                        }
-                        // для остальных продуктов получаем значение доп полей
-                        else {
-                            val1 = document.getElementById("modal-input1").value;
-                            val2 = document.getElementById("modal-input2").value;
-                        }
-
-                        modalTarget.dataset.name = val1;
-                        modalTarget.dataset.extra = val2;
-                        const label = modalTarget.querySelector(".label");
-                        if (label) label.innerHTML = '<div>'+val1 + (val2 ? '<br/>' + `${val2}` : "")+'</div>';
+                        const suffix = modalIdSuffix(template_id);
+                        const settings = nodeSettings.find(s => s.type === modalTarget.dataset.type) || {};
                         const nodeInSchema = savedSchema.nodes.find(n => n.id === modalTarget.id);
-                        if (nodeInSchema) {
-                            nodeInSchema.name = val1;
-                            nodeInSchema.extra = val2;
+
+                        const val1 = document.getElementById("modal-input1" + suffix).value;
+                        const val2 = document.getElementById("modal-input2" + suffix).value;
+
+                        if ((settings.label_fields || []).length) {
+                            // настраиваемые подписи: собираем значения по ключам полей;
+                            // для полей с вариантами типа сохраняем объект {type, value}
+                            const container = document.getElementById('modal-label-fields' + suffix);
+                            const values = {};
+                            container.querySelectorAll('.modal-label-field').forEach(input => {
+                                const key = input.dataset.key;
+                                const typeSelect = container.querySelector(`.modal-label-field-type[data-key="${key}"]`);
+                                const value = input.value.trim();
+                                values[key] = typeSelect ? { type: typeSelect.value, value: value } : value;
+                            });
+
+                            if (nodeInSchema) nodeInSchema.label_values = values;
+
+                            modalTarget.querySelectorAll('.label, .node-field-label').forEach(el => el.remove());
+                            modalTarget.insertAdjacentHTML('beforeend',
+                                nodeLabelsHtml(settings, values, modalTarget.dataset.name, modalTarget.dataset.extra));
+                        } else {
+                            modalTarget.dataset.name = val1;
+                            modalTarget.dataset.extra = val2;
+                            const label = modalTarget.querySelector(".label");
+                            if (label) label.innerHTML = '<div>'+val1 + (val2 ? '<br/>' + `${val2}` : "")+'</div>';
+                            if (nodeInSchema) {
+                                nodeInSchema.name = val1;
+                                nodeInSchema.extra = val2;
+                            }
                         }
-                        
+
+                        // отправляем локальную схему на сервер тем же запросом, что и searchProduct
+                        // (deferred set): иначе сервер работает со старой копией, а обработчик
+                        // saved_schema-updated затем затирает введённые значения серверной версией
+                        component.set('saved_schema', savedSchema, false);
+
                         Livewire.dispatch('searchProduct', { node_id: modalTarget.id, type: 'nodes' });
                     }
                     if (modalType === "connection" && modalTarget) {

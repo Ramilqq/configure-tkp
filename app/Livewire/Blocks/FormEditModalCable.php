@@ -29,6 +29,9 @@ class FormEditModalCable extends Component
     public function syncModalData($getData)
     {
         $this->getData = $getData;
+
+        // сигнал браузеру: данные модального окна загружены, можно снимать блокирующий оверлей
+        $this->dispatch('modal-sync-complete');
     }
 
     #[On('editModalCable.getMessage')]

@@ -3,38 +3,26 @@
 namespace App\Livewire\TableSettings;
 
 use App\Models\Tkp\PaymentScheme;
-use Livewire\Component;
-use Illuminate\Support\Facades\Cache;
-use Livewire\Attributes\On;
 
-class PaymentSchemeList extends Component
+class PaymentSchemeList extends BaseCrudList
 {
-    // обновляем список после редактирования
-    #[On('paymentSchemeUpdateList')]
-    public function refreshList()
+    protected function modelClass(): string
     {
-        $this->render();
+        return PaymentScheme::class;
     }
-    // удаляем позицию
-    public function delete($id)
+
+    protected function viewName(): string
     {
-        // Проверка прав пользователя
-        $paymentScheme = PaymentScheme::find($id);
-        $this->authorize('delete', $paymentScheme);
-        
-        $paymentScheme->delete();
+        return 'livewire.table-settings.payment-scheme-list';
     }
-    // рендерим список с кэшированием
-    public function render()
+
+    protected function viewVariable(): string
     {
-        // Проверка прав пользователя
-        $paymentScheme = new PaymentScheme;
-        $this->authorize('view', $paymentScheme);
+        return 'paymentScheme';
+    }
 
-        $paymentScheme = Cache::remember('payment_scheme_list', now()->addHours(6), function () {
-            return PaymentScheme::all()->sortDesc();
-        });
-
-        return view('livewire.table-settings.payment-scheme-list', ['paymentScheme' => $paymentScheme]);
+    protected function updateEvent(): string
+    {
+        return 'paymentSchemeUpdateList';
     }
 }

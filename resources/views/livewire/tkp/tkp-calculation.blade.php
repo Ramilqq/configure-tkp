@@ -253,7 +253,7 @@
                             $fr_power_cell_bypass = false;
                             if (isset($saved_schema['nodes'])) {
                                 foreach($saved_schema['nodes'] as $nodes) {
-                                    if (isset($nodes['template_id']) && $nodes['template_id'] == 1) {
+                                    if (\App\Enums\TemplateType::isFr($nodes['template_id'] ?? null)) {
                                         
                                         if ($nodes['product']['option_applied']['ip']['value'] == '42' && !$fr_ip42) {
                                             $fr_ip42 = true;
@@ -393,11 +393,16 @@
     };
 
     // параметры расчёта
-    $reserve      = isset($pay_params['reserve']) ? floatval($pay_params['reserve']) : 0.0;
-    $marketing    = isset($pay_params['marketing']) ? floatval($pay_params['marketing']) : 0.0;
-    $marketing_cf = isset($pay_params['marketing_coef']) ? floatval($pay_params['marketing_coef']) : 0.0;
-    $nds_percent  = isset($pay_params['nds']) ? floatval($pay_params['nds']) : 0.0;
-
+    //$reserve      = isset($pay_params['reserve']) ? floatval($pay_params['reserve']) : 0.0;
+    //$marketing    = isset($pay_params['marketing']) ? floatval($pay_params['marketing']) : 0.0;
+    //$marketing_cf = isset($pay_params['marketing_coef']) ? floatval($pay_params['marketing_coef']) : 0.0;
+    //$nds_percent  = isset($pay_params['nds']) ? floatval($pay_params['nds']) : 0.0;
+    // параметры расчёта. в тестовом режими проверка работы
+    $reserve      = floatval($form->pay_params['reserve']);
+    $marketing    = floatval($form->pay_params['marketing']);
+    $marketing_cf = floatval($form->pay_params['marketing_coef']);
+    $nds_percent  = floatval($form->pay_params['nds']);
+    
     $rowIndex = 0;
 
     foreach(array_merge($nodes, $connections, $other) as $item) {
