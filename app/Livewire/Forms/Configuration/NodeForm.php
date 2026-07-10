@@ -189,6 +189,9 @@ class NodeForm extends Form
         if ($this->image_upload)
         {
             $this->image = 'data:image/jpg;base64,' . base64_encode(file_get_contents($this->image_upload->getRealPath()));
+            // пережимаем: картинка встраивается base64 в HTML конфигуратора,
+            // и файлы с мета-данными из редакторов раздувают страницу до десятков МБ
+            $this->image = app(\App\Services\Configuration\NodeImageCompressor::class)->compressDataUri($this->image);
         }
 
         // валидация данных
